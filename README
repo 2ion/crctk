@@ -1,4 +1,4 @@
-crctk v0.1-2a8babc
+crctk v0.1-6ba2833
 CRC32 Hexstring Toolkit
 Copyright (C) 2014 2ion (asterisk!2ion!de)
 Upstream: https://github.com/2ion/crctk
@@ -11,7 +11,6 @@ Options:
                    0xA: invalid argument
                    0xB: regex compilation error
                    0xC: unknown error
-
  -t Tag file with a CRC32 hexstring. Aborts if
     the filename does already contain a tag.
  -s Supplements -t: strip eventually existing tag

@@ -283,7 +283,7 @@ int main(int argc, char **argv) {
                         "                   EXIT_FAILURE: no match\n"
                         "                   0xA: invalid argument\n"
                         "                   0xB: regex compilation error\n"
-                        "                   0xC: unknown error\n\n"
+                        "                   0xC: unknown error\n"
                         " -t Tag file with a CRC32 hexstring. Aborts if\n"
                         "    the filename does already contain a tag.\n"
                         " -s Supplements -t: strip eventually existing tag\n"
