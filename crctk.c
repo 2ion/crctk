@@ -24,14 +24,15 @@
 #include <getopt.h>
 #include <regex.h>
 
-#define LERROR(status, errnum, ...) error_at_line((status), (errnum), (__func__), (__LINE__), __VA_ARGS__)
+#define LERROR(status, errnum, ...) error_at_line((status), (errnum), \
+        (__func__), (__LINE__), __VA_ARGS__)
 #ifndef VERSION
 #define VERSION "unknown"
 #endif
 
 const char *crcregex = "[[:xdigit:]]\\{8\\}";
-enum { ExitMatch = EXIT_SUCCESS, ExitNoMatch = EXIT_FAILURE, ExitArgumentError = 10,
-    ExitRegexError = 11, ExitUnknownError = 12};
+enum { ExitMatch = EXIT_SUCCESS, ExitNoMatch = EXIT_FAILURE,
+    ExitArgumentError = 10, ExitRegexError = 11, ExitUnknownError = 12};
 enum { CmdIdle, CmdCheck, CmdTag };
 enum { TAG_ALLOW_STRIP = 1 << 0 };
 
@@ -71,7 +72,8 @@ unsigned long computeCRC32( const char *filename )
   file_size = getFileSize(filename);
   
   if(file_size == 0 ) { 
-    LERROR(0, 0, "size of %s has been calculated to be 0. Cannot calculate CRC", filename);
+    LERROR(0, 0, "size of %s has been calculated to be 0. "
+            "Cannot calculate CRC", filename);
     return 0;
   }
   file_buffer = malloc(chunk_size);
@@ -108,13 +110,16 @@ void compile_regex(regex_t *regex, const char *regexpr, int cflags) {
     size_t regex_errbuf_size;
 
     if(regex == NULL || regexpr == NULL)
-        LERROR(ExitUnknownError, 0, "received at least one NULL argument.");
+        LERROR(ExitUnknownError, 0,
+                "received at least one NULL argument.");
     if((ci = regcomp(regex, regexpr, cflags)) != 0) {
         regex_errbuf_size = regerror(ci, regex, NULL, 0);
         regex_errbuf = malloc(regex_errbuf_size);
         regerror(ci, regex, regex_errbuf, regex_errbuf_size);
         if(regex_errbuf == NULL)
-            LERROR(ExitRegexError, 0, "regex error: failed to allocate memory for the regex error message.");
+            LERROR(ExitRegexError, 0,
+                    "regex error: failed to allocate memory "
+                    "for the regex error message.");
         LERROR(ExitRegexError, 0, "%s", regex_errbuf);
     }
 }
@@ -136,7 +141,8 @@ int command_check(const char *filename) {
     if(S_ISDIR(stbuf.st_mode))
         LERROR(ExitArgumentError, 0, "%s is a directory", filename);
     if((string = basename((char*)filename)) == NULL)
-        LERROR(ExitArgumentError, 0, "could not extract specified path's basename.");
+        LERROR(ExitArgumentError, 0,
+                "could not extract specified path's basename.");
 
     /* compile regex */
 
@@ -151,7 +157,8 @@ int command_check(const char *filename) {
             results[ti] = '\0';
             break;
         case REG_NOMATCH:
-            LERROR(ExitNoMatch, 0, "the filename does not contain a CRC32 hexstring.");
+            LERROR(ExitNoMatch, 0,
+                    "the filename does not contain a CRC32 hexstring.");
             return ExitNoMatch; // Not reached
     }
     regfree(&regex);
@@ -161,10 +168,12 @@ int command_check(const char *filename) {
     compcrc = computeCRC32(filename);
     matchcrc = (unsigned long) strtol(results, NULL, 16);
     if(compcrc != matchcrc) {
-        printf("mismatch: filename(%08lX) != computed(%08lX)\n", matchcrc, compcrc);
+        printf("mismatch: filename(%08lX) != computed(%08lX)\n",
+                matchcrc, compcrc);
         return ExitNoMatch;
     } else {
-        printf("match: filename(%08lX) == computed(%08lX)\n", matchcrc, compcrc);
+        printf("match: filename(%08lX) == computed(%08lX)\n",
+                matchcrc, compcrc);
         return ExitMatch;
     }
 }
@@ -188,17 +197,23 @@ int command_tag(const char *filename, int flags) {
     if(S_ISDIR(stbuf.st_mode))
         LERROR(ExitArgumentError, 0, "%s is a directory", filename);
     if((string = basename((char*)filename)) == NULL)
-        LERROR(ExitArgumentError, 0, "could not extract specified path's basename.");
+        LERROR(ExitArgumentError, 0,
+                "could not extract specified path's basename.");
 
     compile_regex(&regex, crcregex, REG_ICASE | REG_NOSUB);
     if(regexec(&regex, string, 0, 0, 0) == 0) {
         if ((flags & TAG_ALLOW_STRIP) == TAG_ALLOW_STRIP) {
             // strip old CRC hexstring
             regfree(&regex);
-            compile_regex(&regex, "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?", REG_ICASE);
+            compile_regex(&regex,
+                    "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?",
+                    REG_ICASE);
             if(regexec(&regex, string, 1, &rmatch, 0) == REG_NOMATCH)
-                LERROR(ExitRegexError, 0, "a regex that should have matched didn't match. Escaping ...");
-            workstring = malloc((strlen(string) + 1 - (rmatch.rm_eo - rmatch.rm_so)) * sizeof(char));
+                LERROR(ExitRegexError, 0,
+                        "a regex that should have matched didn't match."
+                        " Escaping ...");
+            workstring = malloc((strlen(string) + 1 -
+                        (rmatch.rm_eo - rmatch.rm_so)) * sizeof(char));
             if(workstring == NULL)
                 LERROR(ExitUnknownError, 0, "memory allocation error");
             for(p = string, q = &string[rmatch.rm_so], i=0;
@@ -208,7 +223,9 @@ int command_tag(const char *filename, int flags) {
                 workstring[i++] = *p;
             workstring[i] = '\0';
         } else {
-            LERROR(EXIT_FAILURE,0,"filename already contains a CRC hexstring. Specify the -s flag to allow stripping the old hexstring.");
+            LERROR(EXIT_FAILURE, 0,
+                    "filename already contains a CRC hexstring. Specify "
+                    "the -s flag to allow stripping the old hexstring.");
         }
     }
     regfree(&regex);
@@ -298,7 +315,9 @@ int main(int argc, char **argv) {
         }
     }
     if(optind >= argc)
-        LERROR(ExitArgumentError, 0, "too few arguments. Use the -h flag to obtain usage information.");
+        LERROR(ExitArgumentError, 0,
+                "too few arguments. Use the -h flag "
+                "to obtain usage information.");
     switch(cmd) {
         case CmdIdle:
             puts("No command flag set.");
