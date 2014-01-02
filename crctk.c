@@ -1,5 +1,5 @@
 /*
- * crctk - tool for managing files tagged with a CRC32 hexstring
+ * crctk - CRC32 Hexstring Toolkit
  * Written by Jens Oliver John <asterisk!2ion!de>
  *
  * The CRC32 computer is based on code by elektron, formerly available
@@ -25,6 +25,9 @@
 #include <regex.h>
 
 #define LERROR(status, errnum, ...) error_at_line((status), (errnum), (__func__), (__LINE__), __VA_ARGS__)
+#ifndef VERSION
+#define VERSION "unknown"
+#endif
 
 const char *crcregex = "[[:xdigit:]]\\{8\\}";
 enum { ExitMatch = EXIT_SUCCESS, ExitNoMatch = EXIT_FAILURE, ExitArgumentError = 10,
@@ -37,11 +40,6 @@ static unsigned long computeCRC32(const char*);
 static int command_check(const char*);
 static int command_tag(const char*,int);
 static inline void compile_regex(regex_t*, const char*, int);
-void usage(void);
-
-void usage(void) {
-    puts("Usage: ");
-}
 
 unsigned long getFileSize(const char *filename) {
   FILE *input_file;
@@ -273,7 +271,25 @@ int main(int argc, char **argv) {
                 cmd = CmdTag;
                 break;
             case 'h':
-                usage();
+                puts("crctk v" VERSION "\n"
+                        "CRC32 hexstring toolkit\n"
+                        "Copyright (C) 2014 2ion (asterisk!2ion!de)\n"
+                        "Upstream: https://github.com/2ion/crctk"
+                        "Usage: crctk [-hstc] <file>\n"
+                        "Options:\n"
+                        " -c Compute CRC32 and compare with the hexstring\n"
+                        "    Return values: EXIT_SUCCESS: match\n"
+                        "                   EXIT_FAILURE: no match\n"
+                        "                   0xA: invalid argument\n"
+                        "                   0xB: regex compilation error\n"
+                        "                   0xC: unknown error\n\n"
+                        " -t Tag a file with a CRC32 hexstring. Aborts if\n"
+                        "    the filename contains a tag.\n"
+                        " -s Supplements -t: strip eventually existing tag\n"
+                        "    Return values: EXIT_SUCCESS: success\n"
+                        "                   EXIT_FAILURE: generic failure\n"
+                        "                   Rest as above.\n"
+                        " -h Print this message and exit successfully.");
                 return EXIT_SUCCESS;
             default:
                 LERROR(ExitArgumentError, 0, "unknown option: %c", opt);
