@@ -274,7 +274,7 @@ int main(int argc, char **argv) {
                 puts("crctk v" VERSION "\n"
                         "CRC32 Hexstring Toolkit\n"
                         "Copyright (C) 2014 2ion (asterisk!2ion!de)\n"
-                        "Upstream: https://github.com/2ion/crctk"
+                        "Upstream: https://github.com/2ion/crctk\n"
                         "Usage: crctk [-hstc] <file>\n"
                         "Options:\n"
                         " -c Compute CRC32 and compare with the hexstring\n"
