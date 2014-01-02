@@ -1,7 +1,8 @@
-crctk v0.1-b751287
+crctk v0.1-2a8babc
 CRC32 Hexstring Toolkit
 Copyright (C) 2014 2ion (asterisk!2ion!de)
-Upstream: https://github.com/2ion/crctkUsage: crctk [-hstc] <file>
+Upstream: https://github.com/2ion/crctk
+Usage: crctk [-hstc] <file>
 Options:
  -c Compute CRC32 and compare with the hexstring
     in the supplied filename.
