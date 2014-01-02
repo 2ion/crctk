@@ -32,7 +32,7 @@
 const char *crcregex = "[[:xdigit:]]\\{8\\}";
 enum { ExitMatch = EXIT_SUCCESS, ExitNoMatch = EXIT_FAILURE, ExitArgumentError = 10,
     ExitRegexError = 11, ExitUnknownError = 12};
-enum { CmdCheck, CmdTag };
+enum { CmdIdle, CmdCheck, CmdTag };
 enum { TAG_ALLOW_STRIP = 1 << 0 };
 
 static unsigned long getFileSize(const char*);
@@ -256,7 +256,7 @@ int command_tag(const char *filename, int flags) {
 
 int main(int argc, char **argv) {
     int opt;
-    int cmd = CmdCheck;
+    int cmd = CmdIdle;
     int cmd_tag_flags = 0;
 
     while((opt = getopt(argc, argv, "+tchs")) != -1) {
@@ -300,10 +300,13 @@ int main(int argc, char **argv) {
     if(optind >= argc)
         LERROR(ExitArgumentError, 0, "too few arguments. Use the -h flag to obtain usage information.");
     switch(cmd) {
+        case CmdIdle:
+            puts("No command flag set.");
+            break;
         case CmdCheck:
             return command_check(argv[argc-1]);
         case CmdTag:
             return command_tag(argv[argc-1], cmd_tag_flags);
     }
-    return EXIT_SUCCESS; // not reached
+    return EXIT_SUCCESS;
 }

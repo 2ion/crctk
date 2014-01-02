@@ -11,3 +11,9 @@ README: crctk
 
 clean:
 	-rm crctk README
+
+push:
+	git push github master --tags
+
+pull:
+	git pull github master --tags
