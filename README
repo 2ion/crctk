@@ -1,21 +1,20 @@
-==========================================
-crctk - CRC32 Hexstring Toolkit
-Copyright (C) 2014 2ion <asterisk!2ion!de>
-https://github.com/2ion/crctk
-==========================================
-
-Usage: crctk [-hstc] <file>
+crctk v0.1-b751287
+CRC32 Hexstring Toolkit
+Copyright (C) 2014 2ion (asterisk!2ion!de)
+Upstream: https://github.com/2ion/crctkUsage: crctk [-hstc] <file>
 Options:
  -c Compute CRC32 and compare with the hexstring
+    in the supplied filename.
     Return values: EXIT_SUCCESS: match
                    EXIT_FAILURE: no match
                    0xA: invalid argument
                    0xB: regex compilation error
                    0xC: unknown error
 
- -t Tag a file with a CRC32 hexstring. Aborts if
-    the filename contains a tag.
+ -t Tag file with a CRC32 hexstring. Aborts if
+    the filename does already contain a tag.
  -s Supplements -t: strip eventually existing tag
+    and compute a new CRC32 hexstring.
     Return values: EXIT_SUCCESS: success
                    EXIT_FAILURE: generic failure
                    Rest as above.
