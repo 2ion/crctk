@@ -3,6 +3,7 @@ version ?= 0.1-$(shell git rev-parse --short HEAD)
 
 crctk: crctk.c
 	gcc -Wall -O3 -DVERSION=\"$(version)\" -o $@ $< -lz
+	strip $@
 
 README: crctk
 	./crctk -h > README

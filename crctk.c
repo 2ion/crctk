@@ -33,15 +33,16 @@
 const char *crcregex = "[[:xdigit:]]\\{8\\}";
 enum { ExitMatch = EXIT_SUCCESS, ExitNoMatch = EXIT_FAILURE,
     ExitArgumentError = 10, ExitRegexError = 11, ExitUnknownError = 12};
-enum { CmdIdle, CmdCheck, CmdTag };
+enum { CmdIdle, CmdCheck, CmdTag, CmdRmTag };
 enum { TAG_ALLOW_STRIP = 1 << 0 };
 
 static unsigned long getFileSize(const char*);
 static unsigned long computeCRC32(const char*);
 static int command_check(const char*);
 static int command_tag(const char*,int);
-static inline void check_access_flags(const char*, int, int);
-static inline void compile_regex(regex_t*, const char*, int);
+static void check_access_flags(const char*, int, int);
+static void compile_regex(regex_t*, const char*, int);
+static char* get_basename(char*);
 
 unsigned long getFileSize(const char *filename) {
   FILE *input_file;
@@ -212,6 +213,14 @@ char* strip_tag(const char *str) {
     return rstr;
 }
 
+char* get_basename(char *path) {
+    char *r;
+    if((r = basename(path)) == NULL)
+        LERROR(ExitArgumentError, 0,
+            "could not extract specified path's basename.");
+    return r;
+}
+
 int command_tag(const char *filename, int flags) {
     char *string;
     char *newstring;
@@ -223,11 +232,7 @@ int command_tag(const char *filename, int flags) {
     unsigned long crcsum;
 
     check_access_flags(filename, F_OK | R_OK | W_OK, 1);
-
-    if((string = basename((char*)filename)) == NULL)
-        LERROR(ExitArgumentError, 0,
-                "could not extract specified path's basename.");
-
+    string = get_basename((char*)filename);
     compile_regex(&regex, crcregex, REG_ICASE | REG_NOSUB);
     if(regexec(&regex, string, 0, 0, 0) == 0) {
         if ((flags & TAG_ALLOW_STRIP) == TAG_ALLOW_STRIP) {
@@ -284,13 +289,21 @@ int command_tag(const char *filename, int flags) {
     return EXIT_SUCCESS;
 }
 
+int command_remove_tag(const char *filename) {
+
+    return EXIT_SUCCESS;
+}
+
 int main(int argc, char **argv) {
     int opt;
     int cmd = CmdIdle;
     int cmd_tag_flags = 0;
 
-    while((opt = getopt(argc, argv, "+tchs")) != -1) {
+    while((opt = getopt(argc, argv, "+tchsr")) != -1) {
         switch(opt) {
+            case 'r':
+                cmd = CmdRmTag;
+                break;
             case 's':
                 cmd_tag_flags |= TAG_ALLOW_STRIP;
                 break;
@@ -321,6 +334,7 @@ int main(int argc, char **argv) {
                         "    Return values: EXIT_SUCCESS: success\n"
                         "                   EXIT_FAILURE: generic failure\n"
                         "                   Rest as above.\n"
+                        " -r If the file is tagged, remove the tag.\n"
                         " -h Print this message and exit successfully.");
                 return EXIT_SUCCESS;
             default:
@@ -339,6 +353,8 @@ int main(int argc, char **argv) {
             return command_check(argv[argc-1]);
         case CmdTag:
             return command_tag(argv[argc-1], cmd_tag_flags);
+        case CmdRmTag:
+            return command_remove_tag(argv[argc-1]);
     }
     return EXIT_SUCCESS;
 }
