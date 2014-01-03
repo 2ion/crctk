@@ -43,6 +43,7 @@ static int command_tag(const char*,int);
 static void check_access_flags(const char*, int, int);
 static void compile_regex(regex_t*, const char*, int);
 static char* get_basename(char*);
+static char* pathcat(const char*,const char*);
 
 unsigned long getFileSize(const char *filename) {
   FILE *input_file;
@@ -221,6 +222,17 @@ char* get_basename(char *path) {
     return r;
 }
 
+char* pathcat(const char *p, const char *s) {
+    char *r;
+    r = calloc(strlen(p) + strlen(s) + 2, sizeof(char));
+    if(r == NULL)
+        LERROR(ExitUnknownError, errno, "memory allocation error");
+    strcat(r, p);
+    strcat(r, "/");
+    strcat(r, s);
+    return r;
+}
+
 int command_tag(const char *filename, int flags) {
     char *string;
     char *newstring;
@@ -272,14 +284,8 @@ int command_tag(const char *filename, int flags) {
         strcat(newstring, tagstr);
     }
     r = strdup(dirname((char*)filename));
-    p = calloc(strlen(r) + strlen(string) + 2, sizeof(char));
-    strcat(p, r);
-    strcat(p, "/");
-    strcat(p, string);
-    q = calloc(strlen(r) + strlen(newstring) + 2, sizeof(char));
-    strcat(q, r);
-    strcat(q, "/");
-    strcat(q, newstring);
+    p = pathcat(r, string);
+    q = pathcat(r, newstring);
     if(rename((const char*) p, (const char*) q) != 0)
         LERROR(EXIT_FAILURE, errno, "failed call to rename()");
     free(p);
@@ -290,7 +296,21 @@ int command_tag(const char *filename, int flags) {
 }
 
 int command_remove_tag(const char *filename) {
+    char *str, *nstr, *p, *q;
+    const char *d;
 
+    check_access_flags(filename, F_OK | R_OK | W_OK, 1);
+    str = get_basename((char*)filename);
+    if((nstr = strip_tag((const char*) str)) == NULL)
+        LERROR(ExitArgumentError, 0, "%s does not contain an hexstring", filename);
+    d = (const char*) dirname((char*)filename);
+    p = pathcat(d, (const char*)str);
+    q = pathcat(d, (const char*)nstr);
+    if(rename((const char*) p, (const char*) q) != 0)
+        LERROR(EXIT_FAILURE, errno, "failed call to rename()");
+    free(p);
+    free(q);
+    free(nstr);
     return EXIT_SUCCESS;
 }
 
