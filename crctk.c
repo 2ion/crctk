@@ -187,6 +187,31 @@ void check_access_flags(const char *path, int access_flags, int notdir) {
     }
 }
 
+char* strip_tag(const char *str) {
+    regex_t regex;
+    regmatch_t rm;
+    const char *p, *q;
+    char *rstr;
+    int i;
+    
+    compile_regex(&regex, "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?",
+            REG_ICASE);
+    if(regexec(&regex, str, 1, &rm, 0) == REG_NOMATCH) {
+        // no tag in filename
+        regfree(&regex);
+        return NULL;
+    }
+    rstr = malloc((strlen(str)+1-(rm.rm_eo - rm.rm_so)) * sizeof(char));
+    if(rstr == NULL)
+        LERROR(ExitUnknownError, errno, "memory allocation error");
+    for(p = str, q = &str[rm.rm_so], i=0; p < q; ++p)
+        rstr[i++] = *p;
+    for(p = &str[rm.rm_eo]; *p; ++p)
+        rstr[i++] = *p;
+    rstr[i] = '\0';
+    return rstr;
+}
+
 int command_tag(const char *filename, int flags) {
     char *string;
     char *newstring;
@@ -195,7 +220,6 @@ int command_tag(const char *filename, int flags) {
     char *p, *q, *r;
     int i;
     regex_t regex;
-    regmatch_t rmatch;
     unsigned long crcsum;
 
     check_access_flags(filename, F_OK | R_OK | W_OK, 1);
@@ -207,29 +231,14 @@ int command_tag(const char *filename, int flags) {
     compile_regex(&regex, crcregex, REG_ICASE | REG_NOSUB);
     if(regexec(&regex, string, 0, 0, 0) == 0) {
         if ((flags & TAG_ALLOW_STRIP) == TAG_ALLOW_STRIP) {
-            // strip old CRC hexstring
-            regfree(&regex);
-            compile_regex(&regex,
-                    "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?",
-                    REG_ICASE);
-            if(regexec(&regex, string, 1, &rmatch, 0) == REG_NOMATCH)
-                LERROR(ExitRegexError, 0,
-                        "a regex that should have matched didn't match."
-                        " Escaping ...");
-            workstring = malloc((strlen(string) + 1 -
-                        (rmatch.rm_eo - rmatch.rm_so)) * sizeof(char));
+            workstring = strip_tag(string);
             if(workstring == NULL)
-                LERROR(ExitUnknownError, 0, "memory allocation error");
-            for(p = string, q = &string[rmatch.rm_so], i=0;
-                    p < q; ++p)
-                workstring[i++] = *p;
-            for(p = &string[rmatch.rm_eo]; *p; ++p)
-                workstring[i++] = *p;
-            workstring[i] = '\0';
+                LERROR(ExitUnknownError, 0,
+                        "strip_tag() failed for unknown reasons");
         } else {
             LERROR(EXIT_FAILURE, 0,
-                    "filename already contains a CRC hexstring. Specify "
-                    "the -s flag to allow stripping the old hexstring.");
+                "filename already contains a CRC hexstring. Specify "
+                "the -s flag to allow stripping the old hexstring.");
         }
     }
     regfree(&regex);
