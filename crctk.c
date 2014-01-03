@@ -40,6 +40,7 @@ static unsigned long getFileSize(const char*);
 static unsigned long computeCRC32(const char*);
 static int command_check(const char*);
 static int command_tag(const char*,int);
+static inline void check_access_flags(const char*, int, int);
 static inline void compile_regex(regex_t*, const char*, int);
 
 unsigned long getFileSize(const char *filename) {
@@ -130,16 +131,10 @@ int command_check(const char *filename) {
     unsigned long matchcrc;             
     char *string;                       
     char results[9];                    
-    struct stat stbuf;
     regmatch_t rmatch;                  
     regex_t regex;                      
 
-    if(access(filename, F_OK | R_OK) != 0)
-        LERROR(ExitArgumentError, errno, "%s", filename);
-    if(stat(filename, &stbuf) != 0)
-        LERROR(ExitArgumentError, errno, "%s", filename);
-    if(S_ISDIR(stbuf.st_mode))
-        LERROR(ExitArgumentError, 0, "%s is a directory", filename);
+    check_access_flags(filename, F_OK | R_OK, 1);
     if((string = basename((char*)filename)) == NULL)
         LERROR(ExitArgumentError, 0,
                 "could not extract specified path's basename.");
@@ -178,6 +173,20 @@ int command_check(const char *filename) {
     }
 }
 
+void check_access_flags(const char *path, int access_flags, int notdir) {
+    struct stat stbuf;
+
+    if(access(path, access_flags) != 0)
+        LERROR(ExitArgumentError, errno, "%s", path);
+    if(notdir == 1) {
+        if(stat(path, &stbuf) != 0)
+            LERROR(ExitUnknownError, errno, "%s", path);
+        else
+            if(S_ISDIR(stbuf.st_mode))
+                LERROR(ExitArgumentError, 0, "%s is a directory.", path);
+    }
+}
+
 int command_tag(const char *filename, int flags) {
     char *string;
     char *newstring;
@@ -188,14 +197,9 @@ int command_tag(const char *filename, int flags) {
     regex_t regex;
     regmatch_t rmatch;
     unsigned long crcsum;
-    struct stat stbuf;
 
-    if(access(filename, F_OK | R_OK) != 0)
-        LERROR(ExitArgumentError, errno, "%s", filename);
-    if(stat(filename, &stbuf) != 0)
-        LERROR(ExitArgumentError, errno, "%s", filename);
-    if(S_ISDIR(stbuf.st_mode))
-        LERROR(ExitArgumentError, 0, "%s is a directory", filename);
+    check_access_flags(filename, F_OK | R_OK | W_OK, 1);
+
     if((string = basename((char*)filename)) == NULL)
         LERROR(ExitArgumentError, 0,
                 "could not extract specified path's basename.");
