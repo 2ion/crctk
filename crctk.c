@@ -240,6 +240,7 @@ int command_tag(const char *filename, int flags) {
     char tagstr[11];
     char *p, *q, *r;
     int i;
+    int f_free_workstring = 0;
     regex_t regex;
     unsigned long crcsum;
 
@@ -252,6 +253,7 @@ int command_tag(const char *filename, int flags) {
             if(workstring == NULL)
                 LERROR(ExitUnknownError, 0,
                         "strip_tag() failed for unknown reasons");
+            f_free_workstring = 1;
         } else {
             LERROR(EXIT_FAILURE, 0,
                 "filename already contains a CRC hexstring. Specify "
@@ -290,7 +292,8 @@ int command_tag(const char *filename, int flags) {
         LERROR(EXIT_FAILURE, errno, "failed call to rename()");
     free(p);
     free(q);
-    free(workstring);
+    if(f_free_workstring == 1)
+        free(workstring);
     free(newstring);
     return EXIT_SUCCESS;
 }
