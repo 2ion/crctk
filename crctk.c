@@ -137,16 +137,8 @@ int command_check(const char *filename) {
     regex_t regex;                      
 
     check_access_flags(filename, F_OK | R_OK, 1);
-    if((string = basename((char*)filename)) == NULL)
-        LERROR(ExitArgumentError, 0,
-                "could not extract specified path's basename.");
-
-    /* compile regex */
-
+    string = get_basename((char*)filename);
     compile_regex(&regex, crcregex, REG_ICASE);
-
-    /* match CRC32 hexstrings */
-
     switch(regexec((const regex_t*) &regex, string, 1, &rmatch, 0)) {
         case 0:
             for(ci = rmatch.rm_so, ti = 0; ci < rmatch.rm_eo; ++ci)
@@ -159,9 +151,6 @@ int command_check(const char *filename) {
             return ExitNoMatch; // Not reached
     }
     regfree(&regex);
-
-    /* eval */
-
     compcrc = computeCRC32(filename);
     matchcrc = (unsigned long) strtol(results, NULL, 16);
     if(compcrc != matchcrc) {
@@ -261,7 +250,6 @@ int command_tag(const char *filename, int flags) {
         }
     }
     regfree(&regex);
-
     if(workstring == NULL)
         workstring = string;
     crcsum = computeCRC32(filename);
