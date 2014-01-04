@@ -61,17 +61,15 @@ unsigned long getFileSize(const char *filename) {
     return file_size;
 }
 
-unsigned long computeCRC32( const char *filename )
-{ 
-  int input_fd;
-  Bytef *file_buffer;
-  unsigned long file_size;
-  unsigned long chunk_size=1024;
-  uInt bytes_read;
-  unsigned long crc=0L;
+unsigned long computeCRC32(const char *filename) { 
+    int input_fd;
+    Bytef *file_buffer;
+    unsigned long file_size;
+    unsigned long chunk_size=1024;
+    uInt bytes_read;
+    unsigned long crc=0L;
   
     file_size = getFileSize(filename);
-    
     if(file_size == 0 ) { 
         LERROR(0, 0, "size of %s has been calculated to be 0. "
             "Cannot calculate CRC", filename);
