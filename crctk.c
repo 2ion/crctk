@@ -339,7 +339,7 @@ int main(int argc, char **argv) {
                         "CRC32 Hexstring Toolkit\n"
                         "Copyright (C) 2014 2ion (asterisk!2ion!de)\n"
                         "Upstream: https://github.com/2ion/crctk\n"
-                        "Usage: crctk [-hstc] <file>\n"
+                        "Usage: crctk [-hvcrtse] <file>\n"
                         "Options:\n"
                         " -v Compute CRC32 and compare with the hexstring\n"
                         "    in the supplied filename.\n"
