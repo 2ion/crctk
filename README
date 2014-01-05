@@ -4,13 +4,14 @@ Copyright (C) 2014 2ion (asterisk!2ion!de)
 Upstream: https://github.com/2ion/crctk
 Usage: crctk [-hstc] <file>
 Options:
- -c Compute CRC32 and compare with the hexstring
+ -v Compute CRC32 and compare with the hexstring
     in the supplied filename.
     Return values: EXIT_SUCCESS: match
                    EXIT_FAILURE: no match
                    0xA: invalid argument
                    0xB: regex compilation error
                    0xC: unknown error
+ -c Compute the CRC32 of the given file, print and exit.
  -t Tag file with a CRC32 hexstring. Aborts if
     the filename does already contain a tag.
  -s Supplements -t: strip eventually existing tag
