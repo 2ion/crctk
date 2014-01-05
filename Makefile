@@ -2,7 +2,7 @@ version ?= 0.1-$(shell git rev-parse --short HEAD)
 .PHONY: all
 
 crctk: crctk.c
-	gcc -Wall -O3 -DVERSION=\"$(version)\" -o $@ $< -lz
+	gcc -Wall -O3 -DVERSION=\"$(version)\" -o $@ $< -lz 
 	strip $@
 
 README: crctk

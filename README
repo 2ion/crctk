@@ -1,4 +1,4 @@
-crctk v0.1-4f9a06f
+crctk v0.1-215b43c
 CRC32 Hexstring Toolkit
 Copyright (C) 2014 2ion (asterisk!2ion!de)
 Upstream: https://github.com/2ion/crctk
@@ -18,4 +18,9 @@ Options:
     Return values: EXIT_SUCCESS: success
                    EXIT_FAILURE: generic failure
                    Rest as above.
+ -r If the file is tagged, remove the tag.
+ -e EXPR. Changes the regular expression used to
+    match tags when doing -s|-r to EXPR. Default:
+    [[:punct:]]\?[[:xdigit:]]\{8\}[[:punct:]]\?
  -h Print this message and exit successfully.
+

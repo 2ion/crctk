@@ -31,9 +31,10 @@
 #endif
 
 const char *crcregex = "[[:xdigit:]]\\{8\\}";
+const char *crcregex_stripper = "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?";
 enum { ExitMatch = EXIT_SUCCESS, ExitNoMatch = EXIT_FAILURE,
     ExitArgumentError = 10, ExitRegexError = 11, ExitUnknownError = 12};
-enum { CmdIdle, CmdCheck, CmdTag, CmdRmTag };
+enum { CmdIdle, CmdCheck, CmdTag, CmdRmTag, CmdCalc };
 enum { TAG_ALLOW_STRIP = 1 << 0 };
 
 static unsigned long getFileSize(const char*);
@@ -179,8 +180,7 @@ char* strip_tag(const char *str) {
     char *rstr;
     int i;
     
-    compile_regex(&regex, "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?",
-            REG_ICASE);
+    compile_regex(&regex, crcregex_stripper, REG_ICASE);
     if(regexec(&regex, str, 1, &rm, 0) == REG_NOMATCH) {
         // no tag in filename
         regfree(&regex);
@@ -214,6 +214,15 @@ char* pathcat(const char *p, const char *s) {
     strcat(r, "/");
     strcat(r, s);
     return r;
+}
+
+int command_calc(const char *filename) {
+    unsigned long crc;
+
+    check_access_flags(filename, F_OK | R_OK, 1);
+    crc = computeCRC32(filename);
+    printf("%s: %08lX\n", filename, crc);
+    return EXIT_SUCCESS;
 }
 
 int command_tag(const char *filename, int flags) {
@@ -304,15 +313,22 @@ int main(int argc, char **argv) {
     int cmd = CmdIdle;
     int cmd_tag_flags = 0;
 
-    while((opt = getopt(argc, argv, "+tchsr")) != -1) {
+    while((opt = getopt(argc, argv, "+tvhsrce:")) != -1) {
         switch(opt) {
+            case 'e':
+                crcregex_stripper = strdup(optarg);
+                puts(crcregex_stripper);
+                break;
+            case 'c':
+                cmd = CmdCalc;
+                break;
             case 'r':
                 cmd = CmdRmTag;
                 break;
             case 's':
                 cmd_tag_flags |= TAG_ALLOW_STRIP;
                 break;
-            case 'c':
+            case 'v':
                 cmd = CmdCheck;
                 break;
             case 't':
@@ -325,13 +341,14 @@ int main(int argc, char **argv) {
                         "Upstream: https://github.com/2ion/crctk\n"
                         "Usage: crctk [-hstc] <file>\n"
                         "Options:\n"
-                        " -c Compute CRC32 and compare with the hexstring\n"
+                        " -v Compute CRC32 and compare with the hexstring\n"
                         "    in the supplied filename.\n"
                         "    Return values: EXIT_SUCCESS: match\n"
                         "                   EXIT_FAILURE: no match\n"
                         "                   0xA: invalid argument\n"
                         "                   0xB: regex compilation error\n"
                         "                   0xC: unknown error\n"
+                        " -c Compute the CRC32 of the given file, print and exit.\n"
                         " -t Tag file with a CRC32 hexstring. Aborts if\n"
                         "    the filename does already contain a tag.\n"
                         " -s Supplements -t: strip eventually existing tag\n"
@@ -340,7 +357,10 @@ int main(int argc, char **argv) {
                         "                   EXIT_FAILURE: generic failure\n"
                         "                   Rest as above.\n"
                         " -r If the file is tagged, remove the tag.\n"
-                        " -h Print this message and exit successfully.");
+                        " -e EXPR. Changes the regular expression used to\n"
+                        "    match tags when doing -s|-r to EXPR. Default:\n"
+                        "    [[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?\n"
+                        " -h Print this message and exit successfully.\n");
                 return EXIT_SUCCESS;
             default:
                 LERROR(ExitArgumentError, 0, "unknown option: %c", opt);
@@ -351,6 +371,9 @@ int main(int argc, char **argv) {
                 "too few arguments. Use the -h flag "
                 "to obtain usage information.");
     switch(cmd) {
+        case CmdCalc:
+            return command_calc(argv[argc-1]);
+            break;
         case CmdIdle:
             puts("No command flag set.");
             break;
