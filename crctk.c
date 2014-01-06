@@ -12,17 +12,17 @@
 
 #include <errno.h>
 #include <error.h>
+#include <fcntl.h>
+#include <getopt.h>
+#include <libgen.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <zlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <libgen.h>
 #include <string.h>
-#include <getopt.h>
 #include <regex.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <zlib.h>
 
 #define LERROR(status, errnum, ...) error_at_line((status), (errnum), \
         (__func__), (__LINE__), __VA_ARGS__)
@@ -259,9 +259,9 @@ int command_tag(const char *filename, int flags) {
     if(crcsum == 0)
         LERROR(ExitUnknownError, 0, "The file's CRC sum is zero.");
     sprintf(tagstr, "[%08lX]", crcsum);
-    newstring = malloc(strlen(workstring) + 12*sizeof(char));
+    newstring = malloc((strlen(workstring) + 11)*sizeof(char));
     if((p = strrchr(workstring, '.')) != NULL) {
-        // has suffix
+        // has suffix: insert tag in front of suffix
         for(i=0, q=workstring; q != p; ++q)
             newstring[i++] = *q;
         newstring[i] = '\0';
@@ -272,7 +272,7 @@ int command_tag(const char *filename, int flags) {
             newstring[i++] = *p;
         newstring[i] = '\0';
     } else {
-        // no suffix
+        // no suffix: append tag
         strcat(newstring, workstring);
         strcat(newstring, tagstr);
     }
