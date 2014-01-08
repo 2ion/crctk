@@ -1,4 +1,4 @@
-version ?= 0.1-$(shell git rev-parse --short HEAD)
+version ?= 0.2-$(shell git rev-parse --short HEAD)
 .PHONY: all
 
 crctk: crctk.c
