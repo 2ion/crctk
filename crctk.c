@@ -360,10 +360,10 @@ int main(int argc, char **argv) {
                         " -e EXPR. Changes the regular expression used to\n"
                         "    match tags when doing -s|-r to EXPR. Default:\n"
                         "    [[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?\n"
-                        " -h Print this message and exit successfully.\n");
+                        " -h Print this message and exit successfully.");
                 return EXIT_SUCCESS;
             default:
-                LERROR(ExitArgumentError, 0, "unknown option: %c", opt);
+                return ExitArgumentError;
         }
     }
     if(optind >= argc)
