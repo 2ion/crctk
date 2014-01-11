@@ -1,6 +1,7 @@
 version_ ?= 0.2
 version = $(version_)-$(shell git rev-parse --short HEAD)
-.PHONY: clean push pull
+prefix ?= $(HOME)/bin
+.PHONY: clean push pull install uninstall
 
 crctk: crctk.c
 	gcc -Wall -O3 -DVERSION=\"$(version)\" -o $@ $< -lz 
@@ -21,3 +22,9 @@ push:
 pull:
 	git pull github master --tags
 
+install: crctk
+	install -m 700 -d $(prefix)
+	install -m 700 -t $(prefix) crctk
+
+uninstall:
+	-rm $(prefix)/crctk
