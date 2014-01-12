@@ -38,12 +38,13 @@ const char *crcregex_stripper = "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?
 const char *dbiofile = "crcsums.tdb";
 enum { ExitMatch = EXIT_SUCCESS, ExitNoMatch = EXIT_FAILURE,
     ExitArgumentError = 10, ExitRegexError = 11, ExitUnknownError = 12};
-enum { CmdIdle, CmdCheck, CmdTag, CmdRmTag, CmdCalc, CmdCalcBatch };
+enum { CmdIdle, CmdCheck, CmdTag, CmdRmTag, CmdCalc, CmdCalcBatch, CmdCheckBatch };
 enum { TAG_ALLOW_STRIP = 1 << 0 };
 
 static unsigned long getFileSize(const char*);
 static unsigned long computeCRC32(const char*);
 static int command_check(const char*);
+static int command_check_batch(void);
 static int command_tag(const char*,int);
 static int command_calc(const char*);
 static int command_calc_batch(int, char**,int);
@@ -164,6 +165,10 @@ int command_check(const char *filename) {
                 matchcrc, compcrc);
         return ExitMatch;
     }
+}
+
+int command_check_batch(void) {
+  return EXIT_SUCCESS;
 }
 
 void check_access_flags(const char *path, int access_flags, int notdir) {
@@ -372,8 +377,12 @@ int main(int argc, char **argv) {
     int cmd = CmdIdle;
     int cmd_tag_flags = 0;
 
-    while((opt = getopt(argc, argv, "+tvhsrCce:o:")) != -1) {
+    while((opt = getopt(argc, argv, "+tvV:hsrCce:o:")) != -1) {
         switch(opt) {
+            case 'V':
+                dbiofile = strdup(optarg);
+                cmd = CmdCheckBatch;
+                break;
             case 'o':
                 dbiofile = strdup(optarg);
                 break;
@@ -403,7 +412,7 @@ int main(int argc, char **argv) {
                         "CRC32 Hexstring Toolkit\n"
                         "Copyright (C) 2014 2ion (asterisk!2ion!de)\n"
                         "Upstream: https://github.com/2ion/crctk\n"
-                        "Usage: crctk [-hvcrtse] <file>\n"
+                        "Usage: crctk [-vVcCoptsreh] <file>|<file-list>\n"
                         "Options:\n"
                         " -v Compute CRC32 and compare with the hexstring\n"
                         "    in the supplied filename.\n"
@@ -412,10 +421,15 @@ int main(int argc, char **argv) {
                         "                   0xA: invalid argument\n"
                         "                   0xB: regex compilation error\n"
                         "                   0xC: unknown error\n"
+                        " -V FILE. Read checksums and filenames from a FILE\n"
+                        "    created by the -C option and check if the files\n"
+                        "    have the listed checksums.\n"
                         " -c Compute the CRC32 of the given file, print and exit.\n"
                         " -C for multiple input files, create a checksum listing\n"
                         "    for use with the -V option.\n"
                         " -o FILE. Supplements -o: write data to FILE.\n"
+                        " -p FILE. Print the contents of a file created by the -C\n"
+                        "    options to stdout.\n"
                         " -t Tag file with a CRC32 hexstring. Aborts if\n"
                         "    the filename does already contain a tag.\n"
                         " -s Supplements -t: strip eventually existing tag\n"

@@ -1,8 +1,8 @@
-crctk v0.1-1d31689
+crctk v0.2-99d2a9f
 CRC32 Hexstring Toolkit
 Copyright (C) 2014 2ion (asterisk!2ion!de)
 Upstream: https://github.com/2ion/crctk
-Usage: crctk [-hvcrtse] <file>
+Usage: crctk [-vVcCoptsreh] <file>|<file-list>
 Options:
  -v Compute CRC32 and compare with the hexstring
     in the supplied filename.
@@ -11,7 +11,15 @@ Options:
                    0xA: invalid argument
                    0xB: regex compilation error
                    0xC: unknown error
+ -V FILE. Read checksums and filenames from a FILE
+    created by the -C option and check if the files
+    have the listed checksums.
  -c Compute the CRC32 of the given file, print and exit.
+ -C for multiple input files, create a checksum listing
+    for use with the -V option.
+ -o FILE. Supplements -o: write data to FILE.
+ -p FILE. Print the contents of a file created by the -C
+    options to stdout.
  -t Tag file with a CRC32 hexstring. Aborts if
     the filename does already contain a tag.
  -s Supplements -t: strip eventually existing tag
@@ -24,4 +32,3 @@ Options:
     match tags when doing -s|-r to EXPR. Default:
     [[:punct:]]\?[[:xdigit:]]\{8\}[[:punct:]]\?
  -h Print this message and exit successfully.
-
