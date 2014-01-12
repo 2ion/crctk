@@ -1,4 +1,4 @@
-crctk v0.2-99d2a9f
+crctk v0.2-06de3c6
 CRC32 Hexstring Toolkit
 Copyright (C) 2014 2ion (asterisk!2ion!de)
 Upstream: https://github.com/2ion/crctk
@@ -17,7 +17,6 @@ Options:
  -c Compute the CRC32 of the given file, print and exit.
  -C for multiple input files, create a checksum listing
     for use with the -V option.
- -o FILE. Supplements -o: write data to FILE.
  -p FILE. Print the contents of a file created by the -C
     options to stdout.
  -t Tag file with a CRC32 hexstring. Aborts if
