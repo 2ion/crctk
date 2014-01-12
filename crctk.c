@@ -50,8 +50,9 @@ const char *crcregex = "[[:xdigit:]]\\{8\\}";
 const char *crcregex_stripper = "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?";
 const char *dbiofile = "crcsums.tdb";
 enum { ExitMatch = EXIT_SUCCESS, ExitNoMatch = EXIT_FAILURE,
-    ExitArgumentError = 10, ExitRegexError = 11, ExitUnknownError = 12};
-enum { CmdIdle, CmdCheck, CmdTag, CmdRmTag, CmdCalc, CmdCalcBatch, CmdCheckBatch };
+  ExitArgumentError = 10, ExitRegexError = 11, ExitUnknownError = 12};
+enum { CmdIdle, CmdCheck, CmdTag, CmdRmTag, CmdCalc, CmdCalcBatch, CmdCheckBatch,
+  CmdList };
 enum { TAG_ALLOW_STRIP = 1 << 0 };
 
 static unsigned long getFileSize(const char*);
@@ -442,14 +443,15 @@ int main(int argc, char **argv) {
     int cmd = CmdIdle;
     int cmd_tag_flags = 0;
 
-    while((opt = getopt(argc, argv, "+tvV:hsrCce:o:")) != -1) {
+    while((opt = getopt(argc, argv, "+tvV:hsrC:ce:p:")) != -1) {
         switch(opt) {
+            case 'p':
+                dbiofile = strdup(optarg);
+                cmd = CmdList;
+                break;
             case 'V':
                 dbiofile = strdup(optarg);
                 cmd = CmdCheckBatch;
-                break;
-            case 'o':
-                dbiofile = strdup(optarg);
                 break;
             case 'e':
                 crcregex_stripper = strdup(optarg);
@@ -458,6 +460,7 @@ int main(int argc, char **argv) {
                 cmd = CmdCalc;
                 break;
             case 'C':
+                dbiofile = strdup(optarg);
                 cmd = CmdCalcBatch;
                 break;
             case 'r':
@@ -492,7 +495,6 @@ int main(int argc, char **argv) {
                         " -c Compute the CRC32 of the given file, print and exit.\n"
                         " -C for multiple input files, create a checksum listing\n"
                         "    for use with the -V option.\n"
-                        " -o FILE. Supplements -o: write data to FILE.\n"
                         " -p FILE. Print the contents of a file created by the -C\n"
                         "    options to stdout.\n"
                         " -t Tag file with a CRC32 hexstring. Aborts if\n"
