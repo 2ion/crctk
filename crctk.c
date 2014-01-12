@@ -10,6 +10,8 @@
  * Thanks to elektron. 
  * */
 
+#include <assert.h>
+#include <cdb.h>
 #include <errno.h>
 #include <error.h>
 #include <fcntl.h>
@@ -21,6 +23,7 @@
 #include <regex.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 #include <zlib.h>
 
@@ -32,16 +35,20 @@
 
 const char *crcregex = "[[:xdigit:]]\\{8\\}";
 const char *crcregex_stripper = "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?";
+const char *dbiofile = "crcsums.tdb";
 enum { ExitMatch = EXIT_SUCCESS, ExitNoMatch = EXIT_FAILURE,
     ExitArgumentError = 10, ExitRegexError = 11, ExitUnknownError = 12};
-enum { CmdIdle, CmdCheck, CmdTag, CmdRmTag, CmdCalc };
+enum { CmdIdle, CmdCheck, CmdTag, CmdRmTag, CmdCalc, CmdCalcBatch };
 enum { TAG_ALLOW_STRIP = 1 << 0 };
 
 static unsigned long getFileSize(const char*);
 static unsigned long computeCRC32(const char*);
 static int command_check(const char*);
 static int command_tag(const char*,int);
+static int command_calc(const char*);
+static int command_calc_batch(int, char**,int);
 static void check_access_flags(const char*, int, int);
+static int check_access_flags_v(const char*, int, int);
 static void compile_regex(regex_t*, const char*, int);
 static char* get_basename(char*);
 static char* pathcat(const char*,const char*);
@@ -173,6 +180,22 @@ void check_access_flags(const char *path, int access_flags, int notdir) {
     }
 }
 
+int check_access_flags_v(const char *path, int access_flags, int notadir) {
+  struct stat stbuf;
+  
+  if(access(path, access_flags) != 0)
+    return -1;
+
+  if(notadir == 1) {
+    if(stat(path, &stbuf) != 0) {
+      LERROR(ExitUnknownError, errno,  "(unclean exit)");
+    } else
+      if(S_ISDIR(stbuf.st_mode))
+        return -1;
+  }
+  return 0;
+}
+
 char* strip_tag(const char *str) {
     regex_t regex;
     regmatch_t rm;
@@ -223,6 +246,42 @@ int command_calc(const char *filename) {
     crc = computeCRC32(filename);
     printf("%s: %08lX\n", filename, crc);
     return EXIT_SUCCESS;
+}
+
+int command_calc_batch(int argc, char **argv, int optind) {
+  int i, fd;
+  unsigned long crc;
+  struct cdb_make cdbm;
+  char *tmpfile = tempnam(".", "crctk_calc_batch");
+  assert(tmpfile != NULL);
+
+  if((fd = open(tmpfile, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR)) == -1)
+    LERROR(ExitUnknownError, errno, "couldn't create temporary file");
+  if((cdb_make_start(&cdbm, fd)) != 0)
+    LERROR(ExitUnknownError, 0, "couldn't initialize the cdb database");
+  for(i = optind; i < argc; ++i) {
+    if(check_access_flags_v(argv[i], F_OK | R_OK, 1) != 0) {
+      LERROR(0,0, "Ignoring inaccessible file: %s", argv[i]);
+      continue;
+    }
+    if((crc = computeCRC32(argv[i])) == 0) {
+      LERROR(0,0, "Ignoring file with a CRC32 of zero: %s", argv[i]);
+      continue;
+    }
+    cdb_make_put(&cdbm, argv[i], (strlen(argv[i])+1)*sizeof(char),
+        &crc, sizeof(crc), CDB_PUT_INSERT);
+  }
+  if(cdb_make_finish(&cdbm) != 0) {
+    LERROR(0, 0, "cdb_make_finish() failed");
+    close(fd);
+    free(tmpfile);
+    return ExitUnknownError;
+  }
+  close(fd);
+  if(rename((const char*) tmpfile, (const char*) dbiofile) != 0)
+    LERROR(EXIT_FAILURE, errno, "failed call to rename()");
+  free(tmpfile);
+  return EXIT_SUCCESS;
 }
 
 int command_tag(const char *filename, int flags) {
@@ -313,14 +372,19 @@ int main(int argc, char **argv) {
     int cmd = CmdIdle;
     int cmd_tag_flags = 0;
 
-    while((opt = getopt(argc, argv, "+tvhsrce:")) != -1) {
+    while((opt = getopt(argc, argv, "+tvhsrCce:o:")) != -1) {
         switch(opt) {
+            case 'o':
+                dbiofile = strdup(optarg);
+                break;
             case 'e':
                 crcregex_stripper = strdup(optarg);
-                puts(crcregex_stripper);
                 break;
             case 'c':
                 cmd = CmdCalc;
+                break;
+            case 'C':
+                cmd = CmdCalcBatch;
                 break;
             case 'r':
                 cmd = CmdRmTag;
@@ -349,6 +413,9 @@ int main(int argc, char **argv) {
                         "                   0xB: regex compilation error\n"
                         "                   0xC: unknown error\n"
                         " -c Compute the CRC32 of the given file, print and exit.\n"
+                        " -C for multiple input files, create a checksum listing\n"
+                        "    for use with the -V option.\n"
+                        " -o FILE. Supplements -o: write data to FILE.\n"
                         " -t Tag file with a CRC32 hexstring. Aborts if\n"
                         "    the filename does already contain a tag.\n"
                         " -s Supplements -t: strip eventually existing tag\n"
@@ -373,7 +440,9 @@ int main(int argc, char **argv) {
     switch(cmd) {
         case CmdCalc:
             return command_calc(argv[argc-1]);
-            break;
+        case CmdCalcBatch:
+            srand(time(NULL));
+            return command_calc_batch(argc, argv, optind);
         case CmdIdle:
             puts("No command flag set.");
             break;

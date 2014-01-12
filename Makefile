@@ -1,10 +1,12 @@
 version_ ?= 0.2
 version = $(version_)-$(shell git rev-parse --short HEAD)
 prefix ?= $(HOME)/bin
+cflags = $(shell pkg-config --cflags libcdb)
+ldflags = $(shell pkg-config --libs libcdb)
 .PHONY: clean push pull install uninstall
 
 crctk: crctk.c
-	gcc -Wall -O3 -DVERSION=\"$(version)\" -o $@ $< -lz 
+	gcc -Wall -O3 -DVERSION=\"$(version)\" $(cflags) -o $@ $< -lz $(ldflags)
 	strip $@
 
 README: crctk
