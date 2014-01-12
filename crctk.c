@@ -183,17 +183,12 @@ int command_check(const char *filename) {
 int command_check_batch(void) {
   struct cdb db;
   int fd;
-  unsigned up;
-  unsigned vpos;
-  unsigned vlen;
-  unsigned klen;
-  unsigned kpos;
   char kbuf[PATH_MAX];
+  unsigned kbuf_len = PATH_MAX;
   char *wkbuf = kbuf;
   int free_wkbuf = 0;
-  unsigned kbuf_len = PATH_MAX;
-  unsigned long vbuf;
-  unsigned long crc;
+  unsigned long vbuf, crc;
+  unsigned up, vpos, vlen, klen, kpos;
 
   check_access_flags(dbiofile, F_OK | R_OK, 1);
   if((fd = open(dbiofile, O_RDONLY)) == -1)
