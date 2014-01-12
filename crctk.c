@@ -181,6 +181,63 @@ int command_check(const char *filename) {
 }
 
 int command_check_batch(void) {
+  struct cdb db;
+  int fd;
+  unsigned up;
+  unsigned vpos;
+  unsigned vlen;
+  unsigned klen;
+  unsigned kpos;
+  char kbuf[PATH_MAX];
+  char *wkbuf = kbuf;
+  int free_wkbuf = 0;
+  unsigned kbuf_len = PATH_MAX;
+  unsigned long vbuf;
+  unsigned long crc;
+
+  check_access_flags(dbiofile, F_OK | R_OK, 1);
+  if((fd = open(dbiofile, O_RDONLY)) == -1)
+    LERROR(EXIT_FAILURE, errno, "could not open cdb file: %s", dbiofile);
+  if(cdb_init(&db, fd) != 0)
+    LERROR(EXIT_FAILURE, 0, "cdb_init() failed");
+  cdb_seqinit(&up, &db);
+  while(cdb_seqnext(&up, &db) > 0) {
+      vpos = cdb_datapos(&db);
+      vlen = cdb_datalen(&db);
+      kpos = cdb_keypos(&db);
+      klen = cdb_keylen(&db);
+      if(vlen > sizeof(unsigned long)) {
+        LERROR(0,0, "Skipping record with value size > sizeof(unsigned long)");
+        continue;
+      }
+      if(kbuf_len*sizeof(char)>klen) {
+        wkbuf = calloc(klen, sizeof(char));
+        free_wkbuf = 1;
+      }
+      if(cdb_read(&db, wkbuf, klen, kpos) != 0) {
+        LERROR(0,0, "Skipping current record because I failed to read the key");
+        continue;
+      }
+      if(cdb_read(&db, &vbuf, vlen, vpos) != 0) {
+        LERROR(0,0, "Skipping current record because I failed to read the data");
+        continue;
+      }
+      if(check_access_flags_v(wkbuf, F_OK | R_OK, 1) != 0) {
+        LERROR(0,0, "(%s) file %s doesn't exist or is inaccessible.",
+            dbiofile, wkbuf);
+        continue;
+      }
+      printf("%s[%08lX]: %s ... ", dbiofile, vbuf, wkbuf);
+      if((crc = computeCRC32(wkbuf)) == vbuf) {
+        printf("OK\n");
+      } else {
+        printf("FAILED (real: %08lX)\n", crc);
+      }
+  }
+  cdb_free(&db);
+  if(free_wkbuf == 1)
+    free(wkbuf);
+  close(fd);
   return EXIT_SUCCESS;
 }
 
@@ -460,7 +517,7 @@ int main(int argc, char **argv) {
                 return ExitArgumentError;
         }
     }
-    if(optind >= argc)
+    if(optind >= argc && cmd != CmdCheckBatch)
         LERROR(ExitArgumentError, 0,
                 "too few arguments. Use the -h flag "
                 "to obtain usage information.");
@@ -470,6 +527,8 @@ int main(int argc, char **argv) {
         case CmdCalcBatch:
             srand(time(NULL));
             return command_calc_batch(argc, argv, optind);
+        case CmdCheckBatch:
+            return command_check_batch();
         case CmdIdle:
             puts("No command flag set.");
             break;
