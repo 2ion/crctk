@@ -471,6 +471,11 @@ int command_remove_tag(const char *filename) {
     return EXIT_SUCCESS;
 }
 
+int command_list_db(void) {
+  puts("Not yet implemented.");
+  return EXIT_SUCCESS;
+}
+
 int main(int argc, char **argv) {
     int opt;
     int cmd = CmdIdle;
@@ -547,11 +552,13 @@ int main(int argc, char **argv) {
                 return ExitArgumentError;
         }
     }
-    if(optind >= argc && cmd != CmdCheckBatch)
+    if(optind >= argc && cmd != CmdCheckBatch && cmd != CmdList)
         LERROR(ExitArgumentError, 0,
                 "too few arguments. Use the -h flag "
                 "to obtain usage information.");
     switch(cmd) {
+        case CmdList:
+            return command_list_db();
         case CmdCalc:
             return command_calc(argv[argc-1]);
         case CmdCalcBatch:

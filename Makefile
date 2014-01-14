@@ -10,7 +10,7 @@ crctk: crctk.c
 	strip $@
 
 README: crctk README.head
-	cat README.head >> README
+	cat README.head > README
 	./crctk -h >> README
 
 packages/crctk-$(version_).tar.xz: crctk
