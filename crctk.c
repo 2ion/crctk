@@ -58,10 +58,11 @@ enum { TAG_ALLOW_STRIP = 1 << 0 };
 static unsigned long getFileSize(const char*);
 static unsigned long computeCRC32(const char*);
 static int command_check(const char*);
-static int command_check_batch(void);
+static int command_check_batch(int, char**, int);
+static int command_list_db(void);
 static int command_tag(const char*,int);
 static int command_calc(const char*);
-static int command_calc_batch(int, char**,int);
+static int command_calc_batch(int, char**, int);
 static void check_access_flags(const char*, int, int);
 static int check_access_flags_v(const char*, int, int);
 static void compile_regex(regex_t*, const char*, int);
@@ -181,13 +182,16 @@ int command_check(const char *filename) {
     }
 }
 
-int command_check_batch(void) {
+int command_check_batch(int argc, char **argv, int optind) {
   struct cdb db;
   int fd;
   char kbuf[PATH_MAX];
   unsigned kbuf_len = PATH_MAX;
   char *wkbuf = kbuf;
+  char *bnamedb;
+  char *bnameargv;
   int free_wkbuf = 0;
+  int i, iDone;
   unsigned long vbuf, crc;
   unsigned up, vpos, vlen, klen, kpos;
 
@@ -218,16 +222,45 @@ int command_check_batch(void) {
         LERROR(0,0, "Skipping current record because I failed to read the data");
         continue;
       }
-      if(check_access_flags_v(wkbuf, F_OK | R_OK, 1) != 0) {
-        LERROR(0,0, "(%s) file %s doesn't exist or is inaccessible.",
-            dbiofile, wkbuf);
-        continue;
-      }
-      printf("%s[%08lX]: %s ... ", dbiofile, vbuf, wkbuf);
-      if((crc = computeCRC32(wkbuf)) == vbuf) {
-        printf("OK\n");
+      if(optind < argc) { // we have arguments in argv to check the db entr against
+        bnamedb = basename(wkbuf);
+        for(iDone = 0, i = optind; i < argc; ++i) {
+          bnameargv = basename(argv[i]);
+          if(strcmp((const char*)bnamedb, (const char*)bnameargv) == 0) {
+            iDone = 1;
+            printf("%s[%08lX] pathspec matches argument #%d: %s ... ",
+                dbiofile, vbuf, i, bnameargv);
+            if(check_access_flags_v(bnameargv, F_OK | R_OK, 1) != 0) {
+              printf("FAILED (no read access)\n");
+              iDone = 0;
+              break;
+            }
+            if((crc = computeCRC32(bnameargv)) == vbuf) {
+              printf("OK\n");
+              break;
+            }
+            else {
+              printf("FAILED (real: %08lX)\n", crc);
+              iDone = 1;
+              break;
+            }
+          } // if
+        } // for
+        if(iDone == 0)
+          printf("%s: no matching argument in argv for database entry: %s\n",
+              dbiofile, wkbuf);
       } else {
-        printf("FAILED (real: %08lX)\n", crc);
+        // check if the stored path is still available
+        if(check_access_flags_v(wkbuf, F_OK | R_OK, 1) != 0) {
+          LERROR(0,0, "(%s) file %s doesn't exist or is inaccessible.",
+          dbiofile, wkbuf);
+          continue;
+        }
+        printf("%s[%08lX]: %s ... ", dbiofile, vbuf, wkbuf);
+        if((crc = computeCRC32(wkbuf)) == vbuf)
+          printf("OK\n");
+        else
+          printf("FAILED (real: %08lX)\n", crc);
       }
   }
   cdb_free(&db);
@@ -525,7 +558,7 @@ int main(int argc, char **argv) {
             srand(time(NULL));
             return command_calc_batch(argc, argv, optind);
         case CmdCheckBatch:
-            return command_check_batch();
+            return command_check_batch(argc, argv, optind);
         case CmdIdle:
             puts("No command flag set.");
             break;

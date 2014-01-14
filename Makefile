@@ -9,8 +9,9 @@ crctk: crctk.c
 	gcc -Wall -O3 -DVERSION=\"$(version)\" $(cflags) -o $@ $< -lz $(ldflags)
 	strip $@
 
-README: crctk
-	./crctk -h > README
+README: crctk README.head
+	cat README.head >> README
+	./crctk -h >> README
 
 packages/crctk-$(version_).tar.xz: crctk
 	git archive master | xz > packages/crctk-$(version_).tar.xz
