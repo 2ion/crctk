@@ -1,5 +1,10 @@
 version_ ?= 0.3
-version = $(version_)-$(shell git rev-parse --short HEAD)
+havegit=$(shell test -d .git &>/dev/null; echo $$?)
+ifeq ($(havegit), 0)
+	version = $(version_)-$(shell git rev-parse --short HEAD)
+else
+	version = $(version_)
+endif
 prefix ?= $(HOME)/bin
 cflags = $(shell pkg-config --cflags libcdb)
 ldflags = $(shell pkg-config --libs libcdb)
