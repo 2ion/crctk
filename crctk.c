@@ -441,10 +441,12 @@ int command_calc_batch(int argc, char **argv, int optind) {
       LERROR(0,0, "Ignoring inaccessible file: %s", argv[i]);
       continue;
     }
+    printf("*%s: <%s> ... ", dbiofile, argv[i]);
     if((crc = computeCRC32(argv[i])) == 0) {
-      LERROR(0,0, "Ignoring file with a CRC32 of zero: %s", argv[i]);
+      LERROR(0,0, "IGNORING: CRC32 is zero: %s", argv[i]);
       continue;
     }
+    printf("%08lX\n", crc);
     cdb_make_put(&cdbm, argv[i], (strlen(argv[i])+1)*sizeof(char),
         &crc, sizeof(crc), CDB_PUT_INSERT);
   }
