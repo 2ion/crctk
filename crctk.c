@@ -631,7 +631,6 @@ int main(int argc, char **argv) {
             return command_calc(argv[argc-1], cmdflags);
         case CmdCalcBatch:
             srand(time(NULL));
-            puts("batch");
             return command_calc_batch(argc, argv, optind);
         case CmdCheckBatch:
             return command_check_batch(argc, argv, optind);
