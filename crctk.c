@@ -68,6 +68,8 @@ static int check_access_flags_v(const char*, int, int);
 static void compile_regex(regex_t*, const char*, int);
 static char* get_basename(char*);
 static char* pathcat(const char*,const char*);
+static void helper_manage_stackheapbuf(char*, size_t*, int*, unsigned);
+static char* strip_tag(const char*);
 
 unsigned long getFileSize(const char *filename) {
     FILE *input_file;
@@ -145,285 +147,6 @@ void compile_regex(regex_t *regex, const char *regexpr, int cflags) {
     }
 }
 
-int command_check(const char *filename) {
-    int  ci, ti;                        
-    unsigned long compcrc;              
-    unsigned long matchcrc;             
-    char *string;                       
-    char results[9];                    
-    regmatch_t rmatch;                  
-    regex_t regex;                      
-
-    check_access_flags(filename, F_OK | R_OK, 1);
-    string = get_basename((char*)filename);
-    compile_regex(&regex, crcregex, REG_ICASE);
-    switch(regexec((const regex_t*) &regex, string, 1, &rmatch, 0)) {
-        case 0:
-            for(ci = rmatch.rm_so, ti = 0; ci < rmatch.rm_eo; ++ci)
-                results[ti++] = string[ci];
-            results[ti] = '\0';
-            break;
-        case REG_NOMATCH:
-            LERROR(ExitNoMatch, 0,
-                    "the filename does not contain a CRC32 hexstring.");
-            return ExitNoMatch; // Not reached
-    }
-    regfree(&regex);
-    compcrc = computeCRC32(filename);
-    matchcrc = (unsigned long) strtol(results, NULL, 16);
-    if(compcrc != matchcrc) {
-        printf("mismatch: filename(%08lX) != computed(%08lX)\n",
-                matchcrc, compcrc);
-        return ExitNoMatch;
-    } else {
-        printf("match: filename(%08lX) == computed(%08lX)\n",
-                matchcrc, compcrc);
-        return ExitMatch;
-    }
-}
-
-int command_list_db(void) {
-  struct cdb db;
-  char statickbuf[PATH_MAX];
-  char staticvbuf[PATH_MAX];
-  char *kbuf = statickbuf;
-  char *vbuf = staticvbuf;
-  size_t kbuflen = PATH_MAX;
-  size_t vbuflen = PATH_MAX;
-  int free_kbuf = 0;
-  int free_vbuf = 0;
-  int fd;
-  unsigned up, vpos, vlen, klen, kpos;
-
-  check_access_flags(dbiofile, F_OK | R_OK, 1);
-  if((fd = open(dbiofile, O_RDONLY)) == -1)
-    LERROR(EXIT_FAILURE, errno, "could not open cdb file: %s", dbiofile);
-  if(cdb_init(&db, fd) != 0)
-    LERROR(EXIT_FAILURE, 0, "cdb_init() failed");
-  cdb_seqinit(&up, &db);
-  while(cdb_seqnext(&up, &db) > 0) {
-    vpos = cdb_datapos(&db);
-    vlen = cdb_datalen(&db);
-    kpos = cdb_keypos(&db);
-    klen = cdb_keylen(&db);
-    if(klen > kbuflen*sizeof(char)) {
-      if(free_kbuf == 0) {
-        free_kbuf = 1;
-        if((kbuf = calloc(klen, 1)) == NULL)
-          LERROR(EXIT_FAILURE, errno, "call to calloc() failed");
-      } else {
-        if((kbuf = realloc(kbuf, klen)) == NULL)
-          LERROR(EXIT_FAILURE, errno, "call to realloc() failed");
-      }
-      kbuflen = klen;
-    }
-    if(vlen > vbuflen*sizeof(char)) {
-      if(free_vbuf == 0) {
-        free_vbuf = 1;
-        vbuf = calloc(vlen, 1);
-      } else {
-        vbuf = realloc(vbuf, vbuflen);
-      }
-      vbuflen = vlen;
-    }
-    if(cdb_read(&db, kbuf, klen, kpos) != 0) {
-      LERROR(0,0, "cdb_read(): failed to read key. Skipping entry ...");
-      continue;
-    }
-    if(cdb_read(&db, vbuf, vlen, vpos) != 0) {
-      LERROR(0,0, "cdb_read(): failed to read value. Skipping entry ...");
-      continue;
-    }
-    printf("%s: <%s> -> %08lX\n", dbiofile, kbuf, *(unsigned long*)vbuf);
-  } // while
-  cdb_free(&db);
-  close(fd);
-  if(free_kbuf)
-    free(kbuf);
-  if(free_vbuf)
-    free(vbuf);
-  return EXIT_SUCCESS;
-}
-
-int command_check_batch(int argc, char **argv, int optind) {
-  struct cdb db;
-  int fd;
-  char kbuf[PATH_MAX];
-  unsigned kbuf_len = PATH_MAX;
-  char *wkbuf = kbuf;
-  char *bnamedb;
-  char *bnameargv;
-  int free_wkbuf = 0;
-  int i, iDone;
-  unsigned long vbuf, crc;
-  unsigned up, vpos, vlen, klen, kpos;
-
-  check_access_flags(dbiofile, F_OK | R_OK, 1);
-  if((fd = open(dbiofile, O_RDONLY)) == -1)
-    LERROR(EXIT_FAILURE, errno, "could not open cdb file: %s", dbiofile);
-  if(cdb_init(&db, fd) != 0)
-    LERROR(EXIT_FAILURE, 0, "cdb_init() failed");
-  cdb_seqinit(&up, &db);
-  while(cdb_seqnext(&up, &db) > 0) {
-    vpos = cdb_datapos(&db);
-    vlen = cdb_datalen(&db);
-    kpos = cdb_keypos(&db);
-    klen = cdb_keylen(&db);
-    if(vlen > sizeof(unsigned long)) {
-      LERROR(0,0, "Skipping record with value size > sizeof(unsigned long)");
-      continue;
-    }
-    if(kbuf_len > klen) {
-      if(free_wkbuf == 0) {
-        if((wkbuf = calloc(klen, sizeof(char))) == NULL)
-          LERROR(EXIT_FAILURE, errno, "call to calloc() failed");
-        free_wkbuf = 1;
-      } else {
-        if((wkbuf = realloc(wkbuf, klen)) == NULL)
-          LERROR(EXIT_FAILURE, errno, "call to realloc() failed");
-      }
-      kbuf_len = klen;
-    }
-    if(cdb_read(&db, wkbuf, klen, kpos) != 0) {
-      LERROR(0,0, "Skipping current record because I failed to read the key");
-      continue;
-    }
-    if(cdb_read(&db, &vbuf, vlen, vpos) != 0) {
-      LERROR(0,0, "Skipping current record because I failed to read the data");
-      continue;
-    }
-    if(optind < argc) { // we have arguments in argv to check the db entr against
-      bnamedb = basename(wkbuf);
-      for(iDone = 0, i = optind; i < argc; ++i) {
-        bnameargv = basename(argv[i]);
-        if(strcmp((const char*)bnamedb, (const char*)bnameargv) == 0) {
-          iDone = 1;
-          printf("%s[%08lX] pathspec matches argument #%d: %s ... ",
-              dbiofile, vbuf, i, bnameargv);
-          if(check_access_flags_v(bnameargv, F_OK | R_OK, 1) != 0) {
-            printf("FAILED (no read access)\n");
-            iDone = 0;
-            break;
-          }
-          if((crc = computeCRC32(bnameargv)) == vbuf) {
-            printf("OK\n");
-            break;
-          }
-          else {
-            printf("FAILED (real: %08lX)\n", crc);
-            iDone = 1;
-            break;
-          }
-        } // if
-      } // for
-    if(iDone == 0)
-      printf("%s: no matching argument in argv for database entry: %s\n",
-          dbiofile, wkbuf);
-    } else {
-    // check if the stored path is still available
-      if(check_access_flags_v(wkbuf, F_OK | R_OK, 1) != 0) {
-        LERROR(0,0, "(%s) file %s doesn't exist or is inaccessible.",
-        dbiofile, wkbuf);
-        continue;
-    }
-    printf("%s[%08lX]: %s ... ", dbiofile, vbuf, wkbuf);
-    if((crc = computeCRC32(wkbuf)) == vbuf)
-      printf("OK\n");
-    else
-      printf("FAILED (real: %08lX)\n", crc);
-    }
-  } // while
-  cdb_free(&db);
-  if(free_wkbuf == 1)
-    free(wkbuf);
-  close(fd);
-  return EXIT_SUCCESS;
-}
-
-void check_access_flags(const char *path, int access_flags, int notdir) {
-    struct stat stbuf;
-
-    if(access(path, access_flags) != 0)
-        LERROR(ExitArgumentError, errno, "%s", path);
-    if(notdir == 1) {
-        if(stat(path, &stbuf) != 0)
-            LERROR(ExitUnknownError, errno, "%s", path);
-        else
-            if(S_ISDIR(stbuf.st_mode))
-                LERROR(ExitArgumentError, 0, "%s is a directory.", path);
-    }
-}
-
-int check_access_flags_v(const char *path, int access_flags, int notadir) {
-  struct stat stbuf;
-  
-  if(access(path, access_flags) != 0)
-    return -1;
-
-  if(notadir == 1) {
-    if(stat(path, &stbuf) != 0) {
-      LERROR(ExitUnknownError, errno,  "(unclean exit)");
-    } else
-      if(S_ISDIR(stbuf.st_mode))
-        return -1;
-  }
-  return 0;
-}
-
-char* strip_tag(const char *str) {
-    regex_t regex;
-    regmatch_t rm;
-    const char *p, *q;
-    char *rstr;
-    int i;
-    
-    compile_regex(&regex, crcregex_stripper, REG_ICASE);
-    if(regexec(&regex, str, 1, &rm, 0) == REG_NOMATCH) {
-        // no tag in filename
-        regfree(&regex);
-        return NULL;
-    }
-    rstr = malloc((strlen(str)+1-(rm.rm_eo - rm.rm_so)) * sizeof(char));
-    if(rstr == NULL)
-        LERROR(ExitUnknownError, errno, "memory allocation error");
-    for(p = str, q = &str[rm.rm_so], i=0; p < q; ++p)
-        rstr[i++] = *p;
-    for(p = &str[rm.rm_eo]; *p; ++p)
-        rstr[i++] = *p;
-    rstr[i] = '\0';
-    return rstr;
-}
-
-char* get_basename(char *path) {
-    char *r;
-    if((r = basename(path)) == NULL)
-        LERROR(ExitArgumentError, 0,
-            "could not extract specified path's basename.");
-    return r;
-}
-
-char* pathcat(const char *p, const char *s) {
-    char *r;
-    r = calloc(strlen(p) + strlen(s) + 2, sizeof(char));
-    if(r == NULL)
-        LERROR(ExitUnknownError, errno, "memory allocation error");
-    strcat(r, p);
-    strcat(r, "/");
-    strcat(r, s);
-    return r;
-}
-
-int command_calc(const char *filename, int flags) {
-    unsigned long crc;
-
-    check_access_flags(filename, F_OK | R_OK, 1);
-    crc = computeCRC32(filename);
-    if((flags & CALC_PRINT_NUMERICAL) == CALC_PRINT_NUMERICAL)
-      printf("%s: %lu\n", filename, crc);
-    else
-      printf("%s: %08lX\n", filename, crc);
-    return EXIT_SUCCESS;
-}
 
 int command_calc_batch(int argc, char **argv, int optind) {
   int i, fd;
@@ -540,6 +263,336 @@ int command_remove_tag(const char *filename) {
     return EXIT_SUCCESS;
 }
 
+
+
+int command_check(const char *filename) {
+    int  ci, ti;                        
+    unsigned long compcrc;              
+    unsigned long matchcrc;             
+    char *string;                       
+    char results[9];                    
+    regmatch_t rmatch;                  
+    regex_t regex;                      
+
+    check_access_flags(filename, F_OK | R_OK, 1);
+    string = get_basename((char*)filename);
+    compile_regex(&regex, crcregex, REG_ICASE);
+    switch(regexec((const regex_t*) &regex, string, 1, &rmatch, 0)) {
+        case 0:
+            for(ci = rmatch.rm_so, ti = 0; ci < rmatch.rm_eo; ++ci)
+                results[ti++] = string[ci];
+            results[ti] = '\0';
+            break;
+        case REG_NOMATCH:
+            LERROR(ExitNoMatch, 0,
+                    "the filename does not contain a CRC32 hexstring.");
+            return ExitNoMatch; // Not reached
+    }
+    regfree(&regex);
+    compcrc = computeCRC32(filename);
+    matchcrc = (unsigned long) strtol(results, NULL, 16);
+    if(compcrc != matchcrc) {
+        printf("mismatch: filename(%08lX) != computed(%08lX)\n",
+                matchcrc, compcrc);
+        return ExitNoMatch;
+    } else {
+        printf("match: filename(%08lX) == computed(%08lX)\n",
+                matchcrc, compcrc);
+        return ExitMatch;
+    }
+}
+int command_list_db(void) {
+  struct cdb db;
+  char statickbuf[PATH_MAX];
+  char staticvbuf[PATH_MAX];
+  char *kbuf = statickbuf;
+  char *vbuf = staticvbuf;
+  size_t kbuflen = PATH_MAX;
+  size_t vbuflen = PATH_MAX;
+  int free_kbuf = 0;
+  int free_vbuf = 0;
+  int fd;
+  unsigned up, vpos, vlen, klen, kpos;
+
+  check_access_flags(dbiofile, F_OK | R_OK, 1);
+  if((fd = open(dbiofile, O_RDONLY)) == -1)
+    LERROR(EXIT_FAILURE, errno, "could not open cdb file: %s", dbiofile);
+  if(cdb_init(&db, fd) != 0)
+    LERROR(EXIT_FAILURE, 0, "cdb_init() failed");
+  cdb_seqinit(&up, &db);
+  while(cdb_seqnext(&up, &db) > 0) {
+    vpos = cdb_datapos(&db);
+    vlen = cdb_datalen(&db);
+    kpos = cdb_keypos(&db);
+    klen = cdb_keylen(&db);
+    if(klen > kbuflen*sizeof(char)) {
+      if(free_kbuf == 0) {
+        free_kbuf = 1;
+        if((kbuf = calloc(klen, 1)) == NULL)
+          LERROR(EXIT_FAILURE, errno, "call to calloc() failed");
+      } else {
+        if((kbuf = realloc(kbuf, klen)) == NULL)
+          LERROR(EXIT_FAILURE, errno, "call to realloc() failed");
+      }
+      kbuflen = klen;
+    }
+    if(vlen > vbuflen*sizeof(char)) {
+      if(free_vbuf == 0) {
+        free_vbuf = 1;
+        vbuf = calloc(vlen, 1);
+      } else {
+        vbuf = realloc(vbuf, vbuflen);
+      }
+      vbuflen = vlen;
+    }
+    if(cdb_read(&db, kbuf, klen, kpos) != 0) {
+      LERROR(0,0, "cdb_read(): failed to read key. Skipping entry ...");
+      continue;
+    }
+    if(cdb_read(&db, vbuf, vlen, vpos) != 0) {
+      LERROR(0,0, "cdb_read(): failed to read value. Skipping entry ...");
+      continue;
+    }
+    printf("%s: <%s> -> %08lX\n", dbiofile, kbuf, *(unsigned long*)vbuf);
+  } // while
+  cdb_free(&db);
+  close(fd);
+  if(free_kbuf == 1)
+    free(kbuf);
+  if(free_vbuf == 1)
+    free(vbuf);
+  return EXIT_SUCCESS;
+}
+
+int command_check_batch(int argc, char **argv, int optind) {
+  struct cdb db;
+  int fd;
+  char kbuf[PATH_MAX];
+  size_t kbuf_len = PATH_MAX;
+  char *wkbuf = kbuf;
+  char *bnamedb;
+  char *bnameargv;
+  int wkbuf_isstatic = 1;
+  int i, iDone;
+  unsigned long vbuf, crc;
+  unsigned up, vpos, vlen, klen, kpos;
+
+  check_access_flags(dbiofile, F_OK | R_OK, 1);
+  if((fd = open(dbiofile, O_RDONLY)) == -1)
+    LERROR(EXIT_FAILURE, errno, "could not open cdb file: %s", dbiofile);
+  if(cdb_init(&db, fd) != 0)
+    LERROR(EXIT_FAILURE, 0, "cdb_init() failed");
+  cdb_seqinit(&up, &db);
+  while(cdb_seqnext(&up, &db) > 0) {
+    vpos = cdb_datapos(&db);
+    vlen = cdb_datalen(&db);
+    kpos = cdb_keypos(&db);
+    klen = cdb_keylen(&db);
+    if(vlen > sizeof(unsigned long)) {
+      LERROR(0,0, "Skipping record with value size > sizeof(unsigned long)");
+      continue;
+    }
+    helper_manage_stackheapbuf(wkbuf, &kbuf_len, &wkbuf_isstatic, klen);
+    if(cdb_read(&db, wkbuf, klen, kpos) != 0) {
+      LERROR(0,0, "Skipping current record because I failed to read the key");
+      continue;
+    }
+    if(cdb_read(&db, &vbuf, vlen, vpos) != 0) {
+      LERROR(0,0, "Skipping current record because I failed to read the data");
+      continue;
+    }
+    if(optind < argc) { // we have arguments in argv to check the db entr against
+      bnamedb = basename(wkbuf);
+      for(iDone = 0, i = optind; i < argc; ++i) {
+        bnameargv = basename(argv[i]);
+        if(strcmp((const char*)bnamedb, (const char*)bnameargv) == 0) {
+          iDone = 1;
+          printf("%s[%08lX] pathspec matches argument #%d: %s ... ",
+              dbiofile, vbuf, i, bnameargv);
+          if(check_access_flags_v(bnameargv, F_OK | R_OK, 1) != 0) {
+            printf("FAILED (no read access)\n");
+            iDone = 0;
+            break;
+          }
+          if((crc = computeCRC32(bnameargv)) == vbuf) {
+            printf("OK\n");
+            break;
+          }
+          else {
+            printf("FAILED (real: %08lX)\n", crc);
+            iDone = 1;
+            break;
+          }
+        } // if
+      } // for
+    if(iDone == 0)
+      printf("%s: no matching argument in argv for database entry: %s\n",
+          dbiofile, wkbuf);
+    } else {
+    // check if the stored path is still available
+      if(check_access_flags_v(wkbuf, F_OK | R_OK, 1) != 0) {
+        LERROR(0,0, "(%s) file %s doesn't exist or is inaccessible.",
+        dbiofile, wkbuf);
+        continue;
+    }
+    printf("%s[%08lX]: %s ... ", dbiofile, vbuf, wkbuf);
+    if((crc = computeCRC32(wkbuf)) == vbuf)
+      printf("OK\n");
+    else
+      printf("FAILED (real: %08lX)\n", crc);
+    }
+  } // while
+  cdb_free(&db);
+  if(wkbuf_isstatic == 0) // throws -Wfree-nonheap-object, but we're safe
+    free(wkbuf);
+  close(fd);
+  return EXIT_SUCCESS;
+}
+
+void check_access_flags(const char *path, int access_flags, int notdir) {
+    struct stat stbuf;
+
+    if(access(path, access_flags) != 0)
+        LERROR(ExitArgumentError, errno, "%s", path);
+    if(notdir == 1) {
+        if(stat(path, &stbuf) != 0)
+            LERROR(ExitUnknownError, errno, "%s", path);
+        else
+            if(S_ISDIR(stbuf.st_mode))
+                LERROR(ExitArgumentError, 0, "%s is a directory.", path);
+    }
+}
+
+int check_access_flags_v(const char *path, int access_flags, int notadir) {
+  struct stat stbuf;
+  
+  if(access(path, access_flags) != 0)
+    return -1;
+
+  if(notadir == 1) {
+    if(stat(path, &stbuf) != 0) {
+      LERROR(ExitUnknownError, errno,  "(unclean exit)");
+    } else
+      if(S_ISDIR(stbuf.st_mode))
+        return -1;
+  }
+  return 0;
+}
+
+char* strip_tag(const char *str) {
+    regex_t regex;
+    regmatch_t rm;
+    const char *p, *q;
+    char *rstr;
+    int i;
+    
+    compile_regex(&regex, crcregex_stripper, REG_ICASE);
+    if(regexec(&regex, str, 1, &rm, 0) == REG_NOMATCH) {
+        // no tag in filename
+        regfree(&regex);
+        return NULL;
+    }
+    rstr = malloc((strlen(str)+1-(rm.rm_eo - rm.rm_so)) * sizeof(char));
+    if(rstr == NULL)
+        LERROR(ExitUnknownError, errno, "memory allocation error");
+    for(p = str, q = &str[rm.rm_so], i=0; p < q; ++p)
+        rstr[i++] = *p;
+    for(p = &str[rm.rm_eo]; *p; ++p)
+        rstr[i++] = *p;
+    rstr[i] = '\0';
+    return rstr;
+}
+
+char* get_basename(char *path) {
+    char *r;
+    if((r = basename(path)) == NULL)
+        LERROR(ExitArgumentError, 0,
+            "could not extract specified path's basename.");
+    return r;
+}
+
+char* pathcat(const char *p, const char *s) {
+    char *r;
+    r = calloc(strlen(p) + strlen(s) + 2, sizeof(char));
+    if(r == NULL)
+        LERROR(ExitUnknownError, errno, "memory allocation error");
+    strcat(r, p);
+    strcat(r, "/");
+    strcat(r, s);
+    return r;
+}
+
+int command_calc(const char *filename, int flags) {
+    unsigned long crc;
+
+    check_access_flags(filename, F_OK | R_OK, 1);
+    crc = computeCRC32(filename);
+    if((flags & CALC_PRINT_NUMERICAL) == CALC_PRINT_NUMERICAL)
+      printf("%s: %lu\n", filename, crc);
+    else
+      printf("%s: %08lX\n", filename, crc);
+    return EXIT_SUCCESS;
+}
+
+void helper_manage_stackheapbuf(char *buf, size_t *buflen, int *buf_isstatic, unsigned datalen) {
+  assert(buf != NULL);
+  assert(buflen != NULL);
+  assert(buf_isstatic != NULL);
+  if(*buflen >= datalen)
+    return; // buffer is large enough
+  if(*buf_isstatic == 1) {
+    // allocate new dynamic buffer
+    if((buf = calloc(1, datalen)) == NULL)
+      LERROR(EXIT_FAILURE, errno, "call to calloc failed");
+    *buf_isstatic = 0;
+  } else {
+    // re-allocate buffer
+    if((buf = realloc(buf, datalen)) == NULL)
+      LERROR(EXIT_FAILURE, errno, "call to realloc failed");
+  }
+  *buflen = datalen;
+}
+
+int copy_cdb(const char *srcdb, struct cdb_make *target_db, int tfd) {
+  struct cdb source_db;
+  int sfd;
+  unsigned up, klen, kpos, vlen, vpos;
+  char kbufstack[255];
+  char vbufstack[255];
+  char *kbuf = kbufstack;
+  char *vbuf = vbufstack;
+  size_t vbuflen = 255;
+  size_t kbuflen = 255;
+  int vbuf_isstatic = 1;
+  int kbuf_isstatic = 1;
+
+  if((sfd = open(srcdb, O_RDONLY, 0)) == -1) {
+    LERROR(0, errno, "open() on source db failed");
+    return -1;
+  }
+  if((cdb_make_start(target_db, tfd)) != 0) {
+    LERROR(0,0, "cdb_make_start() on target db failed");
+    return -1;
+  }
+  if((cdb_init(&source_db, sfd)) != 0) {
+    LERROR(0,0, "cdb_init() on source db failed");
+    return -1;
+  }
+  cdb_seqinit(&up, &source_db);
+  while(cdb_seqnext(&up, &source_db) > 0) {
+    kpos = cdb_keypos(&source_db);
+    klen = cdb_keylen(&source_db);
+    vpos = cdb_datapos(&source_db);
+    vlen = cdb_datalen(&source_db);
+
+    helper_manage_stackheapbuf(vbuf, &vbuflen, &vbuf_isstatic, vlen);
+    helper_manage_stackheapbuf(kbuf, &kbuflen, &kbuf_isstatic, klen);
+  } // while
+  if(vbuf_isstatic == 0) // throws -Wfree-nonheap-object but we're safe
+    free(vbuf);
+  if(kbuf_isstatic == 0) // throws -W-Wfree-nonheap-object but we're safe
+    free(kbuf);
+}
 int main(int argc, char **argv) {
     int opt;
     int cmd = CmdIdle;

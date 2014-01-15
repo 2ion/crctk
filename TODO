@@ -1,2 +1,4 @@
 - when stripping: remove punctuation only if it is symmetrical
-- Funny things ...
+- append to database instead of overwriting (constant database -> works
+  only by reading everything back first and then writing everything out
+  again.
