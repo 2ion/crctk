@@ -69,7 +69,7 @@ static int check_access_flags_v(const char*, int, int);
 static void compile_regex(regex_t*, const char*, int);
 static char* get_basename(char*);
 static char* pathcat(const char*,const char*);
-static void helper_manage_stackheapbuf(char*, size_t*, int*, unsigned);
+static inline void helper_manage_stackheapbuf(char*, size_t*, int*, unsigned);
 static char* strip_tag(const char*);
 static int copy_cdb(const char*, struct cdb_make*, int);
 
@@ -445,7 +445,7 @@ int command_check_batch(int argc, char **argv, int optind) {
     }
   } // while
   cdb_free(&db);
-  if(wkbuf_isstatic == 0) // throws -Wfree-nonheap-object, but we're safe
+  if(wkbuf_isstatic == 0) // throws -Wfree-nonheap-object, but we're safe 'cause we track
     free(wkbuf);
   close(fd);
   return EXIT_SUCCESS;
