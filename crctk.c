@@ -182,6 +182,67 @@ int command_check(const char *filename) {
     }
 }
 
+int command_list_db(void) {
+  struct cdb db;
+  char statickbuf[PATH_MAX];
+  char staticvbuf[PATH_MAX];
+  char *kbuf = statickbuf;
+  char *vbuf = staticvbuf;
+  size_t kbuflen = PATH_MAX;
+  size_t vbuflen = PATH_MAX;
+  int free_kbuf = 0;
+  int free_vbuf = 0;
+  int fd;
+  unsigned up, vpos, vlen, klen, kpos;
+
+  check_access_flags(dbiofile, F_OK | R_OK, 1);
+  if((fd = open(dbiofile, O_RDONLY)) == -1)
+    LERROR(EXIT_FAILURE, errno, "could not open cdb file: %s", dbiofile);
+  if(cdb_init(&db, fd) != 0)
+    LERROR(EXIT_FAILURE, 0, "cdb_init() failed");
+  cdb_seqinit(&up, &db);
+  while(cdb_seqnext(&up, &db) > 0) {
+    vpos = cdb_datapos(&db);
+    vlen = cdb_datalen(&db);
+    kpos = cdb_keypos(&db);
+    klen = cdb_keylen(&db);
+    if(klen > kbuflen*sizeof(char)) {
+      if(free_kbuf == 0) {
+        free_kbuf = 1;
+        kbuf = calloc(klen, 1);
+      } else {
+        kbuf = realloc(kbuf, klen);
+      }
+      kbuflen = klen;
+    }
+    if(vlen > vbuflen*sizeof(char)) {
+      if(free_vbuf == 0) {
+        free_vbuf = 1;
+        vbuf = calloc(vlen, 1);
+      } else {
+        vbuf = realloc(vbuf, vbuflen);
+      }
+      vbuflen = vlen;
+    }
+    if(cdb_read(&db, kbuf, klen, kpos) != 0) {
+      LERROR(0,0, "cdb_read(): failed to read key. Skipping entry ...");
+      continue;
+    }
+    if(cdb_read(&db, vbuf, vlen, vpos) != 0) {
+      LERROR(0,0, "cdb_read(): failed to read value. Skipping entry ...");
+      continue;
+    }
+    printf("%s: <%s> -> %08lX\n", dbiofile, kbuf, *(unsigned long*)vbuf);
+  } // while
+  cdb_free(&db);
+  close(fd);
+  if(free_kbuf)
+    free(kbuf);
+  if(free_vbuf)
+    free(vbuf);
+  return EXIT_SUCCESS;
+}
+
 int command_check_batch(int argc, char **argv, int optind) {
   struct cdb db;
   int fd;
@@ -202,67 +263,67 @@ int command_check_batch(int argc, char **argv, int optind) {
     LERROR(EXIT_FAILURE, 0, "cdb_init() failed");
   cdb_seqinit(&up, &db);
   while(cdb_seqnext(&up, &db) > 0) {
-      vpos = cdb_datapos(&db);
-      vlen = cdb_datalen(&db);
-      kpos = cdb_keypos(&db);
-      klen = cdb_keylen(&db);
-      if(vlen > sizeof(unsigned long)) {
-        LERROR(0,0, "Skipping record with value size > sizeof(unsigned long)");
-        continue;
-      }
-      if(kbuf_len*sizeof(char)>klen) {
-        wkbuf = calloc(klen, sizeof(char));
-        free_wkbuf = 1;
-      }
-      if(cdb_read(&db, wkbuf, klen, kpos) != 0) {
-        LERROR(0,0, "Skipping current record because I failed to read the key");
-        continue;
-      }
-      if(cdb_read(&db, &vbuf, vlen, vpos) != 0) {
-        LERROR(0,0, "Skipping current record because I failed to read the data");
-        continue;
-      }
-      if(optind < argc) { // we have arguments in argv to check the db entr against
-        bnamedb = basename(wkbuf);
-        for(iDone = 0, i = optind; i < argc; ++i) {
-          bnameargv = basename(argv[i]);
-          if(strcmp((const char*)bnamedb, (const char*)bnameargv) == 0) {
+    vpos = cdb_datapos(&db);
+    vlen = cdb_datalen(&db);
+    kpos = cdb_keypos(&db);
+    klen = cdb_keylen(&db);
+    if(vlen > sizeof(unsigned long)) {
+      LERROR(0,0, "Skipping record with value size > sizeof(unsigned long)");
+      continue;
+    }
+    if(kbuf_len*sizeof(char)>klen) {
+      wkbuf = calloc(klen, sizeof(char));
+      free_wkbuf = 1;
+    }
+    if(cdb_read(&db, wkbuf, klen, kpos) != 0) {
+      LERROR(0,0, "Skipping current record because I failed to read the key");
+      continue;
+    }
+    if(cdb_read(&db, &vbuf, vlen, vpos) != 0) {
+      LERROR(0,0, "Skipping current record because I failed to read the data");
+      continue;
+    }
+    if(optind < argc) { // we have arguments in argv to check the db entr against
+      bnamedb = basename(wkbuf);
+      for(iDone = 0, i = optind; i < argc; ++i) {
+        bnameargv = basename(argv[i]);
+        if(strcmp((const char*)bnamedb, (const char*)bnameargv) == 0) {
+          iDone = 1;
+          printf("%s[%08lX] pathspec matches argument #%d: %s ... ",
+              dbiofile, vbuf, i, bnameargv);
+          if(check_access_flags_v(bnameargv, F_OK | R_OK, 1) != 0) {
+            printf("FAILED (no read access)\n");
+            iDone = 0;
+            break;
+          }
+          if((crc = computeCRC32(bnameargv)) == vbuf) {
+            printf("OK\n");
+            break;
+          }
+          else {
+            printf("FAILED (real: %08lX)\n", crc);
             iDone = 1;
-            printf("%s[%08lX] pathspec matches argument #%d: %s ... ",
-                dbiofile, vbuf, i, bnameargv);
-            if(check_access_flags_v(bnameargv, F_OK | R_OK, 1) != 0) {
-              printf("FAILED (no read access)\n");
-              iDone = 0;
-              break;
-            }
-            if((crc = computeCRC32(bnameargv)) == vbuf) {
-              printf("OK\n");
-              break;
-            }
-            else {
-              printf("FAILED (real: %08lX)\n", crc);
-              iDone = 1;
-              break;
-            }
-          } // if
-        } // for
-        if(iDone == 0)
-          printf("%s: no matching argument in argv for database entry: %s\n",
-              dbiofile, wkbuf);
-      } else {
-        // check if the stored path is still available
-        if(check_access_flags_v(wkbuf, F_OK | R_OK, 1) != 0) {
-          LERROR(0,0, "(%s) file %s doesn't exist or is inaccessible.",
+            break;
+          }
+        } // if
+      } // for
+    if(iDone == 0)
+      printf("%s: no matching argument in argv for database entry: %s\n",
           dbiofile, wkbuf);
-          continue;
-        }
-        printf("%s[%08lX]: %s ... ", dbiofile, vbuf, wkbuf);
-        if((crc = computeCRC32(wkbuf)) == vbuf)
-          printf("OK\n");
-        else
-          printf("FAILED (real: %08lX)\n", crc);
-      }
-  }
+    } else {
+    // check if the stored path is still available
+      if(check_access_flags_v(wkbuf, F_OK | R_OK, 1) != 0) {
+        LERROR(0,0, "(%s) file %s doesn't exist or is inaccessible.",
+        dbiofile, wkbuf);
+        continue;
+    }
+    printf("%s[%08lX]: %s ... ", dbiofile, vbuf, wkbuf);
+    if((crc = computeCRC32(wkbuf)) == vbuf)
+      printf("OK\n");
+    else
+      printf("FAILED (real: %08lX)\n", crc);
+    }
+  } // while
   cdb_free(&db);
   if(free_wkbuf == 1)
     free(wkbuf);
@@ -469,11 +530,6 @@ int command_remove_tag(const char *filename) {
     free(q);
     free(nstr);
     return EXIT_SUCCESS;
-}
-
-int command_list_db(void) {
-  puts("Not yet implemented.");
-  return EXIT_SUCCESS;
 }
 
 int main(int argc, char **argv) {
