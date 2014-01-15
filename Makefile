@@ -1,4 +1,4 @@
-version_ ?= 0.2
+version_ ?= 0.3
 version = $(version_)-$(shell git rev-parse --short HEAD)
 prefix ?= $(HOME)/bin
 cflags = $(shell pkg-config --cflags libcdb)

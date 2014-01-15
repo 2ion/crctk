@@ -106,9 +106,12 @@ tagging.
 
 Look out for extensions containing multiple dots, like .tar.gz.
 
+## Other options
+
+See the section on Usage for more available options.
+
 ## -h: Usage
 
 More concise usage information.
 
 ```
-
