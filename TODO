@@ -2,3 +2,5 @@
 - append to database instead of overwriting (constant database -> works
   only by reading everything back first and then writing everything out
   again. -> copy_db()
+- when COPY_DB_STATIC_BUF_LEN is a definite type, convert it to a const
+  size_t global variable
