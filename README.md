@@ -22,20 +22,20 @@ implementation of [cdb][] as created by Daniel J. Bernstein.
 ### Creating a database file
 
 ```sh
-./crctk -C <db-file> <file-list>
+./crctk -C DB-FILE FILE-LIST
 ```
 
 ### Verifying the entries of a datbase file
 
 ```sh
-./crctk -V <db-file> [<file-list>]
+./crctk -V DB-FILE [FILE-LIST]
 ```
 
-If <file-list> is not present, go through the entries in <db-file>,
+If FILE-LIST is not present, go through the entries in DB-FILE,
 check if a file is present under the path stored in the database and
 if yes, try veryfing this file against the stored checksum.
-If <file-list> is present, take the basename of the paths stored in
-the database, and for every entry in <file-list>, check if a
+If FILE-LIST is present, take the basename of the paths stored in
+the database, and for every entry in FILE-LIST, check if a
 filename matches and if yes, verify the matching file against the
 checksum stored in the database.
 
