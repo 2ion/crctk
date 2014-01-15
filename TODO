@@ -1,1 +1,1 @@
-- Implement the -p option: command_list_db()
+- when stripping: remove punctuation only if it is symmetrical

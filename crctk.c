@@ -53,7 +53,7 @@ enum { ExitMatch = EXIT_SUCCESS, ExitNoMatch = EXIT_FAILURE,
   ExitArgumentError = 10, ExitRegexError = 11, ExitUnknownError = 12};
 enum { CmdIdle, CmdCheck, CmdTag, CmdRmTag, CmdCalc, CmdCalcBatch, CmdCheckBatch,
   CmdList };
-enum { TAG_ALLOW_STRIP = 1 << 0 };
+enum { TAG_ALLOW_STRIP = 1 << 0, CALC_PRINT_NUMERICAL = 1 << 1 };
 
 static unsigned long getFileSize(const char*);
 static unsigned long computeCRC32(const char*);
@@ -61,7 +61,7 @@ static int command_check(const char*);
 static int command_check_batch(int, char**, int);
 static int command_list_db(void);
 static int command_tag(const char*,int);
-static int command_calc(const char*);
+static int command_calc(const char*, int);
 static int command_calc_batch(int, char**, int);
 static void check_access_flags(const char*, int, int);
 static int check_access_flags_v(const char*, int, int);
@@ -413,12 +413,15 @@ char* pathcat(const char *p, const char *s) {
     return r;
 }
 
-int command_calc(const char *filename) {
+int command_calc(const char *filename, int flags) {
     unsigned long crc;
 
     check_access_flags(filename, F_OK | R_OK, 1);
     crc = computeCRC32(filename);
-    printf("%s: %08lX\n", filename, crc);
+    if((flags & CALC_PRINT_NUMERICAL) == CALC_PRINT_NUMERICAL)
+      printf("%s: %lu\n", filename, crc);
+    else
+      printf("%s: %08lX\n", filename, crc);
     return EXIT_SUCCESS;
 }
 
@@ -544,10 +547,13 @@ int command_remove_tag(const char *filename) {
 int main(int argc, char **argv) {
     int opt;
     int cmd = CmdIdle;
-    int cmd_tag_flags = 0;
+    int cmdflags = 0;
 
-    while((opt = getopt(argc, argv, "+tvV:hsrC:ce:p:")) != -1) {
+    while((opt = getopt(argc, argv, "+tnvV:hsrC:ce:p:")) != -1) {
         switch(opt) {
+            case 'n':
+                cmdflags |= CALC_PRINT_NUMERICAL; 
+                break;
             case 'p':
                 dbiofile = strdup(optarg);
                 cmd = CmdList;
@@ -570,7 +576,7 @@ int main(int argc, char **argv) {
                 cmd = CmdRmTag;
                 break;
             case 's':
-                cmd_tag_flags |= TAG_ALLOW_STRIP;
+                cmdflags |= TAG_ALLOW_STRIP;
                 break;
             case 'v':
                 cmd = CmdCheck;
@@ -596,6 +602,7 @@ int main(int argc, char **argv) {
                         "    created by the -C option and check if the files\n"
                         "    have the listed checksums.\n"
                         " -c Compute the CRC32 of the given file, print and exit.\n"
+                        " -n Supplements -c: print CRC32 in its numerical format.\n"
                         " -C for multiple input files, create a checksum listing\n"
                         "    for use with the -V option.\n"
                         " -p FILE. Print the contents of a file created by the -C\n"
@@ -625,7 +632,7 @@ int main(int argc, char **argv) {
         case CmdList:
             return command_list_db();
         case CmdCalc:
-            return command_calc(argv[argc-1]);
+            return command_calc(argv[argc-1], cmdflags);
         case CmdCalcBatch:
             srand(time(NULL));
             return command_calc_batch(argc, argv, optind);
@@ -637,7 +644,7 @@ int main(int argc, char **argv) {
         case CmdCheck:
             return command_check(argv[argc-1]);
         case CmdTag:
-            return command_tag(argv[argc-1], cmd_tag_flags);
+            return command_tag(argv[argc-1], cmdflags);
         case CmdRmTag:
             return command_remove_tag(argv[argc-1]);
     }
