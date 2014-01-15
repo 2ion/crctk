@@ -13,10 +13,10 @@ Note that other than the above-mentioned classical md5sum-style checksum
 tools, crctk supports storing arbitrary characters in filenames
 including newlines, except '\0' and '/' which are not allowed according
 to POSIX. For that purpose, it usese the binary format of the extremely
-fast and compact [tincycdb library][], which is an optimized
+fast and compact [tincycdb][], which is an optimized
 implementation of [cdb][] as created by Daniel J. Bernstein.
 
-[tinycdb library]: http://www.corpit.ru/mjt/tinycdb.html
+[tinycdb]: http://www.corpit.ru/mjt/tinycdb.html
 [cdb]: http://cr.yp.to/cdb.html
 
 ### Creating a database file
@@ -43,11 +43,6 @@ checksum stored in the database.
 
 
 (To be written...)
-
-
-[1] http://www.corpit.ru/mjt/tinycdb.html
-[2] http://cr.yp.to/cdb.html
-
 ## Usage
 
 ```
