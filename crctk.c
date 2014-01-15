@@ -209,9 +209,11 @@ int command_list_db(void) {
     if(klen > kbuflen*sizeof(char)) {
       if(free_kbuf == 0) {
         free_kbuf = 1;
-        kbuf = calloc(klen, 1);
+        if((kbuf = calloc(klen, 1)) == NULL)
+          LERROR(EXIT_FAILURE, errno, "call to calloc() failed");
       } else {
-        kbuf = realloc(kbuf, klen);
+        if((kbuf = realloc(kbuf, klen)) == NULL)
+          LERROR(EXIT_FAILURE, errno, "call to realloc() failed");
       }
       kbuflen = klen;
     }
@@ -271,9 +273,16 @@ int command_check_batch(int argc, char **argv, int optind) {
       LERROR(0,0, "Skipping record with value size > sizeof(unsigned long)");
       continue;
     }
-    if(kbuf_len*sizeof(char)>klen) {
-      wkbuf = calloc(klen, sizeof(char));
-      free_wkbuf = 1;
+    if(kbuf_len > klen) {
+      if(free_wkbuf == 0) {
+        if((wkbuf = calloc(klen, sizeof(char))) == NULL)
+          LERROR(EXIT_FAILURE, errno, "call to calloc() failed");
+        free_wkbuf = 1;
+      } else {
+        if((wkbuf = realloc(wkbuf, klen)) == NULL)
+          LERROR(EXIT_FAILURE, errno, "call to realloc() failed");
+      }
+      kbuf_len = klen;
     }
     if(cdb_read(&db, wkbuf, klen, kpos) != 0) {
       LERROR(0,0, "Skipping current record because I failed to read the key");
