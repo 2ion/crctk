@@ -106,13 +106,16 @@ tagging.
 
 Look out for extensions containing multiple dots, like .tar.gz.
 
+## Other options
+
+See the section on Usage for more available options.
+
 ## -h: Usage
 
 More concise usage information.
 
 ```
-
-crctk v0.2-641b256
+crctk v0.3-26f362d
 CRC32 Hexstring Toolkit
 Copyright (C) 2014 2ion (asterisk!2ion!de)
 Upstream: https://github.com/2ion/crctk
