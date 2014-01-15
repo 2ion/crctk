@@ -30,6 +30,7 @@
 #include <fcntl.h>
 #include <getopt.h>
 #include <libgen.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -429,14 +430,13 @@ int command_calc_batch(int argc, char **argv, int optind) {
   int i, fd;
   unsigned long crc;
   struct cdb_make cdbm;
-  char *tmpfile = tempnam(".", "crctk_calc_batch");
-  assert(tmpfile != NULL);
 
-  if((fd = open(tmpfile, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR)) == -1)
+  if((fd = open(dbiofile, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR)) == -1)
     LERROR(ExitUnknownError, errno, "couldn't create temporary file");
   if((cdb_make_start(&cdbm, fd)) != 0)
     LERROR(ExitUnknownError, 0, "couldn't initialize the cdb database");
   for(i = optind; i < argc; ++i) {
+    printf("processing argument: %s\n", argv[i]);
     if(check_access_flags_v(argv[i], F_OK | R_OK, 1) != 0) {
       LERROR(0,0, "Ignoring inaccessible file: %s", argv[i]);
       continue;
@@ -453,13 +453,9 @@ int command_calc_batch(int argc, char **argv, int optind) {
   if(cdb_make_finish(&cdbm) != 0) {
     LERROR(0, 0, "cdb_make_finish() failed");
     close(fd);
-    free(tmpfile);
     return ExitUnknownError;
   }
   close(fd);
-  if(rename((const char*) tmpfile, (const char*) dbiofile) != 0)
-    LERROR(EXIT_FAILURE, errno, "failed call to rename()");
-  free(tmpfile);
   return EXIT_SUCCESS;
 }
 
@@ -637,6 +633,7 @@ int main(int argc, char **argv) {
             return command_calc(argv[argc-1], cmdflags);
         case CmdCalcBatch:
             srand(time(NULL));
+            puts("batch");
             return command_calc_batch(argc, argv, optind);
         case CmdCheckBatch:
             return command_check_batch(argc, argv, optind);
