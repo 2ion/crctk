@@ -1,43 +1,46 @@
-README
-======
+# README
 
 crctk is a toolkit that helps making using CRC32 as a checksum algorithm
 for your files easier. As such, it provides functionality as described
 in the following.
 
-md5sum/sha*sum-style checksum files
------------------------------------
+## md5sum-style checksum verification
 
 crctk can calculate the checksum of a batch of files and store the
-mappings filename->CRC32 in a database file.
+mappings filename---CRC32 in a database file.
 
-Note that other than the above-mentioned classical md5sum/sha*sum
-checksum tools, crctk supports storing arbitrary characters in filenames
+Note that other than the above-mentioned classical md5sum-style checksum
+tools, crctk supports storing arbitrary characters in filenames
 including newlines, except '\0' and '/' which are not allowed according
 to POSIX. For that purpose, it usese the binary format of the extremely
-fast and compact tincycdb library [1], which is an optimized
-implementation of cdb [2] as created by Daniel J. Bernstein.
+fast and compact [tincycdb library][], which is an optimized
+implementation of [cdb][] as created by Daniel J. Bernstein.
 
-Creating a database file
-^^^^^^^^^^^^^^^^^^^^^^^^
+[tinycdb library]: http://www.corpit.ru/mjt/tinycdb.html
+[cdb]: http://cr.yp.to/cdb.html
 
-./crctk -C <db file> <file list>
+### Creating a database file
 
-Verifying the entries of a datbase file
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+```sh
+./crctk -C <db-file> <file-list>
+```
 
-./crctk -V <db file> [<file list>]
+### Verifying the entries of a datbase file
 
-If <file list> is not present, go through the entries in <db file>,
+```sh
+./crctk -V <db-file> [<file-list>]
+```
+
+If <file-list> is not present, go through the entries in <db-file>,
 check if a file is present under the path stored in the database and
 if yes, try veryfing this file against the stored checksum.
-If <file list> is present, take the basename of the paths stored in
-the database, and for every entry in <file list>, check if a
+If <file-list> is present, take the basename of the paths stored in
+the database, and for every entry in <file-list>, check if a
 filename matches and if yes, verify the matching file against the
 checksum stored in the database.
 
-Working with CRC32 hexstring tags
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+## Working with CRC32 hexstring tags
+
 
 (To be written...)
 
@@ -45,10 +48,10 @@ Working with CRC32 hexstring tags
 [1] http://www.corpit.ru/mjt/tinycdb.html
 [2] http://cr.yp.to/cdb.html
 
-Usage
------
+## Usage
 
-crctk v0.2-5378c9c
+```
+crctk v0.2-95ab1e0
 CRC32 Hexstring Toolkit
 Copyright (C) 2014 2ion (asterisk!2ion!de)
 Upstream: https://github.com/2ion/crctk
@@ -81,3 +84,4 @@ Options:
     match tags when doing -s|-r to EXPR. Default:
     [[:punct:]]\?[[:xdigit:]]\{8\}[[:punct:]]\?
  -h Print this message and exit successfully.
+```
