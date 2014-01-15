@@ -4,6 +4,8 @@ crctk is a toolkit that helps making using CRC32 as a checksum algorithm
 for your files easier. As such, it provides functionality as described
 in the following.
 
+Stable releases are tagged in Git. Everything else is experimental!
+
 ## md5sum-style checksum verification
 
 crctk can calculate the checksum of a batch of files and store the
@@ -15,9 +17,6 @@ including newlines, except '\0' and '/' which are not allowed according
 to POSIX. For that purpose, it usese the binary format of the extremely
 fast and compact [tinycdb][], which is an optimized
 implementation of [cdb][] as created by Daniel J. Bernstein.
-
-Because this program uses tinycdb, it will only run on Unix platforms.
-Windows is not supported.
 
 [tinycdb]: http://www.corpit.ru/mjt/tinycdb.html
 [cdb]: http://cr.yp.to/cdb.html
@@ -118,7 +117,7 @@ See the section on Usage for more available options.
 More concise usage information.
 
 ```
-crctk v0.3-26f362d
+crctk v0.3-53898bd (Jan 15 2014 21:36:42)
 CRC32 Hexstring Toolkit
 Copyright (C) 2014 2ion (asterisk!2ion!de)
 Upstream: https://github.com/2ion/crctk
