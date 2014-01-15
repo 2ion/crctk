@@ -435,7 +435,6 @@ int command_calc_batch(int argc, char **argv, int optind) {
   if((cdb_make_start(&cdbm, fd)) != 0)
     LERROR(ExitUnknownError, 0, "couldn't initialize the cdb database");
   for(i = optind; i < argc; ++i) {
-    printf("processing argument: %s\n", argv[i]);
     if(check_access_flags_v(argv[i], F_OK | R_OK, 1) != 0) {
       LERROR(0,0, "Ignoring inaccessible file: %s", argv[i]);
       continue;
@@ -637,7 +636,6 @@ int main(int argc, char **argv) {
         case CmdCheckBatch:
             return command_check_batch(argc, argv, optind);
         case CmdIdle:
-            puts("No command flag set.");
             break;
         case CmdCheck:
             return command_check(argv[argc-1]);
