@@ -45,6 +45,7 @@
 #ifndef VERSION
 #define VERSION "unknown"
 #endif
+#define COPY_DB_STATIC_BUF_LEN 255
 
 const char *crcregex = "[[:xdigit:]]\\{8\\}";
 const char *crcregex_stripper = "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?";
@@ -70,6 +71,7 @@ static char* get_basename(char*);
 static char* pathcat(const char*,const char*);
 static void helper_manage_stackheapbuf(char*, size_t*, int*, unsigned);
 static char* strip_tag(const char*);
+static int copy_cdb(const char*, struct cdb_make*, int);
 
 unsigned long getFileSize(const char *filename) {
     FILE *input_file;
@@ -557,12 +559,12 @@ int copy_cdb(const char *srcdb, struct cdb_make *target_db, int tfd) {
   struct cdb source_db;
   int sfd;
   unsigned up, klen, kpos, vlen, vpos;
-  char kbufstack[255];
-  char vbufstack[255];
+  char kbufstack[COPY_DB_STATIC_BUF_LEN];
+  char vbufstack[COPY_DB_STATIC_BUF_LEN];
+  size_t vbuflen = COPY_DB_STATIC_BUF_LEN;
+  size_t kbuflen = COPY_DB_STATIC_BUF_LEN;
   char *kbuf = kbufstack;
   char *vbuf = vbufstack;
-  size_t vbuflen = 255;
-  size_t kbuflen = 255;
   int vbuf_isstatic = 1;
   int kbuf_isstatic = 1;
 
