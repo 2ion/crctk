@@ -110,6 +110,8 @@ Look out for extensions containing multiple dots, like .tar.gz.
 
 More concise usage information.
 
+```
+
 crctk v0.2-641b256
 CRC32 Hexstring Toolkit
 Copyright (C) 2014 2ion (asterisk!2ion!de)
