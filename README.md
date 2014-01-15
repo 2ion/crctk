@@ -16,6 +16,9 @@ to POSIX. For that purpose, it usese the binary format of the extremely
 fast and compact [tinycdb][], which is an optimized
 implementation of [cdb][] as created by Daniel J. Bernstein.
 
+Because this program uses tinycdb, it will only run on Unix platforms.
+Windows is not supported.
+
 [tinycdb]: http://www.corpit.ru/mjt/tinycdb.html
 [cdb]: http://cr.yp.to/cdb.html
 
