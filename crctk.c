@@ -585,7 +585,7 @@ int main(int argc, char **argv) {
                 cmd = CmdTag;
                 break;
             case 'h':
-                puts("crctk v" VERSION "\n"
+                puts("crctk v" VERSION " (" __DATE__ " " __TIME__ ")\n"
                         "CRC32 Hexstring Toolkit\n"
                         "Copyright (C) 2014 2ion (asterisk!2ion!de)\n"
                         "Upstream: https://github.com/2ion/crctk\n"
