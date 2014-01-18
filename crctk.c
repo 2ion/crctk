@@ -363,6 +363,8 @@ int command_check_batch2(int argc, char **argv, int optind) {
   unsigned up, vpos, vlen, klen, kpos;
   int i, err;
 
+  LERROR(0,0, "**** EXPERIMENTAL FUNCTION ****");
+
   check_access_flags(dbiofile, F_OK | R_OK, 1);
   if((fd = open(dbiofile, O_RDONLY)) == -1)
     LERROR(EXIT_FAILURE, errno, "could not open cdb file: %s", dbiofile);
@@ -386,9 +388,9 @@ int command_check_batch2(int argc, char **argv, int optind) {
         LERROR(0,0, "ERROR: file is not accessible");
       if((crc = computeCRC32(argv[i])) != 0) {
         if(crc == vbuf)
-          printf("OK\n");
+          printf("OK (%08lX)\n", crc);
         else
-          printf("ERROR (real: %08lX)\n", crc);
+          printf("ERROR (is: %08lX, db: %08lX)\n", crc, vbuf);
       } else
         printf("ERROR (CRC32 is zero)\n");
     } else if(err == 0) {
@@ -398,6 +400,38 @@ int command_check_batch2(int argc, char **argv, int optind) {
     } 
   }} else {
     // check all the paths from the database
+    cdb_seqinit(&up, &db);
+    while(cdb_seqnext(&up, &db) > 0) {
+      klen = cdb_keylen(&db);
+      kpos = cdb_keypos(&db);
+      vlen = cdb_datalen(&db);
+      vpos = cdb_datapos(&db);
+      if((vlen = cdb_datalen(&db)) != sizeof(unsigned long)) {
+        LERROR(0,0, "%s: invalid data value /%s", dbiofile,argv[i]);
+        continue;
+      }
+      helper_manage_stackheapbuf(kbuf, &kbuflen, &kbuf_isstatic, klen);
+      if(cdb_read(&db, kbuf, klen, kpos) != 0) {
+        LERROR(0,0, "cdb_read() failed for kbuf");
+        continue;
+      }
+      if(cdb_read(&db, &vbuf, vlen, vpos) != 0) {
+        LERROR(0,0, "cdb_read() failed for &vbuf");
+        continue;
+      }
+      printf("%s: <%s> ... ", dbiofile, kbuf);
+      if(check_access_flags_v(kbuf, F_OK | R_OK, 1) != 0) {
+        LERROR(0,0, "ERROR: file is not accessible");
+        continue;
+      }
+      if((crc = computeCRC32(kbuf)) != 0) {
+        if(crc == vbuf)
+          printf("OK (%08lX)\n", crc);
+        else
+          printf("ERROR (is: %08lX, db: %08lX)\n", crc, vbuf);
+      } else
+        printf("ERROR (CRC32 is zero)\n");
+    }
   }
   if(kbuf_isstatic == 0)
     free(kbuf);
