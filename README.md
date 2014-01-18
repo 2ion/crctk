@@ -6,6 +6,26 @@ in the following.
 
 Stable releases are tagged in Git. Everything else is experimental!
 
+## Compilation and installation
+
+crctk depends on:
+
+- libz
+- libcdb/libtinycdb
+
+On Debian, these may be installed using
+```sh
+sudo apt-get install libcdb-dev zlib1g-dev
+```
+
+```sh
+make
+make README
+make install prefix=$HOME/bin
+```
+
+where $prefix is the directory the binary will be copied to.
+
 ## md5sum-style checksum verification
 
 crctk can calculate the checksum of a batch of files and store the
@@ -117,7 +137,7 @@ See the section on Usage for more available options.
 More concise usage information.
 
 ```
-crctk v0.3-53898bd (Jan 15 2014 21:36:42)
+crctk v0.3-783a387 (Jan 18 2014 15:01:57)
 CRC32 Hexstring Toolkit
 Copyright (C) 2014 2ion (asterisk!2ion!de)
 Upstream: https://github.com/2ion/crctk

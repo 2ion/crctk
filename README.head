@@ -6,6 +6,26 @@ in the following.
 
 Stable releases are tagged in Git. Everything else is experimental!
 
+## Compilation and installation
+
+crctk depends on:
+
+- libz
+- libcdb/libtinycdb
+
+On Debian, these may be installed using
+```sh
+sudo apt-get install libcdb-dev zlib1g-dev
+```
+
+```sh
+make
+make README
+make install prefix=$HOME/bin
+```
+
+where $prefix is the directory the binary will be copied to.
+
 ## md5sum-style checksum verification
 
 crctk can calculate the checksum of a batch of files and store the
