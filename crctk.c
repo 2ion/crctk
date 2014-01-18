@@ -311,8 +311,8 @@ int command_list_db(void) {
   char *vbuf = staticvbuf;
   size_t kbuflen = PATH_MAX;
   size_t vbuflen = PATH_MAX;
-  int free_kbuf = 0;
-  int free_vbuf = 0;
+  int kbuf_isstatic = 1;
+  int vbuf_isstatic = 1;
   int fd;
   unsigned up, vpos, vlen, klen, kpos;
 
@@ -327,26 +327,8 @@ int command_list_db(void) {
     vlen = cdb_datalen(&db);
     kpos = cdb_keypos(&db);
     klen = cdb_keylen(&db);
-    if(klen > kbuflen*sizeof(char)) {
-      if(free_kbuf == 0) {
-        free_kbuf = 1;
-        if((kbuf = calloc(klen, 1)) == NULL)
-          LERROR(EXIT_FAILURE, errno, "call to calloc() failed");
-      } else {
-        if((kbuf = realloc(kbuf, klen)) == NULL)
-          LERROR(EXIT_FAILURE, errno, "call to realloc() failed");
-      }
-      kbuflen = klen;
-    }
-    if(vlen > vbuflen*sizeof(char)) {
-      if(free_vbuf == 0) {
-        free_vbuf = 1;
-        vbuf = calloc(vlen, 1);
-      } else {
-        vbuf = realloc(vbuf, vbuflen);
-      }
-      vbuflen = vlen;
-    }
+    helper_manage_stackheapbuf(kbuf, &kbuflen, &kbuf_isstatic, klen);
+    helper_manage_stackheapbuf(vbuf, &vbuflen, &vbuf_isstatic, vlen);
     if(cdb_read(&db, kbuf, klen, kpos) != 0) {
       LERROR(0,0, "cdb_read(): failed to read key. Skipping entry ...");
       continue;
@@ -359,9 +341,9 @@ int command_list_db(void) {
   } // while
   cdb_free(&db);
   close(fd);
-  if(free_kbuf == 1)
+  if(kbuf_isstatic == 0)
     free(kbuf);
-  if(free_vbuf == 1)
+  if(vbuf_isstatic == 0)
     free(vbuf);
   return EXIT_SUCCESS;
 }
@@ -586,7 +568,6 @@ int copy_cdb(const char *srcdb, struct cdb_make *target_db, int tfd) {
     klen = cdb_keylen(&source_db);
     vpos = cdb_datapos(&source_db);
     vlen = cdb_datalen(&source_db);
-
     helper_manage_stackheapbuf(vbuf, &vbuflen, &vbuf_isstatic, vlen);
     helper_manage_stackheapbuf(kbuf, &kbuflen, &kbuf_isstatic, klen);
   } // while
