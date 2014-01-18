@@ -155,8 +155,8 @@ int command_calc_batch(int argc, char **argv, int optind) {
   unsigned long crc;
   struct cdb_make cdbm;
 
-  if((fd = open(dbiofile, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR)) == -1)
-    LERROR(ExitUnknownError, errno, "couldn't create temporary file");
+  if((fd = open(dbiofile, O_WRONLY | O_CREAT , S_IRUSR | S_IWUSR)) == -1)
+    LERROR(ExitUnknownError, errno, "couldn't create file");
   if((cdb_make_start(&cdbm, fd)) != 0)
     LERROR(ExitUnknownError, 0, "couldn't initialize the cdb database");
   for(i = optind; i < argc; ++i) {
@@ -171,7 +171,7 @@ int command_calc_batch(int argc, char **argv, int optind) {
     }
     printf("%08lX\n", crc);
     cdb_make_put(&cdbm, argv[i], (strlen(argv[i])+1)*sizeof(char),
-        &crc, sizeof(crc), CDB_PUT_INSERT);
+        &crc, sizeof(unsigned long), CDB_PUT_INSERT);
   }
   if(cdb_make_finish(&cdbm) != 0) {
     LERROR(0, 0, "cdb_make_finish() failed");
@@ -305,12 +305,12 @@ int command_check(const char *filename) {
 }
 int command_list_db(void) {
   struct cdb db;
-  char statickbuf[PATH_MAX];
-  char staticvbuf[PATH_MAX];
+  char statickbuf[255];
+  char staticvbuf[255];
   char *kbuf = statickbuf;
   char *vbuf = staticvbuf;
-  size_t kbuflen = PATH_MAX;
-  size_t vbuflen = PATH_MAX;
+  size_t kbuflen = sizeof(statickbuf)*sizeof(char);
+  size_t vbuflen = sizeof(statickbuf)*sizeof(char);
   int kbuf_isstatic = 1;
   int vbuf_isstatic = 1;
   int fd;
@@ -323,6 +323,7 @@ int command_list_db(void) {
     LERROR(EXIT_FAILURE, 0, "cdb_init() failed");
   cdb_seqinit(&up, &db);
   while(cdb_seqnext(&up, &db) > 0) {
+    puts("enter read loop");
     vpos = cdb_datapos(&db);
     vlen = cdb_datalen(&db);
     kpos = cdb_keypos(&db);
@@ -337,6 +338,7 @@ int command_list_db(void) {
       LERROR(0,0, "cdb_read(): failed to read value. Skipping entry ...");
       continue;
     }
+    printf("buf sizes: kbuf=%lu klen=%lu vbuf=%lu vlen=%lu\n", kbuflen, klen, vbuflen, vlen);
     printf("%s: <%s> -> %08lX\n", dbiofile, kbuf, *(unsigned long*)vbuf);
   } // while
   cdb_free(&db);
