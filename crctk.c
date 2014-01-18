@@ -53,7 +53,7 @@ const char *dbiofile = "crcsums.tdb";
 enum { ExitMatch = EXIT_SUCCESS, ExitNoMatch = EXIT_FAILURE,
   ExitArgumentError = 10, ExitRegexError = 11, ExitUnknownError = 12};
 enum { CmdIdle, CmdCheck, CmdTag, CmdRmTag, CmdCalc, CmdCalcBatch, CmdCheckBatch,
-  CmdList };
+  CmdList, CmdCheckBatchTwo };
 enum { TAG_ALLOW_STRIP = 1 << 0, CALC_PRINT_NUMERICAL = 1 << 1 };
 
 static unsigned long getFileSize(const char*);
@@ -64,6 +64,7 @@ static int command_list_db(void);
 static int command_tag(const char*,int);
 static int command_calc(const char*, int);
 static int command_calc_batch(int, char**, int);
+static int command_check_batch2(int, char**, int);
 static void check_access_flags(const char*, int, int);
 static int check_access_flags_v(const char*, int, int);
 static void compile_regex(regex_t*, const char*, int);
@@ -349,6 +350,62 @@ int command_list_db(void) {
   return EXIT_SUCCESS;
 }
 
+int command_check_batch2(int argc, char **argv, int optind) {
+  struct cdb db;
+  int fd;
+  char statickbuf[255];
+  char *kbuf = statickbuf;
+  size_t kbuflen = 255;
+  int kbuf_isstatic = 1;
+  char *db_basename;
+  char *argv_basename;
+  unsigned long vbuf, crc;
+  unsigned up, vpos, vlen, klen, kpos;
+  int i, err;
+
+  check_access_flags(dbiofile, F_OK | R_OK, 1);
+  if((fd = open(dbiofile, O_RDONLY)) == -1)
+    LERROR(EXIT_FAILURE, errno, "could not open cdb file: %s", dbiofile);
+  if(cdb_init(&db, fd) != 0)
+    LERROR(EXIT_FAILURE, 0, "cdb_init() failed");
+  
+  if(optind < argc) { for(i=optind; i < argc; ++i) {
+    klen = sizeof(char) * (strlen(argv[i]) + 1);
+    if((err = cdb_find(&db, argv[i], klen)) > 0) {
+      printf("%s: <%s> ... ", dbiofile, argv[i]);
+      vpos = cdb_datapos(&db);
+      if((vlen = cdb_datalen(&db)) != sizeof(unsigned long)) {
+        LERROR(0,0, "%s: invalid data value /%s", dbiofile,argv[i]);
+        continue;
+      }
+      if(cdb_read(&db, &vbuf, vlen, vpos) != 0) {
+        LERROR(0,0, "%s: cdb_read() failed on key <%s>", dbiofile, argv[i]);
+        continue;
+      }
+      if(check_access_flags_v(argv[i], F_OK | R_OK, 1) != 0)
+        LERROR(0,0, "ERROR: file is not accessible");
+      if((crc = computeCRC32(argv[i])) != 0) {
+        if(crc == vbuf)
+          printf("OK\n");
+        else
+          printf("ERROR (real: %08lX)\n", crc);
+      } else
+        printf("ERROR (CRC32 is zero)\n");
+    } else if(err == 0) {
+      printf("%s: Not found: %s\n", dbiofile, argv[i]);
+    } else {
+      LERROR(0,0, "cdb_find() failed: unknown error");
+    } 
+  }} else {
+    // check all the paths from the database
+  }
+  if(kbuf_isstatic == 0)
+    free(kbuf);
+  cdb_free(&db);
+  close(fd);
+  return EXIT_SUCCESS;
+}
+
 int command_check_batch(int argc, char **argv, int optind) {
   struct cdb db;
   int fd;
@@ -358,7 +415,7 @@ int command_check_batch(int argc, char **argv, int optind) {
   char *bnamedb;
   char *bnameargv;
   int wkbuf_isstatic = 1;
-  int i, iDone;
+  int i, iDone = 0;
   unsigned long vbuf, crc;
   unsigned up, vpos, vlen, klen, kpos;
 
@@ -582,7 +639,7 @@ int main(int argc, char **argv) {
     int cmd = CmdIdle;
     int cmdflags = 0;
 
-    while((opt = getopt(argc, argv, "+tnvV:hsrC:ce:p:")) != -1) {
+    while((opt = getopt(argc, argv, "+tnvV:hsrC:ce:p:Q:")) != -1) {
         switch(opt) {
             case 'n':
                 cmdflags |= CALC_PRINT_NUMERICAL; 
@@ -594,6 +651,10 @@ int main(int argc, char **argv) {
             case 'V':
                 dbiofile = strdup(optarg);
                 cmd = CmdCheckBatch;
+                break;
+            case 'Q':
+                dbiofile = strdup(optarg);
+                cmd = CmdCheckBatchTwo;
                 break;
             case 'e':
                 crcregex_stripper = strdup(optarg);
@@ -657,7 +718,8 @@ int main(int argc, char **argv) {
                 return ExitArgumentError;
         }
     }
-    if(optind >= argc && cmd != CmdCheckBatch && cmd != CmdList)
+    if(optind >= argc && cmd != CmdCheckBatch && cmd != CmdList
+        && cmd != CmdCheckBatchTwo)
         LERROR(ExitArgumentError, 0,
                 "too few arguments. Use the -h flag "
                 "to obtain usage information.");
@@ -671,6 +733,8 @@ int main(int argc, char **argv) {
             return command_calc_batch(argc, argv, optind);
         case CmdCheckBatch:
             return command_check_batch(argc, argv, optind);
+        case CmdCheckBatchTwo:
+            return command_check_batch2(argc, argv, optind);
         case CmdIdle:
             break;
         case CmdCheck:
