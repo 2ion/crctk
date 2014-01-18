@@ -323,7 +323,6 @@ int command_list_db(void) {
     LERROR(EXIT_FAILURE, 0, "cdb_init() failed");
   cdb_seqinit(&up, &db);
   while(cdb_seqnext(&up, &db) > 0) {
-    puts("enter read loop");
     vpos = cdb_datapos(&db);
     vlen = cdb_datalen(&db);
     kpos = cdb_keypos(&db);
@@ -338,7 +337,7 @@ int command_list_db(void) {
       LERROR(0,0, "cdb_read(): failed to read value. Skipping entry ...");
       continue;
     }
-    printf("buf sizes: kbuf=%lu klen=%lu vbuf=%lu vlen=%lu\n", kbuflen, klen, vbuflen, vlen);
+    //printf("buf sizes: kbuf=%lu klen=%lu vbuf=%lu vlen=%lu\n", kbuflen, klen, vbuflen, vlen);
     printf("%s: <%s> -> %08lX\n", dbiofile, kbuf, *(unsigned long*)vbuf);
   } // while
   cdb_free(&db);
