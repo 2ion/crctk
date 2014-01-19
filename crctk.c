@@ -198,7 +198,7 @@ int command_tag(const char *filename, int flags) {
     string = get_basename((char*)filename);
     compile_regex(&regex, crcregex, REG_ICASE | REG_NOSUB);
     if(regexec(&regex, string, 0, 0, 0) == 0) {
-        if ((flags & TAG_ALLOW_STRIP) == TAG_ALLOW_STRIP) {
+        if (flags & TAG_ALLOW_STRIP) {
             workstring = strip_tag(string);
             if(workstring == NULL)
                 LERROR(ExitUnknownError, 0,
@@ -603,7 +603,7 @@ int command_calc(const char *filename, int flags) {
 
     check_access_flags(filename, F_OK | R_OK, 1);
     crc = computeCRC32(filename);
-    if((flags & CALC_PRINT_NUMERICAL) == CALC_PRINT_NUMERICAL)
+    if(flags & CALC_PRINT_NUMERICAL)
       printf("%s: %lu\n", filename, crc);
     else
       printf("%s: %08lX\n", filename, crc);
