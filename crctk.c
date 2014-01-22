@@ -41,13 +41,13 @@
 #include <zlib.h>
 
 #define _GNU_SOURCE
-
 #define LERROR(status, errnum, ...) error_at_line((status), (errnum), \
         (__func__), (__LINE__), __VA_ARGS__)
 #ifndef VERSION
 #define VERSION "unknown"
 #endif
 #define COPY_DB_STATIC_BUF_LEN 255
+#pragma GCC diagnostic ignored "-Wfree-nonheap-object"
 
 const char *crcregex = "[[:xdigit:]]\\{8\\}";
 const char *crcregex_stripper = "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?";
@@ -66,7 +66,6 @@ static int command_list_db(void);
 static int command_tag(const char*,int);
 static int command_calc(const char*, int);
 static int command_calc_batch(int, char**, int);
-static int command_check_batch2(int, char**, int);
 static void check_access_flags(const char*, int, int);
 static int check_access_flags_v(const char*, int, int);
 static void compile_regex(regex_t*, const char*, int);
@@ -359,8 +358,6 @@ int command_check_batch(int argc, char **argv, int optind) {
   char *kbuf = statickbuf;
   size_t kbuflen = 255;
   int kbuf_isstatic = 1;
-  char *db_basename;
-  char *argv_basename;
   unsigned long vbuf, crc;
   unsigned up, vpos, vlen, klen, kpos;
   int i, err;
@@ -407,7 +404,9 @@ int command_check_batch(int argc, char **argv, int optind) {
       vlen = cdb_datalen(&db);
       vpos = cdb_datapos(&db);
       if((vlen = cdb_datalen(&db)) != sizeof(unsigned long)) {
-        LERROR(0,0, "%s: invalid data value /%s", dbiofile,argv[i]);
+        //FIXME: output key name
+        LERROR(0,0, "%s: invalid data value: wrong data size (keypos=%u, keylen=%u)",
+            dbiofile, kpos, klen);
         continue;
       }
       helper_manage_stackheapbuf(kbuf, &kbuflen, &kbuf_isstatic, klen);
@@ -577,11 +576,23 @@ int copy_cdb(const char *srcdb, struct cdb_make *target_db, int tfd) {
     vlen = cdb_datalen(&source_db);
     helper_manage_stackheapbuf(vbuf, &vbuflen, &vbuf_isstatic, vlen);
     helper_manage_stackheapbuf(kbuf, &kbuflen, &kbuf_isstatic, klen);
+    if(cdb_read(&source_db, kbuf, klen, kpos) != 0) {
+      LERROR(0,0, "cdb_read() failed for kbuf");
+      continue;
+    }
+    if(cdb_read(&source_db, vbuf, vlen, vpos) != 0) {
+      LERROR(0,0, "cdb_read() failed for &vbuf");
+      continue;
+    }
+    cdb_make_put(target_db, kbuf, klen, vbuf, vlen, CDB_PUT_INSERT);
   } // while
+  cdb_make_finish(target_db);
+  cdb_free(&source_db);
   if(vbuf_isstatic == 0) // throws -Wfree-nonheap-object but we're safe
     free(vbuf);
-  if(kbuf_isstatic == 0) // throws -W-Wfree-nonheap-object but we're safe
+  if(kbuf_isstatic == 0) // throws -Wfree-nonheap-object but we're safe
     free(kbuf);
+  close(sfd);
 }
 int main(int argc, char **argv) {
     int opt;
