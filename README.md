@@ -137,11 +137,11 @@ See the section on Usage for more available options.
 More concise usage information.
 
 ```
-crctk v0.3-783a387 (Jan 18 2014 15:01:57)
+crctk v0.3-61f7c10 (Jan 22 2014 16:39:00)
 CRC32 Hexstring Toolkit
 Copyright (C) 2014 2ion (asterisk!2ion!de)
 Upstream: https://github.com/2ion/crctk
-Usage: crctk [-vVcCoptsreh] <file>|<file-list>
+Usage: crctk [-aCcehnprstVv] <file>|<file-listing>
 Options:
  -v Compute CRC32 and compare with the hexstring
     in the supplied filename.
@@ -156,7 +156,9 @@ Options:
  -c Compute the CRC32 of the given file, print and exit.
  -n Supplements -c: print CRC32 in its numerical format.
  -C for multiple input files, create a checksum listing
-    for use with the -V option.
+    for use with the -V option. Overwrites the given file.
+ -a Supplements -C: Append to the given database file instead
+    of overwriting it.
  -p FILE. Print the contents of a file created by the -C
     options to stdout.
  -t Tag file with a CRC32 hexstring. Aborts if
