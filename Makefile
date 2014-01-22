@@ -7,11 +7,11 @@ else
 endif
 prefix ?= $(HOME)/bin
 cflags = $(shell pkg-config --cflags libcdb)
-ldflags = $(shell pkg-config --libs libcdb)
+ldflags = -lz $(shell pkg-config --libs libcdb)
 .PHONY: clean push pull install uninstall
 
 crctk: crctk.c
-	gcc -Wall -O3 -DVERSION=\"$(version)\" $(cflags) -o $@ $< -lz $(ldflags)
+	gcc -Wall -O3 -DVERSION=\"$(version)\" $(cflags) -o $@ $< $(ldflags)
 	strip $@
 
 README.md: crctk README.head

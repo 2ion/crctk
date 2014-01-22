@@ -40,6 +40,8 @@
 #include <unistd.h>
 #include <zlib.h>
 
+#define _GNU_SOURCE
+
 #define LERROR(status, errnum, ...) error_at_line((status), (errnum), \
         (__func__), (__LINE__), __VA_ARGS__)
 #ifndef VERSION
@@ -53,7 +55,7 @@ const char *dbiofile = "crcsums.tdb";
 enum { ExitMatch = EXIT_SUCCESS, ExitNoMatch = EXIT_FAILURE,
   ExitArgumentError = 10, ExitRegexError = 11, ExitUnknownError = 12};
 enum { CmdIdle, CmdCheck, CmdTag, CmdRmTag, CmdCalc, CmdCalcBatch, CmdCheckBatch,
-  CmdList, CmdCheckBatchTwo };
+  CmdList};
 enum { TAG_ALLOW_STRIP = 1 << 0, CALC_PRINT_NUMERICAL = 1 << 1 };
 
 static unsigned long getFileSize(const char*);
@@ -350,7 +352,7 @@ int command_list_db(void) {
   return EXIT_SUCCESS;
 }
 
-int command_check_batch2(int argc, char **argv, int optind) {
+int command_check_batch(int argc, char **argv, int optind) {
   struct cdb db;
   int fd;
   char statickbuf[255];
@@ -362,8 +364,6 @@ int command_check_batch2(int argc, char **argv, int optind) {
   unsigned long vbuf, crc;
   unsigned up, vpos, vlen, klen, kpos;
   int i, err;
-
-  LERROR(0,0, "**** EXPERIMENTAL FUNCTION ****");
 
   check_access_flags(dbiofile, F_OK | R_OK, 1);
   if((fd = open(dbiofile, O_RDONLY)) == -1)
@@ -436,91 +436,6 @@ int command_check_batch2(int argc, char **argv, int optind) {
   if(kbuf_isstatic == 0)
     free(kbuf);
   cdb_free(&db);
-  close(fd);
-  return EXIT_SUCCESS;
-}
-
-int command_check_batch(int argc, char **argv, int optind) {
-  struct cdb db;
-  int fd;
-  char kbuf[PATH_MAX];
-  size_t kbuf_len = PATH_MAX;
-  char *wkbuf = kbuf;
-  char *bnamedb;
-  char *bnameargv;
-  int wkbuf_isstatic = 1;
-  int i, iDone = 0;
-  unsigned long vbuf, crc;
-  unsigned up, vpos, vlen, klen, kpos;
-
-  check_access_flags(dbiofile, F_OK | R_OK, 1);
-  if((fd = open(dbiofile, O_RDONLY)) == -1)
-    LERROR(EXIT_FAILURE, errno, "could not open cdb file: %s", dbiofile);
-  if(cdb_init(&db, fd) != 0)
-    LERROR(EXIT_FAILURE, 0, "cdb_init() failed");
-  cdb_seqinit(&up, &db);
-  while(cdb_seqnext(&up, &db) > 0) {
-    vpos = cdb_datapos(&db);
-    vlen = cdb_datalen(&db);
-    kpos = cdb_keypos(&db);
-    klen = cdb_keylen(&db);
-    if(vlen > sizeof(unsigned long)) {
-      LERROR(0,0, "Skipping record with value size > sizeof(unsigned long)");
-      continue;
-    }
-    helper_manage_stackheapbuf(wkbuf, &kbuf_len, &wkbuf_isstatic, klen);
-    if(cdb_read(&db, wkbuf, klen, kpos) != 0) {
-      LERROR(0,0, "Skipping current record because I failed to read the key");
-      continue;
-    }
-    if(cdb_read(&db, &vbuf, vlen, vpos) != 0) {
-      LERROR(0,0, "Skipping current record because I failed to read the data");
-      continue;
-    }
-    if(optind < argc) { // we have arguments in argv to check the db entr against
-      bnamedb = basename(wkbuf);
-      for(iDone = 0, i = optind; i < argc; ++i) {
-        bnameargv = basename(argv[i]);
-        if(strcmp((const char*)bnamedb, (const char*)bnameargv) == 0) {
-          iDone = 1;
-          printf("%s[%08lX] pathspec matches argument #%d: %s ... ",
-              dbiofile, vbuf, i, bnameargv);
-          if(check_access_flags_v(bnameargv, F_OK | R_OK, 1) != 0) {
-            printf("FAILED (no read access)\n");
-            iDone = 0;
-            break;
-          }
-          if((crc = computeCRC32(bnameargv)) == vbuf) {
-            printf("OK\n");
-            break;
-          }
-          else {
-            printf("FAILED (real: %08lX)\n", crc);
-            iDone = 1;
-            break;
-          }
-        } // if
-      } // for
-    if(iDone == 0)
-      printf("%s: no matching argument in argv for database entry: %s\n",
-          dbiofile, wkbuf);
-    } else {
-    // check if the stored path is still available
-      if(check_access_flags_v(wkbuf, F_OK | R_OK, 1) != 0) {
-        LERROR(0,0, "(%s) file %s doesn't exist or is inaccessible.",
-        dbiofile, wkbuf);
-        continue;
-    }
-    printf("%s[%08lX]: %s ... ", dbiofile, vbuf, wkbuf);
-    if((crc = computeCRC32(wkbuf)) == vbuf)
-      printf("OK\n");
-    else
-      printf("FAILED (real: %08lX)\n", crc);
-    }
-  } // while
-  cdb_free(&db);
-  if(wkbuf_isstatic == 0) // throws -Wfree-nonheap-object, but we're safe 'cause we track
-    free(wkbuf);
   close(fd);
   return EXIT_SUCCESS;
 }
@@ -673,7 +588,7 @@ int main(int argc, char **argv) {
     int cmd = CmdIdle;
     int cmdflags = 0;
 
-    while((opt = getopt(argc, argv, "+tnvV:hsrC:ce:p:Q:")) != -1) {
+    while((opt = getopt(argc, argv, "+tnvV:hsrC:ce:p:")) != -1) {
         switch(opt) {
             case 'n':
                 cmdflags |= CALC_PRINT_NUMERICAL; 
@@ -685,10 +600,6 @@ int main(int argc, char **argv) {
             case 'V':
                 dbiofile = strdup(optarg);
                 cmd = CmdCheckBatch;
-                break;
-            case 'Q':
-                dbiofile = strdup(optarg);
-                cmd = CmdCheckBatchTwo;
                 break;
             case 'e':
                 crcregex_stripper = strdup(optarg);
@@ -752,8 +663,7 @@ int main(int argc, char **argv) {
                 return ExitArgumentError;
         }
     }
-    if(optind >= argc && cmd != CmdCheckBatch && cmd != CmdList
-        && cmd != CmdCheckBatchTwo)
+    if(optind >= argc && cmd != CmdCheckBatch && cmd != CmdList)
         LERROR(ExitArgumentError, 0,
                 "too few arguments. Use the -h flag "
                 "to obtain usage information.");
@@ -767,8 +677,6 @@ int main(int argc, char **argv) {
             return command_calc_batch(argc, argv, optind);
         case CmdCheckBatch:
             return command_check_batch(argc, argv, optind);
-        case CmdCheckBatchTwo:
-            return command_check_batch2(argc, argv, optind);
         case CmdIdle:
             break;
         case CmdCheck:
