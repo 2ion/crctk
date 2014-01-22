@@ -56,7 +56,8 @@ enum { ExitMatch = EXIT_SUCCESS, ExitNoMatch = EXIT_FAILURE,
   ExitArgumentError = 10, ExitRegexError = 11, ExitUnknownError = 12};
 enum { CmdIdle, CmdCheck, CmdTag, CmdRmTag, CmdCalc, CmdCalcBatch, CmdCheckBatch,
   CmdList};
-enum { TAG_ALLOW_STRIP = 1 << 0, CALC_PRINT_NUMERICAL = 1 << 1 };
+enum { TAG_ALLOW_STRIP = 1 << 0, CALC_PRINT_NUMERICAL = 1 << 1,
+  APPEND_TO_DB = 1 << 2 };
 
 static unsigned long getFileSize(const char*);
 static unsigned long computeCRC32(const char*);
@@ -65,7 +66,7 @@ static int command_check_batch(int, char**, int);
 static int command_list_db(void);
 static int command_tag(const char*,int);
 static int command_calc(const char*, int);
-static int command_calc_batch(int, char**, int);
+static int command_calc_batch(int, char**, int, int);
 static void check_access_flags(const char*, int, int);
 static int check_access_flags_v(const char*, int, int);
 static void compile_regex(regex_t*, const char*, int);
@@ -152,13 +153,16 @@ void compile_regex(regex_t *regex, const char *regexpr, int cflags) {
 }
 
 
-int command_calc_batch(int argc, char **argv, int optind) {
+int command_calc_batch(int argc, char **argv, int optind, int flags) {
   int i, fd;
   unsigned long crc;
   struct cdb_make cdbm;
 
   if((fd = open(dbiofile, O_WRONLY | O_CREAT , S_IRUSR | S_IWUSR)) == -1)
     LERROR(ExitUnknownError, errno, "couldn't create file");
+  if(flags & APPEND_TO_DB)
+    if(copy_cdb(dbiofile, &cdbm, fd) == EXIT_FAILURE)
+      LERROR(EXIT_FAILURE, 0, "copy_db() on %s failed", dbiofile);
   if((cdb_make_start(&cdbm, fd)) != 0)
     LERROR(ExitUnknownError, 0, "couldn't initialize the cdb database");
   for(i = optind; i < argc; ++i) {
@@ -556,17 +560,21 @@ int copy_cdb(const char *srcdb, struct cdb_make *target_db, int tfd) {
   int vbuf_isstatic = 1;
   int kbuf_isstatic = 1;
 
+  if(check_access_flags_v(srcdb, F_OK | R_OK, 1) != 0) {
+    LERROR(0, 0, "file %s does not exist or is inaccessible.", srcdb);
+    return -1;
+  }
   if((sfd = open(srcdb, O_RDONLY, 0)) == -1) {
     LERROR(0, errno, "open() on source db failed");
-    return -1;
+    return EXIT_FAILURE;
   }
   if((cdb_make_start(target_db, tfd)) != 0) {
     LERROR(0,0, "cdb_make_start() on target db failed");
-    return -1;
+    return EXIT_FAILURE;
   }
   if((cdb_init(&source_db, sfd)) != 0) {
     LERROR(0,0, "cdb_init() on source db failed");
-    return -1;
+    return EXIT_FAILURE;
   }
   cdb_seqinit(&up, &source_db);
   while(cdb_seqnext(&up, &source_db) > 0) {
@@ -577,11 +585,11 @@ int copy_cdb(const char *srcdb, struct cdb_make *target_db, int tfd) {
     helper_manage_stackheapbuf(vbuf, &vbuflen, &vbuf_isstatic, vlen);
     helper_manage_stackheapbuf(kbuf, &kbuflen, &kbuf_isstatic, klen);
     if(cdb_read(&source_db, kbuf, klen, kpos) != 0) {
-      LERROR(0,0, "cdb_read() failed for kbuf");
+      LERROR(0,0, "cdb_read() failed for kbuf. Skipping ...");
       continue;
     }
     if(cdb_read(&source_db, vbuf, vlen, vpos) != 0) {
-      LERROR(0,0, "cdb_read() failed for &vbuf");
+      LERROR(0,0, "cdb_read() failed for vbuf. Skipping ...");
       continue;
     }
     cdb_make_put(target_db, kbuf, klen, vbuf, vlen, CDB_PUT_INSERT);
@@ -593,14 +601,18 @@ int copy_cdb(const char *srcdb, struct cdb_make *target_db, int tfd) {
   if(kbuf_isstatic == 0) // throws -Wfree-nonheap-object but we're safe
     free(kbuf);
   close(sfd);
+  return 0;
 }
 int main(int argc, char **argv) {
     int opt;
     int cmd = CmdIdle;
     int cmdflags = 0;
 
-    while((opt = getopt(argc, argv, "+tnvV:hsrC:ce:p:")) != -1) {
+    while((opt = getopt(argc, argv, "+tnvV:hsrC:ce:p:a")) != -1) {
         switch(opt) {
+            case 'a':
+                cmdflags |= APPEND_TO_DB;
+                break;
             case 'n':
                 cmdflags |= CALC_PRINT_NUMERICAL; 
                 break;
@@ -685,7 +697,7 @@ int main(int argc, char **argv) {
             return command_calc(argv[argc-1], cmdflags);
         case CmdCalcBatch:
             srand(time(NULL));
-            return command_calc_batch(argc, argv, optind);
+            return command_calc_batch(argc, argv, optind, cmdflags);
         case CmdCheckBatch:
             return command_check_batch(argc, argv, optind);
         case CmdIdle:
