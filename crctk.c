@@ -47,7 +47,10 @@
 #define VERSION "unknown"
 #endif
 #define COPY_DB_STATIC_BUF_LEN 255
+#define DBITEM_PATHBUFLEN 255
 #pragma GCC diagnostic ignored "-Wfree-nonheap-object"
+
+/* GLOBALS ; TYPES */
 
 const char *crcregex = "[[:xdigit:]]\\{8\\}";
 const char *crcregex_stripper = "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?";
@@ -58,23 +61,45 @@ enum { CmdIdle, CmdCheck, CmdTag, CmdRmTag, CmdCalc, CmdCalcBatch, CmdCheckBatch
   CmdList};
 enum { TAG_ALLOW_STRIP = 1 << 0, CALC_PRINT_NUMERICAL = 1 << 1,
   APPEND_TO_DB = 1 << 2 };
+struct DBItem {
+  char *kbuf;
+  size_t kbuflen;
+  unsigned long crc;
+};
+
+/* PROTOTYPES */
 
 static unsigned long getFileSize(const char*);
 static unsigned long computeCRC32(const char*);
+
 static int command_check(const char*);
 static int command_check_batch(int, char**, int);
 static int command_list_db(void);
-static int command_tag(const char*,int);
+static int command_tag(const char*, int);
 static int command_calc(const char*, int);
 static int command_calc_batch(int, char**, int, int);
+
 static void check_access_flags(const char*, int, int);
 static int check_access_flags_v(const char*, int, int);
+
 static void compile_regex(regex_t*, const char*, int);
 static char* get_basename(char*);
-static char* pathcat(const char*,const char*);
+static char* pathcat(const char*, const char*);
 static inline void helper_manage_stackheapbuf(char*, size_t*, int*, unsigned);
 static char* strip_tag(const char*);
 static int copy_cdb(const char*, struct cdb_make*, int);
+
+/* IMPLEMENTATION */
+
+void init_dbitem(struct DBItem *i, unsigned klen, void *kdata,
+    unsigned long crc) {
+  assert(i != NULL);
+  if((i->kbuf = malloc(klen)) == NULL)
+    LERROR(EXIT_FAILURE, errno, "malloc() failed");
+  i->kbuflen = klen;
+  memcpy(i->kbuf, (const void*)kdata, klen);
+  i->crc = crc;
+}
 
 unsigned long getFileSize(const char *filename) {
     FILE *input_file;
@@ -152,11 +177,11 @@ void compile_regex(regex_t *regex, const char *regexpr, int cflags) {
     }
 }
 
-
 int command_calc_batch(int argc, char **argv, int optind, int flags) {
   int i, fd;
   unsigned long crc;
   struct cdb_make cdbm;
+  char **copy_cdb_buf = NULL;
 
   if((fd = open(dbiofile, O_WRONLY | O_CREAT , S_IRUSR | S_IWUSR)) == -1)
     LERROR(ExitUnknownError, errno, "couldn't create file");
@@ -395,7 +420,7 @@ int command_check_batch(int argc, char **argv, int optind) {
       } else
         printf("ERROR (CRC32 is zero)\n");
     } else if(err == 0) {
-      printf("%s: Not found: %s\n", dbiofile, argv[i]);
+      printf("%s: Not entry found for path: %s\n", dbiofile, argv[i]);
     } else {
       LERROR(0,0, "cdb_find() failed: unknown error");
     } 
@@ -409,8 +434,8 @@ int command_check_batch(int argc, char **argv, int optind) {
       vpos = cdb_datapos(&db);
       if((vlen = cdb_datalen(&db)) != sizeof(unsigned long)) {
         //FIXME: output key name
-        LERROR(0,0, "%s: invalid data value: wrong data size (keypos=%u, keylen=%u)",
-            dbiofile, kpos, klen);
+        LERROR(0,0, "%s: skipping entry: wrong data size (keypos=%u, vlen=%u)",
+            dbiofile, kpos, vlen);
         continue;
       }
       helper_manage_stackheapbuf(kbuf, &kbuflen, &kbuf_isstatic, klen);
@@ -547,6 +572,45 @@ void helper_manage_stackheapbuf(char *buf, size_t *buflen, int *buf_isstatic, un
   *buflen = datalen;
 }
 
+/*
+int copy_cdb2(const char *db, struct DBItem *dbibuf, size_t *dbibuflen,
+    int *dbibufpos, int *dbibuf_isstatic) {
+  assert(db != NULL);
+  assert(dbibuf != NULL);
+  assert(dbibuflen != NULL);
+  assert(dbibufpos != NULL);
+  assert(dbibuf_isstatic != NULL);
+  struct cdb sourcedb;
+  unsigned up, klen, kpos, vlen, vpos;
+  int fd;
+
+  if(check_access_flags_v(db, F_OK | R_OK, 1) != 0) {
+    LERROR(0,0, "file <%s> does not exist or is inaccessible", db);
+    return EXIT_FAILURE;
+  }
+  if((fd = open(db, O_RDONLY)) == -1) {
+    LERROR(0, errno, "open() on source db failed");
+    return EXIT_FAILURE;
+  }
+  if(cdb_init(&sourcedb, fd) != 0) {
+    LERROR(0, 0, "cdb_init() on source db failed");
+    return EXIT_FAILURE;
+  }
+  cdb_seqinit(&up, %sourcedb);
+  *dbibufpos = 0;
+  while(cdb_seqnext(&up, &sourcedb) > 0) {
+    if(*dbibufpos == *dbibuflen) {
+      if(*dbibuf_isstatic == 1) {
+        *dbibuf_isstatic = 0;
+        dbibuf = 
+      }
+    }
+
+  }
+}
+
+*/
+
 int copy_cdb(const char *srcdb, struct cdb_make *target_db, int tfd) {
   struct cdb source_db;
   int sfd;
@@ -593,6 +657,7 @@ int copy_cdb(const char *srcdb, struct cdb_make *target_db, int tfd) {
       continue;
     }
     cdb_make_put(target_db, kbuf, klen, vbuf, vlen, CDB_PUT_INSERT);
+    LERROR(0,0, "Wrote to target DB: klen=%u, vlen=%u", klen, vlen);
   } // while
   cdb_make_finish(target_db);
   cdb_free(&source_db);
@@ -611,6 +676,7 @@ int main(int argc, char **argv) {
     while((opt = getopt(argc, argv, "+tnvV:hsrC:ce:p:a")) != -1) {
         switch(opt) {
             case 'a':
+                LERROR(0,0, "*** EXPERIMENTAL FEATURE *** (flag -a)");
                 cmdflags |= APPEND_TO_DB;
                 break;
             case 'n':
@@ -690,7 +756,7 @@ int main(int argc, char **argv) {
     }
     if(optind >= argc && cmd != CmdCheckBatch && cmd != CmdList)
         LERROR(ExitArgumentError, 0,
-                "too few arguments. Use the -h flag "
+                "Too few arguments. Use the -h flag "
                 "to obtain usage information.");
     switch(cmd) {
         case CmdList:
