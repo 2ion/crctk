@@ -90,17 +90,27 @@ struct DBItem {
   unsigned long crc;
 };
 
+typedef int     // program exit status
+(*CommandFunction)(
+        int,    // argc
+        char**, // argv
+        int,    // optind
+        int);   // cmdflags bitmask
+
 /* PROTOTYPES */
 
 static unsigned long getFileSize(const char*);
 static unsigned long computeCRC32(const char*);
 
-static int command_check(const char*);
-static int command_check_batch(int, char**, int, int);
-static int command_list_db(void);
-static int command_tag(const char*, int);
-static int command_calc(const char*, int);
+// argc, argv, optind, cmdflags
+static int command_calc(int, char**, int, int);
 static int command_calc_batch(int, char**, int, int);
+static int command_check(int, char**, int, int);
+static int command_check_batch(int, char**, int, int);
+static int command_idle(int, char**, int, int);
+static int command_list_db(int, char**, int, int);
+static int command_remove_tag(int, char**, int, int);
+static int command_tag(int, char**, int, int);
 
 static void check_access_flags(const char*, int, int);
 static int check_access_flags_v(const char*, int, int);
@@ -204,7 +214,7 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
   int i, fd;
   unsigned long crc;
   struct cdb_make cdbm;
-  char **copy_cdb_buf = NULL;
+//  char **copy_cdb_buf = NULL;
 
   if((fd = open(dbiofile, O_WRONLY | O_CREAT , S_IRUSR | S_IWUSR)) == -1)
     LERROR(ExitUnknownError, errno, "couldn't create file");
@@ -236,128 +246,132 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
   return EXIT_SUCCESS;
 }
 
-int command_tag(const char *filename, int flags) {
-    char *string;
-    char *newstring;
-    char *workstring = NULL;
-    char tagstr[11];
-    char *p, *q, *r;
-    int i;
-    int f_free_workstring = 0;
-    regex_t regex;
-    unsigned long crcsum;
+int command_tag(int argc, char **argv, int optind, int flags) {
+  const char *filename = argv[argc-1];
+  char *string;
+  char *newstring;
+  char *workstring = NULL;
+  char tagstr[11];
+  char *p, *q, *r;
+  int i;
+  int f_free_workstring = 0;
+  regex_t regex;
+  unsigned long crcsum;
 
-    check_access_flags(filename, F_OK | R_OK | W_OK, 1);
-    string = get_basename((char*)filename);
-    compile_regex(&regex, crcregex, REG_ICASE | REG_NOSUB);
-    if(regexec(&regex, string, 0, 0, 0) == 0) {
-        if (flags & TAG_ALLOW_STRIP) {
-            workstring = strip_tag(string);
-            if(workstring == NULL)
-                LERROR(ExitUnknownError, 0,
-                        "strip_tag() failed for unknown reasons");
-            f_free_workstring = 1;
-        } else {
-            LERROR(EXIT_FAILURE, 0,
-                "filename already contains a CRC hexstring. Specify "
-                "the -s flag to allow stripping the old hexstring.");
-        }
-    }
-    regfree(&regex);
-    if(workstring == NULL)
-        workstring = string;
-    crcsum = computeCRC32(filename);
-    if(crcsum == 0)
-        LERROR(ExitUnknownError, 0, "The file's CRC sum is zero.");
-    sprintf(tagstr, "[%08lX]", crcsum);
-    newstring = malloc((strlen(workstring) + 11)*sizeof(char));
-    if((p = strrchr(workstring, '.')) != NULL) {
-        // has suffix: insert tag in front of suffix
-        for(i=0, q=workstring; q != p; ++q)
-            newstring[i++] = *q;
-        newstring[i] = '\0';
-        strncat(newstring, tagstr, 10);
-        q = workstring;
-        while(*q++);
-        for(i+=10; p < q; ++p)
-            newstring[i++] = *p;
-        newstring[i] = '\0';
+  check_access_flags(filename, F_OK | R_OK | W_OK, 1);
+  string = get_basename((char*)filename);
+  compile_regex(&regex, crcregex, REG_ICASE | REG_NOSUB);
+  if(regexec(&regex, string, 0, 0, 0) == 0) {
+    if (flags & TAG_ALLOW_STRIP) {
+      workstring = strip_tag(string);
+      if(workstring == NULL)
+        LERROR(ExitUnknownError, 0,
+                "strip_tag() failed for unknown reasons");
+      f_free_workstring = 1;
     } else {
-        // no suffix: append tag
-        strcat(newstring, workstring);
-        strcat(newstring, tagstr);
+      LERROR(EXIT_FAILURE, 0,
+          "filename already contains a CRC hexstring. Specify "
+          "the -s flag to allow stripping the old hexstring.");
     }
-    r = strdup(dirname((char*)filename));
-    p = pathcat(r, string);
-    q = pathcat(r, newstring);
-    if(rename((const char*) p, (const char*) q) != 0)
-        LERROR(EXIT_FAILURE, errno, "failed call to rename()");
-    free(p);
-    free(q);
-    if(f_free_workstring == 1)
-        free(workstring);
-    free(newstring);
-    return EXIT_SUCCESS;
+  }
+  regfree(&regex);
+  if(workstring == NULL)
+    workstring = string;
+  crcsum = computeCRC32(filename);
+  if(crcsum == 0)
+    LERROR(ExitUnknownError, 0, "The file's CRC sum is zero.");
+  sprintf(tagstr, "[%08lX]", crcsum);
+  newstring = malloc((strlen(workstring) + 11)*sizeof(char));
+  if((p = strrchr(workstring, '.')) != NULL) {
+    // has suffix: insert tag in front of suffix
+    for(i=0, q=workstring; q != p; ++q)
+      newstring[i++] = *q;
+    newstring[i] = '\0';
+    strncat(newstring, tagstr, 10);
+    q = workstring;
+    while(*q++);
+    for(i+=10; p < q; ++p)
+      newstring[i++] = *p;
+    newstring[i] = '\0';
+  } else {
+    // no suffix: append tag
+    strcat(newstring, workstring);
+    strcat(newstring, tagstr);
+  }
+  r = strdup(dirname((char*)filename));
+  p = pathcat(r, string);
+  q = pathcat(r, newstring);
+  if(rename((const char*) p, (const char*) q) != 0)
+    LERROR(EXIT_FAILURE, errno, "failed call to rename()");
+  free(p);
+  free(q);
+  if(f_free_workstring == 1)
+    free(workstring);
+  free(newstring);
+  return EXIT_SUCCESS;
 }
 
-int command_remove_tag(const char *filename) {
-    char *str, *nstr, *p, *q;
-    const char *d;
+int command_remove_tag(int argc, char **argv, int optind, int flags) {
+  const char *filename = argv[argc-1];
+  char *str, *nstr, *p, *q;
+  const char *d;
 
-    check_access_flags(filename, F_OK | R_OK | W_OK, 1);
-    str = get_basename((char*)filename);
-    if((nstr = strip_tag((const char*) str)) == NULL)
-        LERROR(ExitArgumentError, 0, "%s does not contain an hexstring", filename);
-    d = (const char*) dirname((char*)filename);
-    p = pathcat(d, (const char*)str);
-    q = pathcat(d, (const char*)nstr);
-    if(rename((const char*) p, (const char*) q) != 0)
-        LERROR(EXIT_FAILURE, errno, "failed call to rename()");
-    free(p);
-    free(q);
-    free(nstr);
-    return EXIT_SUCCESS;
+  check_access_flags(filename, F_OK | R_OK | W_OK, 1);
+  str = get_basename((char*)filename);
+  if((nstr = strip_tag((const char*) str)) == NULL)
+    LERROR(ExitArgumentError, 0, "%s does not contain an hexstring", filename);
+  d = (const char*) dirname((char*)filename);
+  p = pathcat(d, (const char*)str);
+  q = pathcat(d, (const char*)nstr);
+  if(rename((const char*) p, (const char*) q) != 0)
+    LERROR(EXIT_FAILURE, errno, "failed call to rename()");
+  free(p);
+  free(q);
+  free(nstr);
+  return EXIT_SUCCESS;
 }
 
 
 
-int command_check(const char *filename) {
-    int  ci, ti;                        
-    unsigned long compcrc;              
-    unsigned long matchcrc;             
-    char *string;                       
-    char results[9];                    
-    regmatch_t rmatch;                  
-    regex_t regex;                      
+int command_check(int argc, char **argv, int optind, int flags) {
+  const char *filename = argv[argc-1];
+  int  ci, ti;                        
+  unsigned long compcrc;              
+  unsigned long matchcrc;             
+  char *string;                       
+  char results[9];                    
+  regmatch_t rmatch;                  
+  regex_t regex;                      
 
-    check_access_flags(filename, F_OK | R_OK, 1);
-    string = get_basename((char*)filename);
-    compile_regex(&regex, crcregex, REG_ICASE);
-    switch(regexec((const regex_t*) &regex, string, 1, &rmatch, 0)) {
-        case 0:
-            for(ci = rmatch.rm_so, ti = 0; ci < rmatch.rm_eo; ++ci)
-                results[ti++] = string[ci];
-            results[ti] = '\0';
-            break;
-        case REG_NOMATCH:
-            LERROR(ExitNoMatch, 0,
-                    "the filename does not contain a CRC32 hexstring.");
-            return ExitNoMatch; // Not reached
-    }
-    regfree(&regex);
-    compcrc = computeCRC32(filename);
-    matchcrc = (unsigned long) strtol(results, NULL, 16);
-    if(compcrc != matchcrc) {
-        printf("mismatch: filename(%08lX) != computed(%08lX)\n",
-                matchcrc, compcrc);
-        return ExitNoMatch;
-    } else {
-        printf("match: filename(%08lX) == computed(%08lX)\n",
-                matchcrc, compcrc);
-        return ExitMatch;
-    }
+  check_access_flags(filename, F_OK | R_OK, 1);
+  string = get_basename((char*)filename);
+  compile_regex(&regex, crcregex, REG_ICASE);
+  switch(regexec((const regex_t*) &regex, string, 1, &rmatch, 0)) {
+    case 0:
+      for(ci = rmatch.rm_so, ti = 0; ci < rmatch.rm_eo; ++ci)
+          results[ti++] = string[ci];
+      results[ti] = '\0';
+      break;
+    case REG_NOMATCH:
+      LERROR(ExitNoMatch, 0,
+              "the filename does not contain a CRC32 hexstring.");
+      return ExitNoMatch; // Not reached
+  }
+  regfree(&regex);
+  compcrc = computeCRC32(filename);
+  matchcrc = (unsigned long) strtol(results, NULL, 16);
+  if(compcrc != matchcrc) {
+    printf("mismatch: filename(%08lX) != computed(%08lX)\n",
+            matchcrc, compcrc);
+    return ExitNoMatch;
+  } else {
+    printf("match: filename(%08lX) == computed(%08lX)\n",
+            matchcrc, compcrc);
+    return ExitMatch;
+  }
 }
-int command_list_db(void) {
+
+int command_list_db(int argc, char **argv, int optind, int flags) {
   struct cdb db;
   char statickbuf[255];
   char staticvbuf[255];
@@ -564,16 +578,21 @@ char* pathcat(const char *p, const char *s) {
     return r;
 }
 
-int command_calc(const char *filename, int flags) {
-    unsigned long crc;
+int command_calc(int argc, char **argv, int optind, int flags) {
+  const char *filename = argv[argc-1];
+  unsigned long crc;
 
-    check_access_flags(filename, F_OK | R_OK, 1);
-    crc = computeCRC32(filename);
-    if(flags & CALC_PRINT_NUMERICAL)
-      printf("%s: %lu\n", filename, crc);
-    else
-      printf("%s: %08lX\n", filename, crc);
-    return EXIT_SUCCESS;
+  check_access_flags(filename, F_OK | R_OK, 1);
+  crc = computeCRC32(filename);
+  if(flags & CALC_PRINT_NUMERICAL)
+    printf("%s: %lu\n", filename, crc);
+  else
+    printf("%s: %08lX\n", filename, crc);
+  return EXIT_SUCCESS;
+}
+
+int command_idle(int argc, char **argv, int optind, int flags) {
+  return EXIT_SUCCESS;
 }
 
 void helper_manage_stackheapbuf(char *buf, size_t *buflen, int *buf_isstatic, unsigned datalen) {
@@ -692,118 +711,100 @@ int copy_cdb(const char *srcdb, struct cdb_make *target_db, int tfd) {
   return 0;
 }
 int main(int argc, char **argv) {
-    int opt;
-    int cmd = CmdIdle;
-    int cmdflags = 0;
+  int opt;
+  CommandFunction cmd = command_idle;
+  int cmdflags = 0;
 
-    while((opt = getopt(argc, argv, "+ftnvV:hsrC:ce:p:a")) != -1) {
-        switch(opt) {
-            case 'f':
-                cmdflags |= CHECK_BATCH_PREFER_HEXSTRING;
-                break;
-            case 'a':
-                LERROR(0,0, "*** EXPERIMENTAL FEATURE *** (flag -a)");
-                cmdflags |= APPEND_TO_DB;
-                break;
-            case 'n':
-                cmdflags |= CALC_PRINT_NUMERICAL; 
-                break;
-            case 'p':
-                dbiofile = strdup(optarg);
-                cmd = CmdList;
-                break;
-            case 'V':
-                dbiofile = strdup(optarg);
-                cmd = CmdCheckBatch;
-                break;
-            case 'e':
-                crcregex_stripper = strdup(optarg);
-                break;
-            case 'c':
-                cmd = CmdCalc;
-                break;
-            case 'C':
-                dbiofile = strdup(optarg);
-                cmd = CmdCalcBatch;
-                break;
-            case 'r':
-                cmd = CmdRmTag;
-                break;
-            case 's':
-                cmdflags |= TAG_ALLOW_STRIP;
-                break;
-            case 'v':
-                cmd = CmdCheck;
-                break;
-            case 't':
-                cmd = CmdTag;
-                break;
-            case 'h':
-                puts("crctk v" VERSION " (" __DATE__ " " __TIME__ ")\n"
-                        "CRC32 Hexstring Toolkit\n"
-                        "Copyright (C) 2014 2ion (asterisk!2ion!de)\n"
-                        "Upstream: https://github.com/2ion/crctk\n"
-                        "Usage: crctk [-aCcefhnprstVv] <file>|<file-listing>\n"
-                        "Options:\n"
-                        " -v Compute CRC32 and compare with the hexstring\n"
-                        "    in the supplied filename.\n"
-                        "    Return values: EXIT_SUCCESS: match\n"
-                        "                   EXIT_FAILURE: no match\n"
-                        "                   0xA: invalid argument\n"
-                        "                   0xB: regex compilation error\n"
-                        "                   0xC: unknown error\n"
-                        " -V FILE. Read checksums and filenames from a FILE\n"
-                        "    created by the -C option and check if the files\n"
-                        "    have the listed checksums.\n"
-                        " -f Supplements -V. Instead of calculating the real CRC\n"
-                        "    sum, use a CRC32 hexstring if the file is tagged.\n"
-                        " -c Compute the CRC32 of the given file, print and exit.\n"
-                        " -n Supplements -c. print CRC32 in its numerical format.\n"
-                        " -C for multiple input files, create a checksum listing\n"
-                        "    for use with the -V option. Overwrites the given file.\n"
-                        " -a Supplements -C. Append to the given database file instead\n"
-                        "    of overwriting it.\n"
-                        " -p FILE. Print the contents of a file created by the -C\n"
-                        "    options to stdout.\n"
-                        " -t Tag file with a CRC32 hexstring. Aborts if\n"
-                        "    the filename does already contain a tag.\n"
-                        " -s Supplements -t. strip eventually existing tag\n"
-                        "    and compute a new CRC32 hexstring.\n"
-                        "    Return values: EXIT_SUCCESS: success\n"
-                        "                   EXIT_FAILURE: generic failure\n"
-                        "                   Rest as above.\n"
-                        " -r If the file is tagged, remove the tag.\n"
-                        " -e EXPR. Changes the regular expression used to\n"
-                        "    match tags when doing -s|-r to EXPR. Default:\n"
-                        "    [[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?\n"
-                        " -h Print this message and exit successfully.");
-                return EXIT_SUCCESS;
-            default:
-                return ExitArgumentError;
-        }
-    }
-    if(optind >= argc && cmd != CmdCheckBatch && cmd != CmdList)
-        LERROR(ExitArgumentError, 0,
-                "Too few arguments. Use the -h flag "
-                "to obtain usage information.");
-    switch(cmd) {
-        case CmdList:
-            return command_list_db();
-        case CmdCalc:
-            return command_calc(argv[argc-1], cmdflags);
-        case CmdCalcBatch:
-            srand(time(NULL));
-            return command_calc_batch(argc, argv, optind, cmdflags);
-        case CmdCheckBatch:
-            return command_check_batch(argc, argv, optind, cmdflags);
-        case CmdIdle:
-            break;
-        case CmdCheck:
-            return command_check(argv[argc-1]);
-        case CmdTag:
-            return command_tag(argv[argc-1], cmdflags);
-        case CmdRmTag:
-            return command_remove_tag(argv[argc-1]);
-    }
-    return EXIT_SUCCESS;
+  while((opt = getopt(argc, argv, "+ftnvV:hsrC:ce:p:a")) != -1)
+    switch(opt) {
+      case 'f':
+        cmdflags |= CHECK_BATCH_PREFER_HEXSTRING;
+        break;
+      case 'a':
+        LERROR(0,0, "*** EXPERIMENTAL FEATURE *** (flag -a)");
+        cmdflags |= APPEND_TO_DB;
+        break;
+      case 'n':
+        cmdflags |= CALC_PRINT_NUMERICAL; 
+        break;
+      case 'p':
+        dbiofile = strdup(optarg);
+        cmd = command_list_db;
+        break;
+      case 'V':
+        dbiofile = strdup(optarg);
+        cmd = command_check_batch;
+        break;
+      case 'e':
+        crcregex_stripper = strdup(optarg);
+        break;
+      case 'c':
+        cmd = command_calc;
+        break;
+      case 'C':
+        dbiofile = strdup(optarg);
+        cmd = command_calc_batch;
+        break;
+      case 'r':
+        cmd = command_remove_tag;
+        break;
+      case 's':
+        cmdflags |= TAG_ALLOW_STRIP;
+        break;
+      case 'v':
+        cmd = command_check;
+        break;
+      case 't':
+        cmd = command_tag;
+        break;
+      case 'h':
+        puts("crctk v" VERSION " (" __DATE__ " " __TIME__ ")\n"
+              "CRC32 Hexstring Toolkit\n"
+              "Copyright (C) 2014 2ion (asterisk!2ion!de)\n"
+              "Upstream: https://github.com/2ion/crctk\n"
+              "Usage: crctk [-aCcefhnprstVv] <file>|<file-listing>\n"
+              "Options:\n"
+              " -v Compute CRC32 and compare with the hexstring\n"
+              "    in the supplied filename.\n"
+              "    Return values: EXIT_SUCCESS: match\n"
+              "                   EXIT_FAILURE: no match\n"
+              "                   0xA: invalid argument\n"
+              "                   0xB: regex compilation error\n"
+              "                   0xC: unknown error\n"
+              " -V FILE. Read checksums and filenames from a FILE\n"
+              "    created by the -C option and check if the files\n"
+              "    have the listed checksums.\n"
+              " -f Supplements -V. Instead of calculating the real CRC\n"
+              "    sum, use a CRC32 hexstring if the file is tagged.\n"
+              " -c Compute the CRC32 of the given file, print and exit.\n"
+              " -n Supplements -c. print CRC32 in its numerical format.\n"
+              " -C for multiple input files, create a checksum listing\n"
+              "    for use with the -V option. Overwrites the given file.\n"
+              " -a Supplements -C. Append to the given database file instead\n"
+              "    of overwriting it.\n"
+              " -p FILE. Print the contents of a file created by the -C\n"
+              "    options to stdout.\n"
+              " -t Tag file with a CRC32 hexstring. Aborts if\n"
+              "    the filename does already contain a tag.\n"
+              " -s Supplements -t. strip eventually existing tag\n"
+              "    and compute a new CRC32 hexstring.\n"
+              "    Return values: EXIT_SUCCESS: success\n"
+              "                   EXIT_FAILURE: generic failure\n"
+              "                   Rest as above.\n"
+              " -r If the file is tagged, remove the tag.\n"
+              " -e EXPR. Changes the regular expression used to\n"
+              "    match tags when doing -s|-r to EXPR. Default:\n"
+              "    [[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?\n"
+              " -h Print this message and exit successfully.");
+        return EXIT_SUCCESS;
+      default:
+        return ExitArgumentError;
+    } // switch
+  if(optind >= argc &&
+      cmd != command_check_batch &&
+      cmd != command_list_db)
+    LERROR(ExitArgumentError, 0,
+            "Too few arguments. Use the -h flag "
+            "to obtain usage information.");
+  return cmd(argc, argv, optind, cmdflags);
 }
