@@ -107,6 +107,7 @@ static int command_calc(int, char**, int, int);
 static int command_calc_batch(int, char**, int, int);
 static int command_check(int, char**, int, int);
 static int command_check_batch(int, char**, int, int);
+static int command_help(int, char**, int, int);
 static int command_idle(int, char**, int, int);
 static int command_list_db(int, char**, int, int);
 static int command_remove_tag(int, char**, int, int);
@@ -208,6 +209,48 @@ void compile_regex(regex_t *regex, const char *regexpr, int cflags) {
                     "for the regex error message.");
         LERROR(ExitRegexError, 0, "%s", regex_errbuf);
     }
+}
+
+int command_help(int argc, char **argv, int optind, int flags) {
+  puts("crctk v" VERSION " (" __DATE__ " " __TIME__ ")\n"
+          "CRC32 Hexstring Toolkit\n"
+          "Copyright (C) 2014 2ion (asterisk!2ion!de)\n"
+          "Upstream: https://github.com/2ion/crctk\n"
+          "Usage: crctk [-aCcefhnprstVv] <file>|<file-listing>\n"
+          "Options:\n"
+          " -v Compute CRC32 and compare with the hexstring\n"
+          "    in the supplied filename.\n"
+          "    Return values: EXIT_SUCCESS: match\n"
+          "                   EXIT_FAILURE: no match\n"
+          "                   0xA: invalid argument\n"
+          "                   0xB: regex compilation error\n"
+          "                   0xC: unknown error\n"
+          " -V FILE. Read checksums and filenames from a FILE\n"
+          "    created by the -C option and check if the files\n"
+          "    have the listed checksums.\n"
+          " -f Supplements -V. Instead of calculating the real CRC\n"
+          "    sum, use a CRC32 hexstring if the file is tagged.\n"
+          " -c Compute the CRC32 of the given file, print and exit.\n"
+          " -n Supplements -c. print CRC32 in its numerical format.\n"
+          " -C for multiple input files, create a checksum listing\n"
+          "    for use with the -V option. Overwrites the given file.\n"
+          " -a Supplements -C. Append to the given database file instead\n"
+          "    of overwriting it.\n"
+          " -p FILE. Print the contents of a file created by the -C\n"
+          "    options to stdout.\n"
+          " -t Tag file with a CRC32 hexstring. Aborts if\n"
+          "    the filename does already contain a tag.\n"
+          " -s Supplements -t. strip eventually existing tag\n"
+          "    and compute a new CRC32 hexstring.\n"
+          "    Return values: EXIT_SUCCESS: success\n"
+          "                   EXIT_FAILURE: generic failure\n"
+          "                   Rest as above.\n"
+          " -r If the file is tagged, remove the tag.\n"
+          " -e EXPR. Changes the regular expression used to\n"
+          "    match tags when doing -s|-r to EXPR. Default:\n"
+          "    [[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?\n"
+          " -h Print this message and exit successfully.");
+  return EXIT_SUCCESS;
 }
 
 int command_calc_batch(int argc, char **argv, int optind, int flags) {
@@ -758,51 +801,15 @@ int main(int argc, char **argv) {
         cmd = command_tag;
         break;
       case 'h':
-        puts("crctk v" VERSION " (" __DATE__ " " __TIME__ ")\n"
-              "CRC32 Hexstring Toolkit\n"
-              "Copyright (C) 2014 2ion (asterisk!2ion!de)\n"
-              "Upstream: https://github.com/2ion/crctk\n"
-              "Usage: crctk [-aCcefhnprstVv] <file>|<file-listing>\n"
-              "Options:\n"
-              " -v Compute CRC32 and compare with the hexstring\n"
-              "    in the supplied filename.\n"
-              "    Return values: EXIT_SUCCESS: match\n"
-              "                   EXIT_FAILURE: no match\n"
-              "                   0xA: invalid argument\n"
-              "                   0xB: regex compilation error\n"
-              "                   0xC: unknown error\n"
-              " -V FILE. Read checksums and filenames from a FILE\n"
-              "    created by the -C option and check if the files\n"
-              "    have the listed checksums.\n"
-              " -f Supplements -V. Instead of calculating the real CRC\n"
-              "    sum, use a CRC32 hexstring if the file is tagged.\n"
-              " -c Compute the CRC32 of the given file, print and exit.\n"
-              " -n Supplements -c. print CRC32 in its numerical format.\n"
-              " -C for multiple input files, create a checksum listing\n"
-              "    for use with the -V option. Overwrites the given file.\n"
-              " -a Supplements -C. Append to the given database file instead\n"
-              "    of overwriting it.\n"
-              " -p FILE. Print the contents of a file created by the -C\n"
-              "    options to stdout.\n"
-              " -t Tag file with a CRC32 hexstring. Aborts if\n"
-              "    the filename does already contain a tag.\n"
-              " -s Supplements -t. strip eventually existing tag\n"
-              "    and compute a new CRC32 hexstring.\n"
-              "    Return values: EXIT_SUCCESS: success\n"
-              "                   EXIT_FAILURE: generic failure\n"
-              "                   Rest as above.\n"
-              " -r If the file is tagged, remove the tag.\n"
-              " -e EXPR. Changes the regular expression used to\n"
-              "    match tags when doing -s|-r to EXPR. Default:\n"
-              "    [[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?\n"
-              " -h Print this message and exit successfully.");
-        return EXIT_SUCCESS;
+        cmd = command_help;
+        break;
       default:
         return ExitArgumentError;
     } // switch
   if(optind >= argc &&
       cmd != command_check_batch &&
-      cmd != command_list_db)
+      cmd != command_list_db && 
+      cmd != command_help)
     LERROR(ExitArgumentError, 0,
             "Too few arguments. Use the -h flag "
             "to obtain usage information.");
