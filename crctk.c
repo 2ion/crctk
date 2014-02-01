@@ -67,17 +67,6 @@ enum {
 };
 
 enum {
-  CmdIdle,
-  CmdCheck,
-  CmdTag,
-  CmdRmTag,
-  CmdCalc,
-  CmdCalcBatch,
-  CmdCheckBatch,
-  CmdList
-};
-
-enum {
   TAG_ALLOW_STRIP = 1 << 0,
   CALC_PRINT_NUMERICAL = 1 << 1,
   APPEND_TO_DB = 1 << 2,
@@ -257,7 +246,6 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
   int i, fd;
   unsigned long crc;
   struct cdb_make cdbm;
-//  char **copy_cdb_buf = NULL;
 
   if((fd = open(dbiofile, O_WRONLY | O_CREAT , S_IRUSR | S_IWUSR)) == -1)
     LERROR(ExitUnknownError, errno, "couldn't create file");
