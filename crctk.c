@@ -50,17 +50,40 @@
 #define DBITEM_PATHBUFLEN 255
 #pragma GCC diagnostic ignored "-Wfree-nonheap-object"
 
-/* GLOBALS ; TYPES */
+/* GLOBALS */
 
 const char *crcregex = "[[:xdigit:]]\\{8\\}";
 const char *crcregex_stripper = "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?";
 const char *dbiofile = "crcsums.tdb";
-enum { ExitMatch = EXIT_SUCCESS, ExitNoMatch = EXIT_FAILURE,
-  ExitArgumentError = 10, ExitRegexError = 11, ExitUnknownError = 12};
-enum { CmdIdle, CmdCheck, CmdTag, CmdRmTag, CmdCalc, CmdCalcBatch, CmdCheckBatch,
-  CmdList};
-enum { TAG_ALLOW_STRIP = 1 << 0, CALC_PRINT_NUMERICAL = 1 << 1,
-  APPEND_TO_DB = 1 << 2 };
+
+/* TYPES */
+
+enum {
+  ExitMatch = EXIT_SUCCESS,
+  ExitNoMatch = EXIT_FAILURE,
+  ExitArgumentError = 10,
+  ExitRegexError = 11,
+  ExitUnknownError = 12
+};
+
+enum {
+  CmdIdle,
+  CmdCheck,
+  CmdTag,
+  CmdRmTag,
+  CmdCalc,
+  CmdCalcBatch,
+  CmdCheckBatch,
+  CmdList
+};
+
+enum {
+  TAG_ALLOW_STRIP = 1 << 0,
+  CALC_PRINT_NUMERICAL = 1 << 1,
+  APPEND_TO_DB = 1 << 2,
+  CHECK_BATCH_PREFER_HEXSTRING = 1 << 3
+};
+
 struct DBItem {
   char *kbuf;
   size_t kbuflen;
@@ -73,7 +96,7 @@ static unsigned long getFileSize(const char*);
 static unsigned long computeCRC32(const char*);
 
 static int command_check(const char*);
-static int command_check_batch(int, char**, int);
+static int command_check_batch(int, char**, int, int);
 static int command_list_db(void);
 static int command_tag(const char*, int);
 static int command_calc(const char*, int);
@@ -380,7 +403,7 @@ int command_list_db(void) {
   return EXIT_SUCCESS;
 }
 
-int command_check_batch(int argc, char **argv, int optind) {
+int command_check_batch(int argc, char **argv, int optind, int cmdflags) {
   struct cdb db;
   int fd;
   char statickbuf[255];
@@ -673,8 +696,11 @@ int main(int argc, char **argv) {
     int cmd = CmdIdle;
     int cmdflags = 0;
 
-    while((opt = getopt(argc, argv, "+tnvV:hsrC:ce:p:a")) != -1) {
+    while((opt = getopt(argc, argv, "+ftnvV:hsrC:ce:p:a")) != -1) {
         switch(opt) {
+            case 'f':
+                cmdflags |= CHECK_BATCH_PREFER_HEXSTRING;
+                break;
             case 'a':
                 LERROR(0,0, "*** EXPERIMENTAL FEATURE *** (flag -a)");
                 cmdflags |= APPEND_TO_DB;
@@ -717,7 +743,7 @@ int main(int argc, char **argv) {
                         "CRC32 Hexstring Toolkit\n"
                         "Copyright (C) 2014 2ion (asterisk!2ion!de)\n"
                         "Upstream: https://github.com/2ion/crctk\n"
-                        "Usage: crctk [-aCcehnprstVv] <file>|<file-listing>\n"
+                        "Usage: crctk [-aCcefhnprstVv] <file>|<file-listing>\n"
                         "Options:\n"
                         " -v Compute CRC32 and compare with the hexstring\n"
                         "    in the supplied filename.\n"
@@ -729,17 +755,19 @@ int main(int argc, char **argv) {
                         " -V FILE. Read checksums and filenames from a FILE\n"
                         "    created by the -C option and check if the files\n"
                         "    have the listed checksums.\n"
+                        " -f Supplements -V. Instead of calculating the real CRC\n"
+                        "    sum, use a CRC32 hexstring if the file is tagged.\n"
                         " -c Compute the CRC32 of the given file, print and exit.\n"
-                        " -n Supplements -c: print CRC32 in its numerical format.\n"
+                        " -n Supplements -c. print CRC32 in its numerical format.\n"
                         " -C for multiple input files, create a checksum listing\n"
                         "    for use with the -V option. Overwrites the given file.\n"
-                        " -a Supplements -C: Append to the given database file instead\n"
+                        " -a Supplements -C. Append to the given database file instead\n"
                         "    of overwriting it.\n"
                         " -p FILE. Print the contents of a file created by the -C\n"
                         "    options to stdout.\n"
                         " -t Tag file with a CRC32 hexstring. Aborts if\n"
                         "    the filename does already contain a tag.\n"
-                        " -s Supplements -t: strip eventually existing tag\n"
+                        " -s Supplements -t. strip eventually existing tag\n"
                         "    and compute a new CRC32 hexstring.\n"
                         "    Return values: EXIT_SUCCESS: success\n"
                         "                   EXIT_FAILURE: generic failure\n"
@@ -767,7 +795,7 @@ int main(int argc, char **argv) {
             srand(time(NULL));
             return command_calc_batch(argc, argv, optind, cmdflags);
         case CmdCheckBatch:
-            return command_check_batch(argc, argv, optind);
+            return command_check_batch(argc, argv, optind, cmdflags);
         case CmdIdle:
             break;
         case CmdCheck:

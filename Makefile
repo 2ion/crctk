@@ -11,7 +11,7 @@ ldflags = -lz $(shell pkg-config --libs libcdb)
 .PHONY: clean push pull install uninstall
 
 crctk: crctk.c
-	gcc -Wall -O3 -DVERSION=\"$(version)\" $(cflags) -o $@ $< $(ldflags)
+	gcc -Wall -O3 -march=native -DVERSION=\"$(version)\" $(cflags) -o $@ $< $(ldflags)
 	strip $@
 
 README.md: crctk README.head
