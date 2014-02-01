@@ -212,11 +212,11 @@ void compile_regex(regex_t *regex, const char *regexpr, int cflags) {
 }
 
 int command_help(int argc, char **argv, int optind, int flags) {
-  puts("crctk v" VERSION " (" __DATE__ " " __TIME__ ")\n"
+  printf("crctk v" VERSION " (" __DATE__ " " __TIME__ ")\n"
           "CRC32 Hexstring Toolkit\n"
           "Copyright (C) 2014 2ion (asterisk!2ion!de)\n"
           "Upstream: https://github.com/2ion/crctk\n"
-          "Usage: crctk [-aCcefhnprstVv] <file>|<file-listing>\n"
+          "Usage: %s [-aCcefhnprstVv] <file>|<file-listing>\n"
           "Options:\n"
           " -v Compute CRC32 and compare with the hexstring\n"
           "    in the supplied filename.\n"
@@ -249,7 +249,7 @@ int command_help(int argc, char **argv, int optind, int flags) {
           " -e EXPR. Changes the regular expression used to\n"
           "    match tags when doing -s|-r to EXPR. Default:\n"
           "    [[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?\n"
-          " -h Print this message and exit successfully.");
+          " -h Print this message and exit successfully.", argv[0]);
   return EXIT_SUCCESS;
 }
 
