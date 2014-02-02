@@ -111,6 +111,7 @@ static char* pathcat(const char*, const char*);
 static inline void helper_manage_stackheapbuf(char*, size_t*, int*, unsigned);
 static char* strip_tag(const char*);
 static int copy_cdb(const char*, struct cdb_make*, int);
+static int db2array(const char *, struct DBItem **, size_t*, int *);
 
 /* IMPLEMENTATION */
 
@@ -741,6 +742,67 @@ int copy_cdb(const char *srcdb, struct cdb_make *target_db, int tfd) {
   close(sfd);
   return 0;
 }
+
+int db2array(const char *dbfile, struct DBItem **dbibuf, size_t *dbibuflen, int *index) {
+  assert(dbfile != NULL);
+  assert(dbibuf != NULL);
+  assert(dbibuflen != NULL);
+  assert(index != NULL);
+  struct cdb db;
+  int fd;
+  unsigned up, kpos, klen, vpos, vlen;
+  *dbibuflen = 30;
+  *index = -1;
+
+  if((dbibuf = calloc(*dbibuflen, sizeof(struct DBItem))) == NULL)
+    LERROR(EXIT_FAILURE, errno, "malloc() failed");
+  if(check_access_flags_v(dbfile, F_OK | R_OK, 1) != 0) {
+    LERROR(0,0, "file not accessible: %s", dbfile);
+    return EXIT_FAILURE;
+  }
+  if((fd = open(dbfile, O_RDONLY)) == -1) {
+    LERROR(0,errno, "%s", dbiofile);
+    return EXIT_FAILURE;
+  }
+  if(cdb_init(&db, fd) != 0) {
+    LERROR(0,0, "cdb_init() failed");
+    goto cleanup_error;
+  }
+  cdb_seqinit(&up, &db);
+  while(cdb_seqnext(&up, &db) > 0) {
+    (*index) += 1;
+    if(*index == *dbibuflen-1) {
+      (*dbibuflen) += 30;
+      if((dbibuf = realloc(dbibuf, sizeof(struct DBItem)*(*dbibuflen))) == NULL)
+        LERROR(EXIT_FAILURE, errno, "realloc() to enlarge dbibuf failed");
+    }
+    kpos = cdb_keypos(&db);
+    klen = cdb_keylen(&db);
+    vpos = cdb_datapos(&db);
+    vlen = cdb_datalen(&db);
+    if(vlen != sizeof(unsigned long)) {
+      LERROR(0,0, "Skipping entry with a data size > sizeof(unsigned long)");
+      continue;
+    }
+    dbibuf[*index]->kbuflen = klen;
+    if((dbibuf[*index]->kbuf = malloc(klen)) == NULL)
+      LERROR(EXIT_FAILURE, 0, "malloc() failed");
+    if(cdb_read(&db, dbibuf[*index]->kbuf, klen, kpos) != 0) {
+      LERROR(0,0, "cdb_read() failed. Skipping key at pos=%u", kpos);
+      continue;
+    }
+    if(cdb_read(&db, &dbibuf[*index]->crc, vlen, vpos) != 0) {
+      LERROR(0,0, "cdb_read() failed. Skipping data at pos=%u", vpos);
+      continue;
+    }
+  } // while
+  cdb_free(&db);
+  return EXIT_SUCCESS;
+cleanup_error:
+  close(fd);
+  return EXIT_FAILURE;
+}
+
 int main(int argc, char **argv) {
   int opt;
   CommandFunction cmd = command_idle;
