@@ -56,16 +56,9 @@ const char *crcregex = "[[:xdigit:]]\\{8\\}";
 const char *crcregex_stripper =
   "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?";
 const char *dbiofile = "crcsums.tdb";
+const char *hexarg = "00000000";
 
 /* TYPES */
-
-enum {
-  ExitMatch = EXIT_SUCCESS,
-  ExitNoMatch = EXIT_FAILURE,
-  ExitArgumentError = 10,
-  ExitRegexError = 11,
-  ExitUnknownError = 12
-};
 
 enum {
   TAG_ALLOW_STRIP = 1 << 0,
@@ -98,6 +91,7 @@ static int command_calc(int, char**, int, int);
 static int command_calc_batch(int, char**, int, int);
 static int command_check(int, char**, int, int);
 static int command_check_batch(int, char**, int, int);
+static int command_check_hexstring(int, char**, int, int);
 static int command_help(int, char**, int, int);
 static int command_idle(int, char**, int, int);
 static int command_list_db(int, char**, int, int);
@@ -189,17 +183,17 @@ void compile_regex(regex_t *regex, const char *regexpr, int cflags) {
     size_t regex_errbuf_size;
 
     if(regex == NULL || regexpr == NULL)
-        LERROR(ExitUnknownError, 0,
+        LERROR(EXIT_FAILURE, 0,
                 "received at least one NULL argument.");
     if((ci = regcomp(regex, regexpr, cflags)) != 0) {
         regex_errbuf_size = regerror(ci, regex, NULL, 0);
         regex_errbuf = malloc(regex_errbuf_size);
         regerror(ci, regex, regex_errbuf, regex_errbuf_size);
         if(regex_errbuf == NULL)
-            LERROR(ExitRegexError, 0,
+            LERROR(EXIT_FAILURE, 0,
                     "regex error: failed to allocate memory "
                     "for the regex error message.");
-        LERROR(ExitRegexError, 0, "%s", regex_errbuf);
+        LERROR(EXIT_FAILURE, 0, "%s", regex_errbuf);
     }
 }
 
@@ -214,12 +208,11 @@ int command_help(int argc, char **argv, int optind, int flags) {
           "    in the supplied filename.\n"
           "    Return values: EXIT_SUCCESS: match\n"
           "                   EXIT_FAILURE: no match\n"
-          "                   0xA: invalid argument\n"
-          "                   0xB: regex compilation error\n"
-          "                   0xC: unknown error\n"
           " -V FILE. Read checksums and filenames from a FILE\n"
           "    created by the -C option and check if the files\n"
           "    have the listed checksums.\n"
+          " -u HEXSTRING. Check if the specified file has the CRC\n"
+          "    sum HEXSTRING.\n"
           " -f Supplements -V. Instead of calculating the real CRC\n"
           "    sum, use a CRC32 hexstring if the file is tagged.\n"
           " -c Compute the CRC32 of the given file, print and exit.\n"
@@ -236,7 +229,6 @@ int command_help(int argc, char **argv, int optind, int flags) {
           "    and compute a new CRC32 hexstring.\n"
           "    Return values: EXIT_SUCCESS: success\n"
           "                   EXIT_FAILURE: generic failure\n"
-          "                   Rest as above.\n"
           " -r If the file is tagged, remove the tag.\n"
           " -e EXPR. Changes the regular expression used to\n"
           "    match tags when doing -s|-r to EXPR. Default:\n"
@@ -260,9 +252,9 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
 
   if((fd = open(dbiofile, O_WRONLY | O_CREAT ,
           S_IRUSR | S_IWUSR)) == -1)
-    LERROR(ExitUnknownError, errno, "couldn't create file");
+    LERROR(EXIT_FAILURE, errno, "couldn't create file");
   if((cdb_make_start(&cdbm, fd)) != 0)
-    LERROR(ExitUnknownError, 0, "couldn't initialize the cdb database");
+    LERROR(EXIT_FAILURE, 0, "couldn't initialize the cdb database");
 
   if(flags & APPEND_TO_DB)
     do {
@@ -288,7 +280,7 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
   if(cdb_make_finish(&cdbm) != 0) {
     LERROR(0, 0, "cdb_make_finish() failed");
     close(fd);
-    return ExitUnknownError;
+    return EXIT_FAILURE;
   }
   close(fd);
   return EXIT_SUCCESS;
@@ -313,7 +305,7 @@ int command_tag(int argc, char **argv, int optind, int flags) {
     if (flags & TAG_ALLOW_STRIP) {
       workstring = strip_tag(string);
       if(workstring == NULL)
-        LERROR(ExitUnknownError, 0,
+        LERROR(EXIT_FAILURE, 0,
                 "strip_tag() failed for unknown reasons");
       f_free_workstring = 1;
     } else {
@@ -327,7 +319,7 @@ int command_tag(int argc, char **argv, int optind, int flags) {
     workstring = string;
   crcsum = computeCRC32(filename);
   if(crcsum == 0)
-    LERROR(ExitUnknownError, 0, "The file's CRC sum is zero.");
+    LERROR(EXIT_FAILURE, 0, "The file's CRC sum is zero.");
   sprintf(tagstr, "[%08lX]", crcsum);
   newstring = malloc((strlen(workstring) + 11)*sizeof(char));
   if((p = strrchr(workstring, '.')) != NULL) {
@@ -367,7 +359,7 @@ int command_remove_tag(int argc, char **argv, int optind, int flags) {
   check_access_flags(filename, F_OK | R_OK | W_OK, 1);
   str = get_basename((char*)filename);
   if((nstr = strip_tag((const char*) str)) == NULL)
-    LERROR(ExitArgumentError, 0, "%s does not contain an hexstring",
+    LERROR(EXIT_FAILURE, 0, "%s does not contain an hexstring",
         filename);
   d = (const char*) dirname((char*)filename);
   p = pathcat(d, (const char*)str);
@@ -380,7 +372,35 @@ int command_remove_tag(int argc, char **argv, int optind, int flags) {
   return EXIT_SUCCESS;
 }
 
+int command_check_hexstring(int argc, char **argv, int optind,
+    int flags) {
+  const char *filename = argv[argc-1];
+  unsigned long strcrc, crc;
+  regex_t regex;
 
+  check_access_flags(filename, F_OK | R_OK, 1);
+  compile_regex(&regex, crcregex, REG_ICASE | REG_NOSUB);
+  switch(regexec((const regex_t*)&regex, hexarg, 0, NULL, 0)) {
+    case REG_NOMATCH:
+      LERROR(EXIT_FAILURE, 0, "parameter to option -u (%s) "
+          "is not a valid hexarg.", hexarg);
+    case 0:
+      regfree(&regex);
+      break;
+  }
+  strcrc = (unsigned long) strtol(hexarg, NULL, 16);
+  if((crc = computeCRC32(filename)) == strcrc) {
+    printf("match: computed(%08lX) == hexarg(%08lX)\n",
+        crc, strcrc);
+    return EXIT_SUCCESS;
+  }
+  else {
+    printf("mismatch: computed(%08lX) != hexarg(%08lX)\n",
+            crc, strcrc);
+    return EXIT_FAILURE;
+  }
+  return EXIT_SUCCESS;
+}
 
 int command_check(int argc, char **argv, int optind, int flags) {
   const char *filename = argv[argc-1];
@@ -402,9 +422,9 @@ int command_check(int argc, char **argv, int optind, int flags) {
       results[ti] = '\0';
       break;
     case REG_NOMATCH:
-      LERROR(ExitNoMatch, 0,
+      LERROR(EXIT_FAILURE, 0,
               "the filename does not contain a CRC32 hexstring.");
-      return ExitNoMatch; // Not reached
+      return EXIT_FAILURE; // Not reached
   }
   regfree(&regex);
   compcrc = computeCRC32(filename);
@@ -412,11 +432,11 @@ int command_check(int argc, char **argv, int optind, int flags) {
   if(compcrc != matchcrc) {
     printf("mismatch: filename(%08lX) != computed(%08lX)\n",
             matchcrc, compcrc);
-    return ExitNoMatch;
+    return EXIT_FAILURE;
   } else {
     printf("match: filename(%08lX) == computed(%08lX)\n",
             matchcrc, compcrc);
-    return ExitMatch;
+    return EXIT_FAILURE;
   }
 }
 
@@ -564,13 +584,13 @@ void check_access_flags(const char *path, int access_flags,
     struct stat stbuf;
 
     if(access(path, access_flags) != 0)
-        LERROR(ExitArgumentError, errno, "%s", path);
+        LERROR(EXIT_FAILURE, errno, "%s", path);
     if(notdir == 1) {
         if(stat(path, &stbuf) != 0)
-            LERROR(ExitUnknownError, errno, "%s", path);
+            LERROR(EXIT_FAILURE, errno, "%s", path);
         else
             if(S_ISDIR(stbuf.st_mode))
-                LERROR(ExitArgumentError, 0, "%s is a directory.",
+                LERROR(EXIT_FAILURE, 0, "%s is a directory.",
                     path);
     }
 }
@@ -584,7 +604,7 @@ int check_access_flags_v(const char *path, int access_flags,
 
   if(notadir == 1) {
     if(stat(path, &stbuf) != 0) {
-      LERROR(ExitUnknownError, errno,  "(unclean exit)");
+      LERROR(EXIT_FAILURE, errno,  "(unclean exit)");
     } else
       if(S_ISDIR(stbuf.st_mode))
         return -1;
@@ -607,7 +627,7 @@ char* strip_tag(const char *str) {
     }
     rstr = malloc((strlen(str)+1-(rm.rm_eo - rm.rm_so)) * sizeof(char));
     if(rstr == NULL)
-        LERROR(ExitUnknownError, errno, "memory allocation error");
+        LERROR(EXIT_FAILURE, errno, "memory allocation error");
     for(p = str, q = &str[rm.rm_so], i=0; p < q; ++p)
         rstr[i++] = *p;
     for(p = &str[rm.rm_eo]; *p; ++p)
@@ -620,7 +640,7 @@ char* get_basename(char *path) {
     char *r;
 
     if((r = basename(path)) == NULL)
-        LERROR(ExitArgumentError, 0,
+        LERROR(EXIT_FAILURE, 0,
             "could not extract specified path's basename.");
     return r;
 }
@@ -630,7 +650,7 @@ char* pathcat(const char *p, const char *s) {
 
     r = calloc(strlen(p) + strlen(s) + 2, sizeof(char));
     if(r == NULL)
-        LERROR(ExitUnknownError, errno, "memory allocation error");
+        LERROR(EXIT_FAILURE, errno, "memory allocation error");
     strcat(r, p);
     strcat(r, "/");
     strcat(r, s);
@@ -741,7 +761,7 @@ int main(int argc, char **argv) {
   int cmdflags = 0;
   CommandFunction cmd = command_idle;
 
-  while((opt = getopt(argc, argv, "+ftnvV:hsrC:ce:p:a")) != -1)
+  while((opt = getopt(argc, argv, "+ftnu:vV:hsrC:ce:p:a")) != -1)
     switch(opt) {
       case 's': cmdflags |= TAG_ALLOW_STRIP; break;
       case 'f': cmdflags |= CHECK_BATCH_PREFER_HEXSTRING; break;
@@ -771,6 +791,10 @@ int main(int argc, char **argv) {
       case 'v':
         cmd = command_check;
         break;
+      case 'u':
+        hexarg = strdup(optarg);
+        cmd = command_check_hexstring;
+        break;
       case 't':
         cmd = command_tag;
         break;
@@ -778,13 +802,13 @@ int main(int argc, char **argv) {
         cmd = command_help;
         break;
       default:
-        return ExitArgumentError;
+        return EXIT_FAILURE;
     } // switch
   if(optind >= argc &&
       cmd != command_check_batch &&
       cmd != command_list_db && 
       cmd != command_help)
-    LERROR(ExitArgumentError, 0,
+    LERROR(EXIT_FAILURE, 0,
             "Too few arguments. Use the -h flag "
             "to view usage information.");
   return cmd(argc, argv, optind, cmdflags);

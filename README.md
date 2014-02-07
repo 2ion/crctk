@@ -137,40 +137,39 @@ See the section on Usage for more available options.
 More concise usage information.
 
 ```
-crctk v0.3-61f7c10 (Jan 22 2014 16:39:00)
+crctk v0.3.2-0b76cea (Feb  7 2014 21:41:52)
 CRC32 Hexstring Toolkit
 Copyright (C) 2014 2ion (asterisk!2ion!de)
 Upstream: https://github.com/2ion/crctk
-Usage: crctk [-aCcehnprstVv] <file>|<file-listing>
+Usage: ./crctk [-aCcefhnprstVv] <file>|<file-listing>
 Options:
  -v Compute CRC32 and compare with the hexstring
     in the supplied filename.
     Return values: EXIT_SUCCESS: match
                    EXIT_FAILURE: no match
-                   0xA: invalid argument
-                   0xB: regex compilation error
-                   0xC: unknown error
  -V FILE. Read checksums and filenames from a FILE
     created by the -C option and check if the files
     have the listed checksums.
+ -u HEXSTRING. Check if the specified file has the CRC
+    sum HEXSTRING.
+ -f Supplements -V. Instead of calculating the real CRC
+    sum, use a CRC32 hexstring if the file is tagged.
  -c Compute the CRC32 of the given file, print and exit.
- -n Supplements -c: print CRC32 in its numerical format.
+ -n Supplements -c. print CRC32 in its numerical format.
  -C for multiple input files, create a checksum listing
     for use with the -V option. Overwrites the given file.
- -a Supplements -C: Append to the given database file instead
+ -a Supplements -C. Append to the given database file instead
     of overwriting it.
  -p FILE. Print the contents of a file created by the -C
     options to stdout.
  -t Tag file with a CRC32 hexstring. Aborts if
     the filename does already contain a tag.
- -s Supplements -t: strip eventually existing tag
+ -s Supplements -t. strip eventually existing tag
     and compute a new CRC32 hexstring.
     Return values: EXIT_SUCCESS: success
                    EXIT_FAILURE: generic failure
-                   Rest as above.
  -r If the file is tagged, remove the tag.
  -e EXPR. Changes the regular expression used to
     match tags when doing -s|-r to EXPR. Default:
     [[:punct:]]\?[[:xdigit:]]\{8\}[[:punct:]]\?
- -h Print this message and exit successfully.
-```
+ -h Print this message and exit successfully.```
