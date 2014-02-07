@@ -3,7 +3,7 @@ prefix 		?= $(HOME)/bin
 gccflags	 = -Wall -Os -march=native -DVERSION=\"$(version)\"
 cflags 		 = $(gccflags) $(shell pkg-config --cflags libcdb)
 ldflags		 = -lz $(shell pkg-config --libs libcdb)
-.PHONY: 		 clean push pull install uninstall
+.PHONY: 		 clean push pull install uninstall doc
 
 havegit=$(shell test -d .git &>/dev/null; echo $$?)
 ifeq ($(havegit), 0)
@@ -12,8 +12,13 @@ else
 	version = $(version_)
 endif
 
+all: crctk doc
+
 crctk: crctk.c
 	gcc $(cflags) -o $@ $< $(ldflags)
+
+doc:
+	make -C man
 
 README.md: crctk README.head
 	cat README.head > $@

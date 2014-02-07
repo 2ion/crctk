@@ -12,6 +12,7 @@ crctk depends on:
 
 - libz
 - libcdb/libtinycdb
+- pandoc (markdown -> manpage converter)
 
 On Debian, these may be installed using
 ```sh
@@ -20,128 +21,33 @@ sudo apt-get install libcdb-dev zlib1g-dev
 
 ```sh
 make
-make README
+# installs only the binary, no documentation
 make install prefix=$HOME/bin
 ```
-
 where $prefix is the directory the binary will be copied to.
 
-## md5sum-style checksum verification
+## Documentation
 
-crctk can calculate the checksum of a batch of files and store the
-mappings filename---CRC32 in a database file.
-
-Note that other than the above-mentioned classical md5sum-style checksum
-tools, crctk supports storing arbitrary characters in filenames
-including newlines, except '\0' and '/' which are not allowed according
-to POSIX. For that purpose, it usese the binary format of the extremely
-fast and compact [tinycdb][], which is an optimized
-implementation of [cdb][] as created by Daniel J. Bernstein.
-
-[tinycdb]: http://www.corpit.ru/mjt/tinycdb.html
-[cdb]: http://cr.yp.to/cdb.html
-
-## -c: Plain old calculating of the CRC32 checksum
-
+The documentation is being maintained as a man page in the /man
+subdirectory. You can build it using
 ```sh
-./crctk -c [-n] -- FILE
+make doc
 ```
 
-Calculate the CRC32 checksum of the FILE, print and exit.
+The documentation itself is written in markdown format,
+so using pandoc, you may obtain the text in a wide range of different
+formats!
 
-The modifier -n makes it print the checksum in its numerical format
-(unsigned long).
-
-## Checksum databases
-
-### -C: Creating a database file
-
-```sh
-./crctk -C DB-FILE -- FILE-LIST
-```
-
-### -V: Verifying the entries of a datbase file
-
-```sh
-./crctk -V DB-FILE -- [FILE-LIST]
-```
-
-If FILE-LIST is not present, go through the entries in DB-FILE,
-check if a file is present under the path stored in the database and
-if yes, try veryfing this file against the stored checksum.
-If FILE-LIST is present, take the basename of the paths stored in
-the database, and for every entry in FILE-LIST, check if a
-filename matches and if yes, verify the matching file against the
-checksum stored in the database.
-
-## Working with CRC32 hexstring tags
-
-CRC32 hexstring tags look like this:
-```
-[EAA21973]
-```
-and in crctk are defined as a sequence of 8 characters from the
-character class \[a-fA-F0-9\], optionally surrounded by punction from the
-character class \[:punct:\] (See the section on Usage further down for
-details). They may be put in filenames where they serve
-the same purpose as checksum databases, that is delivering the checksum
-information of the file they are tagging. crctk provides tools to
-create, remove and verify such tags.
-
-### -v: Verifying CRC32 hexstring tags
-
-```sh
-./crctk -v -- FILE
-```
-Look for a tag in the supplied FILE's filename and if it exists,
-calculate the CRC32 sum of the file and check if it matches the one in
-the tag.
-
-### -r: Stripping CRC32 hexstring tags
-
-```sh
-./crctk -r -- FILE
-```
-
-Remove any hexstring tag in the FILE's filename, including surrounding
-punctuation.
-
-#### TODO
-
-Remove only matching punctuation characters (like open- and closed
-brackets, but not two open brackets).
-
-### -t: Create a CRC32 hexstring tag
-
-```sh
-./crctk -t [-s] -- FILE
-```
-
-Compute FILE's CRC32 checksum and append a tag in the format \[$TAG\] to
-the FILE's filename. If the filename has an extension (\*.\*), the tag
-will be inserted before the last dot.
-
-If the -s modifier was specified, strip any existing tags before
-tagging.
-
-#### TODO
-
-Look out for extensions containing multiple dots, like .tar.gz.
-
-## Other options
-
-See the section on Usage for more available options.
-
-## -h: Usage
+## Command line synposis
 
 More concise usage information.
 
 ```
-crctk v0.3.2-0b76cea (Feb  7 2014 21:41:52)
+crctk v0.3.2-171fea3 (Feb  7 2014 23:01:55)
 CRC32 Hexstring Toolkit
 Copyright (C) 2014 2ion (asterisk!2ion!de)
 Upstream: https://github.com/2ion/crctk
-Usage: ./crctk [-aCcefhnprstVv] <file>|<file-listing>
+Usage: ./crctk [-aCcefhnprstuVv] <file>|<file-listing>
 Options:
  -v Compute CRC32 and compare with the hexstring
     in the supplied filename.
@@ -154,6 +60,8 @@ Options:
     sum HEXSTRING.
  -f Supplements -V. Instead of calculating the real CRC
     sum, use a CRC32 hexstring if the file is tagged.
+ -x Supplements -V. For any tagged file, use the hexstring as
+    as the reference CRC32 instead of computing anew.
  -c Compute the CRC32 of the given file, print and exit.
  -n Supplements -c. print CRC32 in its numerical format.
  -C for multiple input files, create a checksum listing

@@ -202,7 +202,7 @@ int command_help(int argc, char **argv, int optind, int flags) {
           "CRC32 Hexstring Toolkit\n"
           "Copyright (C) 2014 2ion (asterisk!2ion!de)\n"
           "Upstream: https://github.com/2ion/crctk\n"
-          "Usage: %s [-aCcefhnprstVv] <file>|<file-listing>\n"
+          "Usage: %s [-aCcefhnprstuVv] <file>|<file-listing>\n"
           "Options:\n"
           " -v Compute CRC32 and compare with the hexstring\n"
           "    in the supplied filename.\n"
@@ -215,6 +215,8 @@ int command_help(int argc, char **argv, int optind, int flags) {
           "    sum HEXSTRING.\n"
           " -f Supplements -V. Instead of calculating the real CRC\n"
           "    sum, use a CRC32 hexstring if the file is tagged.\n"
+          " -x Supplements -V. For any tagged file, use the hexstring as\n"
+          "    as the reference CRC32 instead of computing anew.\n"
           " -c Compute the CRC32 of the given file, print and exit.\n"
           " -n Supplements -c. print CRC32 in its numerical format.\n"
           " -C for multiple input files, create a checksum listing\n"
@@ -761,10 +763,10 @@ int main(int argc, char **argv) {
   int cmdflags = 0;
   CommandFunction cmd = command_idle;
 
-  while((opt = getopt(argc, argv, "+ftnu:vV:hsrC:ce:p:a")) != -1)
+  while((opt = getopt(argc, argv, "+xtnu:vV:hsrC:ce:p:a")) != -1)
     switch(opt) {
       case 's': cmdflags |= TAG_ALLOW_STRIP; break;
-      case 'f': cmdflags |= CHECK_BATCH_PREFER_HEXSTRING; break;
+      case 'x': cmdflags |= CHECK_BATCH_PREFER_HEXSTRING; break;
       case 'a': cmdflags |= APPEND_TO_DB; break;
       case 'n': cmdflags |= CALC_PRINT_NUMERICAL; break;
       case 'p':
