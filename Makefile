@@ -1,18 +1,19 @@
-version_ ?= 0.3
+version_	?= 0.3
+prefix 		?= $(HOME)/bin
+gccflags	 = -Wall -Os -march=native -DVERSION=\"$(version)\"
+cflags 		 = $(gccflags) $(shell pkg-config --cflags libcdb)
+ldflags		 = -lz $(shell pkg-config --libs libcdb)
+.PHONY: 		 clean push pull install uninstall
+
 havegit=$(shell test -d .git &>/dev/null; echo $$?)
 ifeq ($(havegit), 0)
 	version = $(version_)-$(shell git rev-parse --short HEAD)
 else
 	version = $(version_)
 endif
-prefix ?= $(HOME)/bin
-cflags = $(shell pkg-config --cflags libcdb)
-ldflags = -lz $(shell pkg-config --libs libcdb)
-.PHONY: clean push pull install uninstall
 
 crctk: crctk.c
-	gcc -Wall -O3 -march=native -DVERSION=\"$(version)\" $(cflags) -o $@ $< $(ldflags)
-	strip $@
+	gcc $(cflags) -o $@ $< $(ldflags)
 
 README.md: crctk README.head
 	cat README.head > $@
