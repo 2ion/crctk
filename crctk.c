@@ -75,8 +75,9 @@ enum {
 
 struct DBItem {
   char *kbuf;
-  size_t kbuflen;
+  int kbuflen;
   unsigned long crc;
+  struct DBItem *next;
 };
 
 typedef int     // program exit status
@@ -110,8 +111,7 @@ static char* get_basename(char*);
 static char* pathcat(const char*, const char*);
 static inline void helper_manage_stackheapbuf(char*, size_t*, int*, unsigned);
 static char* strip_tag(const char*);
-static int copy_cdb(const char*, struct cdb_make*, int);
-static int db2array(const char *, struct DBItem **, size_t*, int *);
+static int db2array(const char*, struct DBItem*);
 
 /* IMPLEMENTATION */
 
@@ -247,14 +247,25 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
   int i, fd;
   unsigned long crc;
   struct cdb_make cdbm;
+  struct DBItem dbibuf = { NULL, 0, 0, NULL };
+  struct DBItem *e = &dbibuf;
+
+  if((flags & APPEND_TO_DB) && (db2array(dbiofile, &dbibuf) == EXIT_FAILURE))
+    LERROR(EXIT_FAILURE, 0, "option ineffective: append to DB (flag -a): could not load "
+       "the db file");
 
   if((fd = open(dbiofile, O_WRONLY | O_CREAT , S_IRUSR | S_IWUSR)) == -1)
     LERROR(ExitUnknownError, errno, "couldn't create file");
-  if(flags & APPEND_TO_DB)
-    if(copy_cdb(dbiofile, &cdbm, fd) == EXIT_FAILURE)
-      LERROR(EXIT_FAILURE, 0, "copy_db() on %s failed", dbiofile);
   if((cdb_make_start(&cdbm, fd)) != 0)
     LERROR(ExitUnknownError, 0, "couldn't initialize the cdb database");
+
+  if(flags & APPEND_TO_DB)
+    do {
+      cdb_make_put(&cdbm, e->kbuf, e->kbuflen, &e->crc,
+          sizeof(unsigned long), CDB_PUT_WARN);
+      printf("from %s: <%s> -> %08lX\n", dbiofile, e->kbuf, e->crc);
+    } while((e = e->next) != NULL);
+
   for(i = optind; i < argc; ++i) {
     if(check_access_flags_v(argv[i], F_OK | R_OK, 1) != 0) {
       LERROR(0,0, "Ignoring inaccessible file: %s", argv[i]);
@@ -267,7 +278,7 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
     }
     printf("%08lX\n", crc);
     cdb_make_put(&cdbm, argv[i], (strlen(argv[i])+1)*sizeof(char),
-        &crc, sizeof(unsigned long), CDB_PUT_INSERT);
+        &crc, sizeof(unsigned long), CDB_PUT_REPLACE);
   }
   if(cdb_make_finish(&cdbm) != 0) {
     LERROR(0, 0, "cdb_make_finish() failed");
@@ -685,77 +696,16 @@ int copy_cdb2(const char *db, struct DBItem *dbibuf, size_t *dbibuflen,
 
 */
 
-int copy_cdb(const char *srcdb, struct cdb_make *target_db, int tfd) {
-  struct cdb source_db;
-  int sfd;
-  unsigned up, klen, kpos, vlen, vpos;
-  char kbufstack[COPY_DB_STATIC_BUF_LEN];
-  char vbufstack[COPY_DB_STATIC_BUF_LEN];
-  size_t vbuflen = COPY_DB_STATIC_BUF_LEN;
-  size_t kbuflen = COPY_DB_STATIC_BUF_LEN;
-  char *kbuf = kbufstack;
-  char *vbuf = vbufstack;
-  int vbuf_isstatic = 1;
-  int kbuf_isstatic = 1;
-
-  if(check_access_flags_v(srcdb, F_OK | R_OK, 1) != 0) {
-    LERROR(0, 0, "file %s does not exist or is inaccessible.", srcdb);
-    return -1;
-  }
-  if((sfd = open(srcdb, O_RDONLY, 0)) == -1) {
-    LERROR(0, errno, "open() on source db failed");
-    return EXIT_FAILURE;
-  }
-  if((cdb_make_start(target_db, tfd)) != 0) {
-    LERROR(0,0, "cdb_make_start() on target db failed");
-    return EXIT_FAILURE;
-  }
-  if((cdb_init(&source_db, sfd)) != 0) {
-    LERROR(0,0, "cdb_init() on source db failed");
-    return EXIT_FAILURE;
-  }
-  cdb_seqinit(&up, &source_db);
-  while(cdb_seqnext(&up, &source_db) > 0) {
-    kpos = cdb_keypos(&source_db);
-    klen = cdb_keylen(&source_db);
-    vpos = cdb_datapos(&source_db);
-    vlen = cdb_datalen(&source_db);
-    helper_manage_stackheapbuf(vbuf, &vbuflen, &vbuf_isstatic, vlen);
-    helper_manage_stackheapbuf(kbuf, &kbuflen, &kbuf_isstatic, klen);
-    if(cdb_read(&source_db, kbuf, klen, kpos) != 0) {
-      LERROR(0,0, "cdb_read() failed for kbuf. Skipping ...");
-      continue;
-    }
-    if(cdb_read(&source_db, vbuf, vlen, vpos) != 0) {
-      LERROR(0,0, "cdb_read() failed for vbuf. Skipping ...");
-      continue;
-    }
-    cdb_make_put(target_db, kbuf, klen, vbuf, vlen, CDB_PUT_INSERT);
-    LERROR(0,0, "Wrote to target DB: klen=%u, vlen=%u", klen, vlen);
-  } // while
-  cdb_make_finish(target_db);
-  cdb_free(&source_db);
-  if(vbuf_isstatic == 0) // throws -Wfree-nonheap-object but we're safe
-    free(vbuf);
-  if(kbuf_isstatic == 0) // throws -Wfree-nonheap-object but we're safe
-    free(kbuf);
-  close(sfd);
-  return 0;
-}
-
-int db2array(const char *dbfile, struct DBItem **dbibuf, size_t *dbibuflen, int *index) {
+int db2array(const char *dbfile, struct DBItem *first) {
   assert(dbfile != NULL);
-  assert(dbibuf != NULL);
-  assert(dbibuflen != NULL);
-  assert(index != NULL);
+  assert(first != NULL);
   struct cdb db;
+  struct DBItem *cur = first;
+  int atfirst = 1;
+  cur->next = first;
   int fd;
   unsigned up, kpos, klen, vpos, vlen;
-  *dbibuflen = 30;
-  *index = -1;
 
-  if((dbibuf = calloc(*dbibuflen, sizeof(struct DBItem))) == NULL)
-    LERROR(EXIT_FAILURE, errno, "malloc() failed");
   if(check_access_flags_v(dbfile, F_OK | R_OK, 1) != 0) {
     LERROR(0,0, "file not accessible: %s", dbfile);
     return EXIT_FAILURE;
@@ -770,33 +720,37 @@ int db2array(const char *dbfile, struct DBItem **dbibuf, size_t *dbibuflen, int 
   }
   cdb_seqinit(&up, &db);
   while(cdb_seqnext(&up, &db) > 0) {
-    (*index) += 1;
-    if(*index == *dbibuflen-1) {
-      (*dbibuflen) += 30;
-      if((dbibuf = realloc(dbibuf, sizeof(struct DBItem)*(*dbibuflen))) == NULL)
-        LERROR(EXIT_FAILURE, errno, "realloc() to enlarge dbibuf failed");
+    if(atfirst == 0) {
+      cur->next = malloc(sizeof(struct DBItem));
+      if(cur->next == NULL)
+        LERROR(EXIT_FAILURE, errno, "malloc() failed");
+      cur = cur->next;
+      cur->next = NULL;
     }
     kpos = cdb_keypos(&db);
     klen = cdb_keylen(&db);
     vpos = cdb_datapos(&db);
     vlen = cdb_datalen(&db);
-    if(vlen != sizeof(unsigned long)) {
+    if(vlen > sizeof(unsigned long)) {
       LERROR(0,0, "Skipping entry with a data size > sizeof(unsigned long)");
       continue;
     }
-    dbibuf[*index]->kbuflen = klen;
-    if((dbibuf[*index]->kbuf = malloc(klen)) == NULL)
+    cur->kbuflen = klen;
+    if((cur->kbuf = malloc(klen)) == NULL)
       LERROR(EXIT_FAILURE, 0, "malloc() failed");
-    if(cdb_read(&db, dbibuf[*index]->kbuf, klen, kpos) != 0) {
+    if(cdb_read(&db, cur->kbuf, klen, kpos) != 0) {
       LERROR(0,0, "cdb_read() failed. Skipping key at pos=%u", kpos);
       continue;
     }
-    if(cdb_read(&db, &dbibuf[*index]->crc, vlen, vpos) != 0) {
+    if(cdb_read(&db, &cur->crc, vlen, vpos) != 0) {
       LERROR(0,0, "cdb_read() failed. Skipping data at pos=%u", vpos);
       continue;
     }
+    if(atfirst == 1) atfirst = 0;
+    cur->next = NULL;
   } // while
   cdb_free(&db);
+  close(fd);
   return EXIT_SUCCESS;
 cleanup_error:
   close(fd);
@@ -810,16 +764,10 @@ int main(int argc, char **argv) {
 
   while((opt = getopt(argc, argv, "+ftnvV:hsrC:ce:p:a")) != -1)
     switch(opt) {
-      case 'f':
-        cmdflags |= CHECK_BATCH_PREFER_HEXSTRING;
-        break;
-      case 'a':
-        LERROR(0,0, "*** EXPERIMENTAL FEATURE *** (flag -a)");
-        cmdflags |= APPEND_TO_DB;
-        break;
-      case 'n':
-        cmdflags |= CALC_PRINT_NUMERICAL; 
-        break;
+      case 's': cmdflags |= TAG_ALLOW_STRIP; break;
+      case 'f': cmdflags |= CHECK_BATCH_PREFER_HEXSTRING; break;
+      case 'a': cmdflags |= APPEND_TO_DB; break;
+      case 'n': cmdflags |= CALC_PRINT_NUMERICAL; break;
       case 'p':
         dbiofile = strdup(optarg);
         cmd = command_list_db;
@@ -840,9 +788,6 @@ int main(int argc, char **argv) {
         break;
       case 'r':
         cmd = command_remove_tag;
-        break;
-      case 's':
-        cmdflags |= TAG_ALLOW_STRIP;
         break;
       case 'v':
         cmd = command_check;
