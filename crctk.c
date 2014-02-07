@@ -53,7 +53,8 @@
 /* GLOBALS */
 
 const char *crcregex = "[[:xdigit:]]\\{8\\}";
-const char *crcregex_stripper = "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?";
+const char *crcregex_stripper =
+  "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?";
 const char *dbiofile = "crcsums.tdb";
 
 /* TYPES */
@@ -109,7 +110,8 @@ static int check_access_flags_v(const char*, int, int);
 static void compile_regex(regex_t*, const char*, int);
 static char* get_basename(char*);
 static char* pathcat(const char*, const char*);
-static inline void helper_manage_stackheapbuf(char*, size_t*, int*, unsigned);
+static inline void helper_manage_stackheapbuf(char*, size_t*, int*,
+    unsigned);
 static char* strip_tag(const char*);
 static int db2array(const char*, struct DBItem*);
 
@@ -243,6 +245,7 @@ int command_help(int argc, char **argv, int optind, int flags) {
   return EXIT_SUCCESS;
 }
 
+//FIXME: -a + duplicates truncate database
 int command_calc_batch(int argc, char **argv, int optind, int flags) {
   int i, fd;
   unsigned long crc;
@@ -250,11 +253,13 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
   struct DBItem dbibuf = { NULL, 0, 0, NULL };
   struct DBItem *e = &dbibuf;
 
-  if((flags & APPEND_TO_DB) && (db2array(dbiofile, &dbibuf) == EXIT_FAILURE))
-    LERROR(EXIT_FAILURE, 0, "option ineffective: append to DB (flag -a): could not load "
-       "the db file");
+  if((flags & APPEND_TO_DB) &&
+      (db2array(dbiofile, &dbibuf) == EXIT_FAILURE))
+    LERROR(EXIT_FAILURE, 0, "option ineffective: append to DB "
+        "(flag -a): could not load the db file");
 
-  if((fd = open(dbiofile, O_WRONLY | O_CREAT , S_IRUSR | S_IWUSR)) == -1)
+  if((fd = open(dbiofile, O_WRONLY | O_CREAT ,
+          S_IRUSR | S_IWUSR)) == -1)
     LERROR(ExitUnknownError, errno, "couldn't create file");
   if((cdb_make_start(&cdbm, fd)) != 0)
     LERROR(ExitUnknownError, 0, "couldn't initialize the cdb database");
@@ -362,7 +367,8 @@ int command_remove_tag(int argc, char **argv, int optind, int flags) {
   check_access_flags(filename, F_OK | R_OK | W_OK, 1);
   str = get_basename((char*)filename);
   if((nstr = strip_tag((const char*) str)) == NULL)
-    LERROR(ExitArgumentError, 0, "%s does not contain an hexstring", filename);
+    LERROR(ExitArgumentError, 0, "%s does not contain an hexstring",
+        filename);
   d = (const char*) dirname((char*)filename);
   p = pathcat(d, (const char*)str);
   q = pathcat(d, (const char*)nstr);
@@ -429,7 +435,8 @@ int command_list_db(int argc, char **argv, int optind, int flags) {
 
   check_access_flags(dbiofile, F_OK | R_OK, 1);
   if((fd = open(dbiofile, O_RDONLY)) == -1)
-    LERROR(EXIT_FAILURE, errno, "could not open cdb file: %s", dbiofile);
+    LERROR(EXIT_FAILURE, errno, "could not open cdb file: %s",
+        dbiofile);
   if(cdb_init(&db, fd) != 0)
     LERROR(EXIT_FAILURE, 0, "cdb_init() failed");
   cdb_seqinit(&up, &db);
@@ -445,11 +452,12 @@ int command_list_db(int argc, char **argv, int optind, int flags) {
       continue;
     }
     if(cdb_read(&db, vbuf, vlen, vpos) != 0) {
-      LERROR(0,0, "cdb_read(): failed to read value. Skipping entry ...");
+      LERROR(0,0, "cdb_read(): failed to read value. "
+          "Skipping entry ...");
       continue;
     }
-    //printf("buf sizes: kbuf=%lu klen=%lu vbuf=%lu vlen=%lu\n", kbuflen, klen, vbuflen, vlen);
-    printf("%s: <%s> -> %08lX\n", dbiofile, kbuf, *(unsigned long*)vbuf);
+    printf("%s: <%s> -> %08lX\n", dbiofile, kbuf,
+        *(unsigned long*)vbuf);
   } // while
   cdb_free(&db);
   close(fd);
@@ -460,7 +468,8 @@ int command_list_db(int argc, char **argv, int optind, int flags) {
   return EXIT_SUCCESS;
 }
 
-int command_check_batch(int argc, char **argv, int optind, int cmdflags) {
+int command_check_batch(int argc, char **argv, int optind,
+    int cmdflags) {
   struct cdb db;
   int fd;
   char statickbuf[255];
@@ -473,7 +482,8 @@ int command_check_batch(int argc, char **argv, int optind, int cmdflags) {
 
   check_access_flags(dbiofile, F_OK | R_OK, 1);
   if((fd = open(dbiofile, O_RDONLY)) == -1)
-    LERROR(EXIT_FAILURE, errno, "could not open cdb file: %s", dbiofile);
+    LERROR(EXIT_FAILURE, errno, "could not open cdb file: %s",
+        dbiofile);
   if(cdb_init(&db, fd) != 0)
     LERROR(EXIT_FAILURE, 0, "cdb_init() failed");
   
@@ -487,7 +497,8 @@ int command_check_batch(int argc, char **argv, int optind, int cmdflags) {
         continue;
       }
       if(cdb_read(&db, &vbuf, vlen, vpos) != 0) {
-        LERROR(0,0, "%s: cdb_read() failed on key <%s>", dbiofile, argv[i]);
+        LERROR(0,0, "%s: cdb_read() failed on key <%s>", dbiofile,
+            argv[i]);
         continue;
       }
       if(check_access_flags_v(argv[i], F_OK | R_OK, 1) != 0)
@@ -514,8 +525,8 @@ int command_check_batch(int argc, char **argv, int optind, int cmdflags) {
       vpos = cdb_datapos(&db);
       if((vlen = cdb_datalen(&db)) != sizeof(unsigned long)) {
         //FIXME: output key name
-        LERROR(0,0, "%s: skipping entry: wrong data size (keypos=%u, vlen=%u)",
-            dbiofile, kpos, vlen);
+        LERROR(0,0, "%s: skipping entry: wrong data size (keypos=%u, "
+            "vlen=%u)", dbiofile, kpos, vlen);
         continue;
       }
       helper_manage_stackheapbuf(kbuf, &kbuflen, &kbuf_isstatic, klen);
@@ -548,7 +559,8 @@ int command_check_batch(int argc, char **argv, int optind, int cmdflags) {
   return EXIT_SUCCESS;
 }
 
-void check_access_flags(const char *path, int access_flags, int notdir) {
+void check_access_flags(const char *path, int access_flags,
+    int notdir) {
     struct stat stbuf;
 
     if(access(path, access_flags) != 0)
@@ -558,11 +570,13 @@ void check_access_flags(const char *path, int access_flags, int notdir) {
             LERROR(ExitUnknownError, errno, "%s", path);
         else
             if(S_ISDIR(stbuf.st_mode))
-                LERROR(ExitArgumentError, 0, "%s is a directory.", path);
+                LERROR(ExitArgumentError, 0, "%s is a directory.",
+                    path);
     }
 }
 
-int check_access_flags_v(const char *path, int access_flags, int notadir) {
+int check_access_flags_v(const char *path, int access_flags,
+    int notadir) {
   struct stat stbuf;
   
   if(access(path, access_flags) != 0)
@@ -604,6 +618,7 @@ char* strip_tag(const char *str) {
 
 char* get_basename(char *path) {
     char *r;
+
     if((r = basename(path)) == NULL)
         LERROR(ExitArgumentError, 0,
             "could not extract specified path's basename.");
@@ -612,6 +627,7 @@ char* get_basename(char *path) {
 
 char* pathcat(const char *p, const char *s) {
     char *r;
+
     r = calloc(strlen(p) + strlen(s) + 2, sizeof(char));
     if(r == NULL)
         LERROR(ExitUnknownError, errno, "memory allocation error");
@@ -638,7 +654,8 @@ int command_idle(int argc, char **argv, int optind, int flags) {
   return EXIT_SUCCESS;
 }
 
-void helper_manage_stackheapbuf(char *buf, size_t *buflen, int *buf_isstatic, unsigned datalen) {
+void helper_manage_stackheapbuf(char *buf, size_t *buflen,
+    int *buf_isstatic, unsigned datalen) {
   assert(buf != NULL);
   assert(buflen != NULL);
   assert(buf_isstatic != NULL);
@@ -657,54 +674,15 @@ void helper_manage_stackheapbuf(char *buf, size_t *buflen, int *buf_isstatic, un
   *buflen = datalen;
 }
 
-/*
-int copy_cdb2(const char *db, struct DBItem *dbibuf, size_t *dbibuflen,
-    int *dbibufpos, int *dbibuf_isstatic) {
-  assert(db != NULL);
-  assert(dbibuf != NULL);
-  assert(dbibuflen != NULL);
-  assert(dbibufpos != NULL);
-  assert(dbibuf_isstatic != NULL);
-  struct cdb sourcedb;
-  unsigned up, klen, kpos, vlen, vpos;
-  int fd;
-
-  if(check_access_flags_v(db, F_OK | R_OK, 1) != 0) {
-    LERROR(0,0, "file <%s> does not exist or is inaccessible", db);
-    return EXIT_FAILURE;
-  }
-  if((fd = open(db, O_RDONLY)) == -1) {
-    LERROR(0, errno, "open() on source db failed");
-    return EXIT_FAILURE;
-  }
-  if(cdb_init(&sourcedb, fd) != 0) {
-    LERROR(0, 0, "cdb_init() on source db failed");
-    return EXIT_FAILURE;
-  }
-  cdb_seqinit(&up, %sourcedb);
-  *dbibufpos = 0;
-  while(cdb_seqnext(&up, &sourcedb) > 0) {
-    if(*dbibufpos == *dbibuflen) {
-      if(*dbibuf_isstatic == 1) {
-        *dbibuf_isstatic = 0;
-        dbibuf = 
-      }
-    }
-
-  }
-}
-
-*/
-
 int db2array(const char *dbfile, struct DBItem *first) {
   assert(dbfile != NULL);
   assert(first != NULL);
   struct cdb db;
+  unsigned up, kpos, klen, vpos, vlen;
   struct DBItem *cur = first;
   int atfirst = 1;
-  cur->next = first;
   int fd;
-  unsigned up, kpos, klen, vpos, vlen;
+  cur->next = first;
 
   if(check_access_flags_v(dbfile, F_OK | R_OK, 1) != 0) {
     LERROR(0,0, "file not accessible: %s", dbfile);
@@ -732,7 +710,8 @@ int db2array(const char *dbfile, struct DBItem *first) {
     vpos = cdb_datapos(&db);
     vlen = cdb_datalen(&db);
     if(vlen > sizeof(unsigned long)) {
-      LERROR(0,0, "Skipping entry with a data size > sizeof(unsigned long)");
+      LERROR(0,0, "Skipping entry with a data size "
+          "> sizeof(unsigned long)");
       continue;
     }
     cur->kbuflen = klen;
@@ -759,8 +738,8 @@ cleanup_error:
 
 int main(int argc, char **argv) {
   int opt;
-  CommandFunction cmd = command_idle;
   int cmdflags = 0;
+  CommandFunction cmd = command_idle;
 
   while((opt = getopt(argc, argv, "+ftnvV:hsrC:ce:p:a")) != -1)
     switch(opt) {
@@ -807,6 +786,6 @@ int main(int argc, char **argv) {
       cmd != command_help)
     LERROR(ExitArgumentError, 0,
             "Too few arguments. Use the -h flag "
-            "to obtain usage information.");
+            "to view usage information.");
   return cmd(argc, argv, optind, cmdflags);
 }
