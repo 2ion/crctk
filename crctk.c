@@ -763,7 +763,7 @@ int main(int argc, char **argv) {
   int cmdflags = 0;
   CommandFunction cmd = command_idle;
 
-  while((opt = getopt(argc, argv, "+xtnu:vV:hsrC:ce:p:a")) != -1)
+  while((opt = getopt(argc, argv, "+X:xtnvV:hsrC:ce:p:a")) != -1)
     switch(opt) {
       case 's': cmdflags |= TAG_ALLOW_STRIP; break;
       case 'x': cmdflags |= CHECK_BATCH_PREFER_HEXSTRING; break;
@@ -793,7 +793,7 @@ int main(int argc, char **argv) {
       case 'v':
         cmd = command_check;
         break;
-      case 'u':
+      case 'X':
         hexarg = strdup(optarg);
         cmd = command_check_hexstring;
         break;

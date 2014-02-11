@@ -18,7 +18,7 @@ crctk: crctk.c
 	gcc $(cflags) -o $@ $< $(ldflags)
 
 doc:
-	make -C man
+	make -C doc
 
 README.md: crctk README.head
 	cat README.head > $@

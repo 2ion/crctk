@@ -38,6 +38,11 @@ The documentation itself is written in markdown format,
 so using pandoc, you may obtain the text in a wide range of different
 formats!
 
+## Outstanding Bugs
+
+* The -a option currently somehow corrupts the database file if
+  the same file is being added again.
+
 ## Command line synposis
 
 More concise usage information.
