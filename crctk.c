@@ -801,42 +801,17 @@ int main(int argc, char **argv) {
       case 'x': cmdflags |= CHECK_BATCH_PREFER_HEXSTRING; break;
       case 'a': cmdflags |= APPEND_TO_DB; break;
       case 'n': cmdflags |= CALC_PRINT_NUMERICAL; break;
-      case 'p':
-        dbiofile = strdup(optarg);
-        cmd = command_list_db;
-        break;
-      case 'V':
-        dbiofile = strdup(optarg);
-        cmd = command_check_batch;
-        break;
-      case 'e':
-        crcregex_stripper = strdup(optarg);
-        break;
-      case 'c':
-        cmd = command_calc;
-        break;
-      case 'C':
-        dbiofile = strdup(optarg);
-        cmd = command_calc_batch;
-        break;
-      case 'r':
-        cmd = command_remove_tag;
-        break;
-      case 'v':
-        cmd = command_check;
-        break;
-      case 'X':
-        hexarg = strdup(optarg);
-        cmd = command_check_hexstring;
-        break;
-      case 't':
-        cmd = command_tag;
-        break;
-      case 'h':
-        cmd = command_help;
-        break;
-      default:
-        return EXIT_FAILURE;
+      case 'p': dbiofile = strdup(optarg); cmd = command_list_db; break;
+      case 'V': dbiofile = strdup(optarg); cmd = command_check_batch; break;
+      case 'e': crcregex_stripper = strdup(optarg); break;
+      case 'c': cmd = command_calc; break;
+      case 'C': dbiofile = strdup(optarg); cmd = command_calc_batch; break;
+      case 'r': cmd = command_remove_tag; break;
+      case 'v': cmd = command_check; break;
+      case 'X': hexarg = strdup(optarg); cmd = command_check_hexstring; break;
+      case 't': cmd = command_tag; break;
+      case 'h': cmd = command_help; break;
+      default:  return EXIT_FAILURE;
     } // switch
   if(optind >= argc &&
       cmd != command_check_batch &&
