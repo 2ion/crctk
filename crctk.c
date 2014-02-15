@@ -108,6 +108,7 @@ static inline void helper_manage_stackheapbuf(char*, size_t*, int*,
     unsigned);
 static char* strip_tag(const char*);
 static int tag_pos(char*, char**, char**);
+static char* get_tag(char*);
 static int db2array(const char*, struct DBItem*);
 
 /* IMPLEMENTATION */
@@ -637,6 +638,20 @@ char* strip_tag(const char *str) {
     rstr[i++] = *p;
   rstr[i] = '\0';
   return rstr;
+}
+
+char* get_tag(char *str) {
+  char *r = NULL;
+  char *p = NULL;
+  char *q = NULL;
+
+  if(tag_pos(str, &p, &q) != 0)
+    return NULL;
+  r = malloc(sizeof(char)*9);
+  assert(r != NULL);
+  strncpy(r, (const char*)p, 8);
+  r[8] = '\0';
+  return r;
 }
 
 int tag_pos(char *str, char **p, char **q) {
