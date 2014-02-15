@@ -107,6 +107,7 @@ static char* pathcat(const char*, const char*);
 static inline void helper_manage_stackheapbuf(char*, size_t*, int*,
     unsigned);
 static char* strip_tag(const char*);
+static int tag_pos(char*, char**, char**);
 static int db2array(const char*, struct DBItem*);
 
 /* IMPLEMENTATION */
@@ -615,27 +616,43 @@ int check_access_flags_v(const char *path, int access_flags,
 }
 
 char* strip_tag(const char *str) {
-    regex_t regex;
-    regmatch_t rm;
-    const char *p, *q;
-    char *rstr;
-    int i;
-    
-    compile_regex(&regex, crcregex_stripper, REG_ICASE);
-    if(regexec(&regex, str, 1, &rm, 0) == REG_NOMATCH) {
-        // no tag in filename
-        regfree(&regex);
-        return NULL;
-    }
-    rstr = malloc((strlen(str)+1-(rm.rm_eo - rm.rm_so)) * sizeof(char));
-    if(rstr == NULL)
-        LERROR(EXIT_FAILURE, errno, "memory allocation error");
-    for(p = str, q = &str[rm.rm_so], i=0; p < q; ++p)
-        rstr[i++] = *p;
-    for(p = &str[rm.rm_eo]; *p; ++p)
-        rstr[i++] = *p;
-    rstr[i] = '\0';
-    return rstr;
+  regex_t regex;
+  regmatch_t rm;
+  const char *p, *q;
+  char *rstr;
+  int i;
+  
+  compile_regex(&regex, crcregex_stripper, REG_ICASE);
+  if(regexec(&regex, str, 1, &rm, 0) == REG_NOMATCH) {
+    // no tag in filename
+    regfree(&regex);
+    return NULL;
+  }
+  rstr = malloc((strlen(str)+1-(rm.rm_eo - rm.rm_so)) * sizeof(char));
+  if(rstr == NULL)
+    LERROR(EXIT_FAILURE, errno, "memory allocation error");
+  for(p = str, q = &str[rm.rm_so], i=0; p < q; ++p)
+    rstr[i++] = *p;
+  for(p = &str[rm.rm_eo]; *p; ++p)
+    rstr[i++] = *p;
+  rstr[i] = '\0';
+  return rstr;
+}
+
+int tag_pos(char *str, char **p, char **q) {
+  assert(str != NULL);
+  regex_t regex;
+  regmatch_t rm;
+
+  compile_regex(&regex, crcregex, REG_ICASE);
+  if(regexec(&regex, str, 1, &rm, 0) == REG_NOMATCH) {
+    regfree(&regex);
+    return -1;
+  }
+  *p = &str[rm.rm_so];
+  *q = &str[rm.rm_eo]-1;
+  regfree(&regex);
+  return 0;
 }
 
 char* get_basename(char *path) {
