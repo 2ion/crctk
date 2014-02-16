@@ -503,6 +503,7 @@ int command_check_batch(int argc, char **argv, int optind,
   unsigned long vbuf, crc;
   unsigned up, vpos, vlen, klen, kpos;
   int i, err;
+  char *x;
 
   check_access_flags(dbiofile, F_OK | R_OK, 1);
   if((fd = open(dbiofile, O_RDONLY)) == -1)
@@ -525,15 +526,32 @@ int command_check_batch(int argc, char **argv, int optind,
             argv[i]);
         continue;
       }
-      if(check_access_flags_v(argv[i], F_OK | R_OK, 1) != 0)
-        LERROR(0,0, "ERROR: file is not accessible");
-      if((crc = computeCRC32(argv[i])) != 0) {
-        if(crc == vbuf)
-          printf("OK (%08lX)\n", crc);
-        else
-          printf("ERROR (is: %08lX, db: %08lX)\n", crc, vbuf);
-      } else
-        printf("ERROR (CRC32 is zero)\n");
+      //
+      if(cmdflags & CHECK_BATCH_PREFER_HEXSTRING) {
+        x = get_tag(argv[i]);
+        if(x == NULL)
+          LERROR(0,0, "ERROR: option -x: argument does not contain an "
+              "hexstring: %s", argv[i]);
+        else {
+          if((crc = strtol((const char*)x, NULL, 16)) == vbuf)
+            printf("OK (%08lX)\n", crc);
+          else
+            printf("ERROR (is: %08lX, db: %08lX)\n", crc, vbuf);
+          free(x);
+        }
+      } else {
+        //
+        if(check_access_flags_v(argv[i], F_OK | R_OK, 1) != 0)
+          LERROR(0,0, "ERROR: file is not accessible");
+        if((crc = computeCRC32(argv[i])) != 0) {
+          if(crc == vbuf)
+            printf("OK (%08lX)\n", crc);
+          else
+            printf("ERROR (is: %08lX, db: %08lX)\n", crc, vbuf);
+        } else
+          printf("ERROR (CRC32 is zero)\n");
+        //
+      }
     } else if(err == 0) {
       printf("%s: Not entry found for path: %s\n", dbiofile, argv[i]);
     } else {
