@@ -28,15 +28,9 @@ where $prefix is the directory the binary will be copied to.
 
 ## Documentation
 
-The documentation is being maintained as a man page in the /man
-subdirectory. You can build it using
-```sh
-make doc
-```
+The documentation is written in pandoc markdown and located in /doc, so you can build a 
+wide range of documentation formats! By default, we deliver HTML and manpage versions.
 
-The documentation itself is written in markdown format,
-so using pandoc, you may obtain the text in a wide range of different
-formats!
 
 ## Outstanding Bugs
 
@@ -48,7 +42,7 @@ formats!
 More concise usage information.
 
 ```
-crctk v0.3.2-171fea3 (Feb  7 2014 23:01:55)
+crctk v0.3.3-94ded65 (Feb 17 2014 15:25:32)
 CRC32 Hexstring Toolkit
 Copyright (C) 2014 2ion (asterisk!2ion!de)
 Upstream: https://github.com/2ion/crctk
