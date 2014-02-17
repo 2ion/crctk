@@ -292,8 +292,8 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
 
 int command_tag(int argc, char **argv, int optind, int flags) {
   const char *filename = argv[argc-1];
-  char *string;
-  char *newstring;
+  char *string = NULL;
+  char *newstring = NULL;
   char *workstring = NULL;
   char tagstr[11];
   char *p, *q, *r;
@@ -339,6 +339,7 @@ int command_tag(int argc, char **argv, int optind, int flags) {
     newstring[i] = '\0';
   } else {
     // no suffix: append tag
+    newstring[0] = '\0';
     strcat(newstring, workstring);
     strcat(newstring, tagstr);
   }
