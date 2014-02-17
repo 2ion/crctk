@@ -28,15 +28,9 @@ where $prefix is the directory the binary will be copied to.
 
 ## Documentation
 
-The documentation is being maintained as a man page in the /man
-subdirectory. You can build it using
-```sh
-make doc
-```
+The documentation is written in pandoc markdown and located in /doc, so you can build a 
+wide range of documentation formats! By default, we deliver HTML and manpage versions.
 
-The documentation itself is written in markdown format,
-so using pandoc, you may obtain the text in a wide range of different
-formats!
 
 ## Outstanding Bugs
 
