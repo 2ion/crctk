@@ -535,9 +535,9 @@ int command_check_batch(int argc, char **argv, int optind,
               "hexstring: %s", argv[i]);
         else {
           if((crc = strtol((const char*)x, NULL, 16)) == vbuf)
-            printf("OK (%08lX)\n", crc);
+            printf("OK (%08lX)[x]\n", crc);
           else
-            printf("ERROR (is: %08lX, db: %08lX)\n", crc, vbuf);
+            printf("ERROR (is: %08lX, db: %08lX)[x]\n", crc, vbuf);
           free(x);
         }
       } else {

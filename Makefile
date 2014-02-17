@@ -1,6 +1,6 @@
 version_	?= 0.3.2
 prefix 		?= $(HOME)/bin
-gccflags	 = -g -Wall -Os -march=native -DVERSION=\"$(version)\"
+gccflags	 = -Wall -Os -march=native -DVERSION=\"$(version)\"
 cflags 		 = $(gccflags) $(shell pkg-config --cflags libcdb)
 ldflags		 = -lz $(shell pkg-config --libs libcdb)
 .PHONY: 		 clean push pull install uninstall doc
