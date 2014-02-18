@@ -1,4 +1,4 @@
-#include "realpath.h"
+#include "../include/realpath.h"
 
 int my_realpath(const char *path) {
 

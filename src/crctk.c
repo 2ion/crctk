@@ -39,7 +39,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <zlib.h>
-#include "realpath.h"
+#include "../include/realpath.h"
 
 #define _GNU_SOURCE
 #define LERROR(status, errnum, ...) error_at_line((status), (errnum), \
@@ -238,7 +238,7 @@ int command_help(int argc, char **argv, int optind, int flags) {
           " -e EXPR. Changes the regular expression used to\n"
           "    match tags when doing -s|-r to EXPR. Default:\n"
           "    [[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?\n"
-          " -h Print this message and exit successfully.", argv[0]);
+          " -h Print this message and exit successfully.\n", argv[0]);
   return EXIT_SUCCESS;
 }
 

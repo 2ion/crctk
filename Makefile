@@ -14,20 +14,20 @@ endif
 
 all: crctk doc
 
-crctk: crctk.c librealpath
-	gcc $(cflags) -o $@ realpath.o $< $(ldflags)
+crctk: src/crctk.c realpath.o
+	gcc $(cflags) -o $@ $^ $(ldflags)
 
-librealpath: realpath.c
-	gcc $(cflags) -c $< $(ldflags)
+realpath.o: src/realpath.c
+	gcc -c $(cflags) $< $(ldflags)
 
-librealpathtest: librealpath realpathtest.c
-	gcc $(cflags) -o $@ realpathtest.c realpath.o $(ldflags)
+librealpathtest: src/realpathtest.c realpath.o 
+	gcc $(cflags) -o $@ $^
 
 doc:
-	make -C doc
+	+make -C doc
 
-README.md: crctk README.head
-	cat README.head > $@
+README.md: doc/README.head crctk 
+	cat $< > $@
 	./crctk -h >> $@
 	echo '```' >> $@
 
@@ -35,7 +35,7 @@ packages/crctk-$(version_).tar.xz: crctk
 	git archive master | xz > packages/crctk-$(version_).tar.xz
 
 clean:
-	-rm crctk README
+	-rm crctk README.md *.o librealpathtest
 
 push:
 	git push github master --tags

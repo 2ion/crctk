@@ -1,5 +1,5 @@
-#include "realpath.h"
 #include <stdlib.h>
+#include "../include/realpath.h"
 
 int main(int argc, char **argv) {
   char *base = NULL;
