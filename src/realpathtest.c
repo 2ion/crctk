@@ -19,7 +19,7 @@
 #include <error.h>
 #include <errno.h>
 #include <stdlib.h>
-#include "../include/realpath.h"
+#include "realpath.h"
 
 #define LERROR(status, errnum, ...) error_at_line((status), (errnum), \
         (__func__), (__LINE__), __VA_ARGS__)

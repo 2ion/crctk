@@ -39,13 +39,20 @@
 #include <time.h>
 #include <unistd.h>
 #include <zlib.h>
-#include "../include/realpath.h"
+
+#include "realpath.h"
+#include "config.h"
+
+#include <libintl.h>
+#define _(String) gettext (String)
+#define gettext_noop(String) String
+#define N_(String) gettext_noop (String)
 
 #define _GNU_SOURCE
 #define LERROR(status, errnum, ...) error_at_line((status), (errnum), \
         (__func__), (__LINE__), __VA_ARGS__)
-#ifndef VERSION
-#define VERSION "unknown"
+#ifndef PACKAGE_VERSION
+#define PACKAGE_VERSION "unknown"
 #endif
 #define COPY_DB_STATIC_BUF_LEN 255
 #define DBITEM_PATHBUFLEN 255
@@ -201,7 +208,7 @@ void compile_regex(regex_t *regex, const char *regexpr, int cflags) {
 }
 
 int command_help(int argc, char **argv, int optind, int flags) {
-  printf("crctk v" VERSION " (" __DATE__ " " __TIME__ ")\n"
+  printf("crctk v" PACKAGE_VERSION " (" __DATE__ " " __TIME__ ")\n"
           "CRC32 Hexstring Toolkit\n"
           "Copyright (C) 2014 2ion (asterisk!2ion!de)\n"
           "Upstream: https://github.com/2ion/crctk\n"

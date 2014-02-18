@@ -1,0 +1,3 @@
+- option for using absolute paths in the database
+- fix handling of duplicate entries  with the -a option
+- implement -x option
