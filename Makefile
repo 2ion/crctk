@@ -3,7 +3,7 @@ prefix 		?= $(HOME)/bin
 gccflags	 = -Wall -Os -march=native -DVERSION=\"$(version)\"
 cflags 		 = $(gccflags) $(shell pkg-config --cflags libcdb)
 ldflags		 = -lz $(shell pkg-config --libs libcdb)
-.PHONY: 		 clean push pull install uninstall doc
+.PHONY: 		 clean push pull install uninstall doc test
 
 havegit=$(shell test -d .git &>/dev/null; echo $$?)
 ifeq ($(havegit), 0)
@@ -19,6 +19,9 @@ crctk: src/crctk.c realpath.o
 
 realpath.o: src/realpath.c
 	gcc -c $(cflags) $< $(ldflags)
+
+test: librealpathtest
+	./librealpathtest
 
 librealpathtest: src/realpathtest.c realpath.o 
 	gcc $(cflags) -o $@ $^

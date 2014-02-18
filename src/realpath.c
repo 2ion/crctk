@@ -48,8 +48,8 @@ int my_splitpath(const char *path,
     *base = strdup(path);
     *baselen = strlen(path)+1;
   } else {
-    for(q = path; q < p; ++q) ++i;
-    q = path; while(*++q);
+    for(q = (char*)path; q < p; ++q) ++i;
+    q = (char*)path; while(*++q);
     for(j = i; p<q; ++p) ++j;
     *dir = calloc(i+1, sizeof(char));
     strncpy(*dir, path, i);
