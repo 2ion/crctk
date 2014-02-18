@@ -39,7 +39,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <zlib.h>
-#include "../include/realpath.h"
+#include "realpath.h"
 
 #define _GNU_SOURCE
 #define LERROR(status, errnum, ...) error_at_line((status), (errnum), \

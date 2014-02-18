@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../include/realpath.h"
+#include "realpath.h"
 
 int my_realpath(const char *path) {
 
