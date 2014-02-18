@@ -14,8 +14,14 @@ endif
 
 all: crctk doc
 
-crctk: crctk.c
-	gcc $(cflags) -o $@ $< $(ldflags)
+crctk: crctk.c librealpath
+	gcc $(cflags) -o $@ realpath.o $< $(ldflags)
+
+librealpath: realpath.c
+	gcc $(cflags) -c $< $(ldflags)
+
+librealpathtest: librealpath realpathtest.c
+	gcc $(cflags) -o $@ realpathtest.c realpath.o $(ldflags)
 
 doc:
 	make -C doc

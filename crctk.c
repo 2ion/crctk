@@ -39,6 +39,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <zlib.h>
+#include "realpath.h"
 
 #define _GNU_SOURCE
 #define LERROR(status, errnum, ...) error_at_line((status), (errnum), \
@@ -839,5 +840,6 @@ int main(int argc, char **argv) {
     LERROR(EXIT_FAILURE, 0,
             "Too few arguments. Use the -h flag "
             "to view usage information.");
+  my_realpath("HELLO");
   return cmd(argc, argv, optind, cmdflags);
 }
