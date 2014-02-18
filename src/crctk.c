@@ -811,7 +811,7 @@ cleanup_error:
 }
 
 int main(int argc, char **argv) {
-  int opt;
+  int opt = 0;
   int cmdflags = 0;
   CommandFunction cmd = command_idle;
 
