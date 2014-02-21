@@ -20,9 +20,68 @@
 
 #include "realpath.h"
 
-int my_realpath(const char *path) {
+char* my_realpath(const char *path) {
+  assert(path!=NULL);
+  size_t pwdlen = 0;
+  char *pwd = NULL;
+  size_t baselen = 0;
+  char *base = NULL;
+  size_t dirlen = 0;
+  char *dir = NULL;
+  char *r = NULL;
+  size_t rlen = 0;
 
-  return EXIT_SUCCESS;
+  // store old pwd
+  do {
+    pwdlen += 255;
+    if(pwd == NULL)
+      pwd = malloc(sizeof(char)*pwdlen);
+    else
+      pwd = realloc(pwd, sizeof(char)*pwdlen);
+  } while(getcwd(pwd, pwdlen) == NULL);
+
+  if(my_splitpath(path, &dir, &dirlen,
+        &base, &baselen) != EXIT_SUCCESS) {
+    LERROR(0, 0, "error when trying to split the path: %s",
+        path);
+    free(pwd);
+    return NULL;
+  }
+
+  if(chdir(".") != 0) {
+    LERROR(0, errno, "chdir() into %s failed.", path);
+    if(base != NULL)
+      free(base);
+    if(dir != NULL)
+      free(dir);
+    free(pwd);
+    return NULL;
+  }
+  do {
+    rlen += 255;
+    if(r == NULL)
+      r = malloc(sizeof(char)*rlen);
+    else
+      r = realloc(r, sizeof(char)*rlen);
+  } while(getcwd(r, rlen) == NULL);
+
+  if(base != NULL && strlen(base) > 0) {
+    r = realloc(r, sizeof(char)*(rlen+baselen));
+    strncat(r, "/", 2);
+    strncat(r, (const char*)base, baselen);
+  }
+
+  if(base != NULL)
+    free(base);
+  free(dir);
+
+  // restore old pwd
+  if(chdir(pwd) != 0)
+    LERROR(0, errno, "Failed to restore the old pwd.");
+  free(pwd);
+
+  puts(r);
+  return r;
 }
 
 int my_splitpath(const char *path,
@@ -48,12 +107,20 @@ int my_splitpath(const char *path,
     *base = strdup(path);
     *baselen = strlen(path)+1;
   } else {
-    for(q = (char*)path; q < p; ++q) ++i;
+    for(q = (char*)path; q<p; ++q) ++i;
     q = (char*)path; while(*++q);
     for(j = i; p<q; ++p) ++j;
     *dir = calloc(i+1, sizeof(char));
+    if(*dir == NULL) return EXIT_FAILURE;
+    *dirlen = (size_t) i+1;
     strncpy(*dir, path, i);
     *base = calloc(j-i, sizeof(char));
+    if(*base == NULL) {
+      free(dir);
+      *dirlen = 0;
+      return EXIT_FAILURE;
+    }
+    *baselen = (size_t) j-i;
     strncpy(*base, &path[i+1], j-i-1);
   }
   return EXIT_SUCCESS;

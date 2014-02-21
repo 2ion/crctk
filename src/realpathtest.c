@@ -21,9 +21,6 @@
 #include <stdlib.h>
 #include "realpath.h"
 
-#define LERROR(status, errnum, ...) error_at_line((status), (errnum), \
-        (__func__), (__LINE__), __VA_ARGS__)
-
 #define TEST_SPLITPATH(path) \
   base=NULL; \
   dir=NULL; \
@@ -47,6 +44,8 @@ int main(int argc, char **argv) {
   TEST_SPLITPATH("/a/b/c/d.2/");
   TEST_SPLITPATH("/");
   TEST_SPLITPATH("/a/v/c///");
+
+  my_realpath(".");
 
   return 0;
 }

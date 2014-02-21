@@ -22,13 +22,19 @@
 #define REALPATH_H
 
 #include <assert.h>
+#include <error.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
+
+#define LERROR(status, errnum, ...) error_at_line((status), (errnum), \
+        (__func__), (__LINE__), __VA_ARGS__)
 
 extern int my_splitpath(const char *path,
     char **dir, size_t *dirlen,
     char **base, size_t *baselen);
-extern int my_realpath(const char *path);
+extern char* my_realpath(const char *path);
 
 #endif
