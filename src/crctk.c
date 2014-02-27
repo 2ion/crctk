@@ -740,6 +740,5 @@ int main(int argc, char **argv) {
     LERROR(EXIT_FAILURE, 0,
             "Too few arguments. Use the -h flag "
             "to view usage information.");
-  my_realpath("HELLO");
   return cmd(argc, argv, optind, cmdflags);
 }
