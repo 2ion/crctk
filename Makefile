@@ -14,7 +14,7 @@ endif
 
 all: crctk doc
 
-crctk: src/crctk.c realpath.o
+crctk: src/crctk.c realpath.o src/crctk.h
 	gcc $(cflags) -o $@ $^ $(ldflags)
 
 realpath.o: src/realpath.c
