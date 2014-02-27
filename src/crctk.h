@@ -54,6 +54,24 @@ const char *crcregex_stripper =
   "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?";
 const char *dbiofile = "crcsums.tdb";
 const char *hexarg = "00000000";
+const char *optstring_short = "+X:xtnvV:hsrC:ce:p:a";
+const struct option options_long[] = {
+  { "verify", no_argument, NULL, 'v' },
+  { "verify-hex", required_argument, NULL, 'u' },
+  { "verify-db", required_argument, NULL, 'V' },
+  { "prefer-hexstring", no_argument, NULL, 'x' },
+  { "calc", no_argument, NULL, 'c' },
+  { "numerical", no_argument, NULL, 'n' },
+  { "create-db", required_argument, NULL, 'C' },
+  { "append", no_argument, NULL, 'a' },
+  { "print", required_argument, NULL, 'p' },
+  { "tag", no_argument, NULL, 't' },
+  { "strip-tag", no_argument, NULL, 's' },
+  { "remove-tag", no_argument, NULL, 'r' },
+  { "tag-regex", required_argument, NULL, 'e' },
+  { "help", no_argument, NULL, 'h' },
+  { 0, 0, 0, 0 }
+};
 
 /* TYPES */
 

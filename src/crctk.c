@@ -117,13 +117,11 @@ int command_help(int argc, char **argv, int optind, int flags) {
           "    have the listed checksums.\n"
           " -u HEXSTRING. Check if the specified file has the CRC\n"
           "    sum HEXSTRING.\n"
-          " -f Supplements -V. Instead of calculating the real CRC\n"
-          "    sum, use a CRC32 hexstring if the file is tagged.\n"
           " -x Supplements -V. For any tagged file, use the hexstring as\n"
           "    as the reference CRC32 instead of computing anew.\n"
           " -c Compute the CRC32 of the given file, print and exit.\n"
           " -n Supplements -c. print CRC32 in its numerical format.\n"
-          " -C for multiple input files, create a checksum listing\n"
+          " -C FILE. for multiple input files, create a checksum listing\n"
           "    for use with the -V option. Overwrites the given file.\n"
           " -a Supplements -C. Append to the given database file instead\n"
           "    of overwriting it.\n"
@@ -716,7 +714,8 @@ int main(int argc, char **argv) {
   int cmdflags = 0;
   CommandFunction cmd = command_idle;
 
-  while((opt = getopt(argc, argv, "+X:xtnvV:hsrC:ce:p:a")) != -1)
+  while((opt = getopt_long(argc, argv, optstring_short,
+         options_long, NULL)) != -1)
     switch(opt) {
       case 's': cmdflags |= TAG_ALLOW_STRIP; break;
       case 'x': cmdflags |= CHECK_BATCH_PREFER_HEXSTRING; break;

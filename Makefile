@@ -1,4 +1,4 @@
-version_	?= 0.3.3
+version_	?= 0.3.4
 prefix 		?= $(HOME)/bin
 gccflags	 = -Wall -Os -march=native -DVERSION=\"$(version)\"
 cflags 		 = $(gccflags) $(shell pkg-config --cflags libcdb)
