@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
   TEST_SPLITPATH("/");
   TEST_SPLITPATH("/a/v/c///");
 
-  my_realpath(".");
-
+  puts(my_realpath("/home/joj/fub/ws12"));
+  puts(my_realpath("/home/joj/mail/sym13"));
   return 0;
 }

@@ -57,7 +57,6 @@ const char *hexarg = "00000000";
 const char *optstring_short = "+X:xtnvV:hsrC:ce:p:a";
 const struct option options_long[] = {
   { "verify", no_argument, NULL, 'v' },
-  { "verify-hex", required_argument, NULL, 'u' },
   { "verify-db", required_argument, NULL, 'V' },
   { "prefer-hexstring", no_argument, NULL, 'x' },
   { "calc", no_argument, NULL, 'c' },

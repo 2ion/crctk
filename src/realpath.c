@@ -48,7 +48,7 @@ char* my_realpath(const char *path) {
     return NULL;
   }
 
-  if(chdir(".") != 0) {
+  if(chdir(dir) != 0) {
     LERROR(0, errno, "chdir() into %s failed.", path);
     if(base != NULL)
       free(base);
@@ -57,6 +57,7 @@ char* my_realpath(const char *path) {
     free(pwd);
     return NULL;
   }
+
   do {
     rlen += 255;
     if(r == NULL)
@@ -80,7 +81,6 @@ char* my_realpath(const char *path) {
     LERROR(0, errno, "Failed to restore the old pwd.");
   free(pwd);
 
-  puts(r);
   return r;
 }
 

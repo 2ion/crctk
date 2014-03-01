@@ -42,44 +42,44 @@ from tags to validate a file.
 
 ## GENERAL OPTIONS
 
-*   __-c [-n] [_--_] _FILE_ __  
+*   __-c|--calc [-n|--numerical] [_--_] _FILE_ __  
     Compute the CRC32 checksum of _FILE_, print it to stdout and exit.
     If _-n_ is present, the numerical value will be output instead of
     the hexstring.
 
-*   __-e _EXPRESSION_ __  
+*   __-e|--tag-regex _EXPRESSION_ __  
     Replace the built-in regex used to match tags (see section:
     __HEXSTRING TAGS__) with _EXPRESSION_.
 
-*   __-h__  
+*   __-h|--help__  
     Print a help text and exit.
 
 ## OPTIONS INVOLVING TAGS
 
-*   __-v [_--_] _FILE_ __  
+*   __-v|--verify [_--_] _FILE_ __  
     Verify the integrity of _FILE_ using the tag in its filename.
 
-*   __-t [-s] [_--_] _FILE_ __  
+*   __-t|--tag [-s|--strip-tag] [_--_] _FILE_ __  
     Tag _FILE_ with the hexstring of its CRC32 checksum. Fails if _FILE_
     has already been tagged. If _-s_ is present, strip any existing tag
     before appending the new one.
 
-*   __-r [--] _FILE_ __  
+*   __-r|--remove-tag [--] _FILE_ __  
     If _FILE_ is tagged, remove the tag.
 
 ## OPTIONS INVOLVING DATABASES
 
-*   __-p _DB-FILE_ __   
+*   __-p|--print _DB-FILE_ __   
     Print all records in _DB-FILE_ to stdout and exit.
 
-*   __-C _DB-FILE_ [-a] [_--_] _FILE-LIST_ __   
+*   __-C|--create-db _DB-FILE_ [-a|--append] [_--_] _FILE-LIST_ __   
     For a every _FILE_ in _FILE-LIST_, record its path and CRC32
     checksum in the database _DB-FILE_. Relative filepaths are used.
     If the same path appears more than once in _FILE-LIST_, the record
     will be overwritten. Any pre-existing _DB-FILE_ will be overwritten
     unless _-a_ (append) is present.
 
-*   __-V _DB-FILE_ [-x] [_--_] [_FILE-LIST_] __  
+*   __-V|--verify-db _DB-FILE_ [-x|--prefer-hexstring] [_--_] [_FILE-LIST_] __  
     For every _FILE_ in _FILE-LIST_, check if it has a record in
     _DB-FILE_ and if yes, verify if its current CRC32 checksum matches
     the checksum recorded in the database. If _-x_ is present, for any
