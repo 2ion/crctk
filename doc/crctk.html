@@ -31,21 +31,21 @@ document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'">'+e+'<\/'+'a'+'>');
 <h1 id="command-line">COMMAND LINE</h1>
 <h2 id="general-options">GENERAL OPTIONS</h2>
 <ul>
-<li><p><strong>-c [-n] [<em>--</em>] <em>FILE</em> </strong><br /> Compute the CRC32 checksum of <em>FILE</em>, print it to stdout and exit. If <em>-n</em> is present, the numerical value will be output instead of the hexstring.</p></li>
-<li><p><strong>-e <em>EXPRESSION</em> </strong><br /> Replace the built-in regex used to match tags (see section: <strong>HEXSTRING TAGS</strong>) with <em>EXPRESSION</em>.</p></li>
-<li><p><strong>-h</strong><br /> Print a help text and exit.</p></li>
+<li><p><strong>-c|--calc [-n|--numerical] [<em>--</em>] <em>FILE</em> </strong><br /> Compute the CRC32 checksum of <em>FILE</em>, print it to stdout and exit. If <em>-n</em> is present, the numerical value will be output instead of the hexstring.</p></li>
+<li><p><strong>-e|--tag-regex <em>EXPRESSION</em> </strong><br /> Replace the built-in regex used to match tags (see section: <strong>HEXSTRING TAGS</strong>) with <em>EXPRESSION</em>.</p></li>
+<li><p><strong>-h|--help</strong><br /> Print a help text and exit.</p></li>
 </ul>
 <h2 id="options-involving-tags">OPTIONS INVOLVING TAGS</h2>
 <ul>
-<li><p><strong>-v [<em>--</em>] <em>FILE</em> </strong><br /> Verify the integrity of <em>FILE</em> using the tag in its filename.</p></li>
-<li><p><strong>-t [-s] [<em>--</em>] <em>FILE</em> </strong><br /> Tag <em>FILE</em> with the hexstring of its CRC32 checksum. Fails if <em>FILE</em> has already been tagged. If <em>-s</em> is present, strip any existing tag before appending the new one.</p></li>
-<li><p><strong>-r [--] <em>FILE</em> </strong><br /> If <em>FILE</em> is tagged, remove the tag.</p></li>
+<li><p><strong>-v|--verify [<em>--</em>] <em>FILE</em> </strong><br /> Verify the integrity of <em>FILE</em> using the tag in its filename.</p></li>
+<li><p><strong>-t|--tag [-s|--strip-tag] [<em>--</em>] <em>FILE</em> </strong><br /> Tag <em>FILE</em> with the hexstring of its CRC32 checksum. Fails if <em>FILE</em> has already been tagged. If <em>-s</em> is present, strip any existing tag before appending the new one.</p></li>
+<li><p><strong>-r|--remove-tag [--] <em>FILE</em> </strong><br /> If <em>FILE</em> is tagged, remove the tag.</p></li>
 </ul>
 <h2 id="options-involving-databases">OPTIONS INVOLVING DATABASES</h2>
 <ul>
-<li><p><strong>-p <em>DB-FILE</em> </strong><br /> Print all records in <em>DB-FILE</em> to stdout and exit.</p></li>
-<li><p><strong>-C <em>DB-FILE</em> [-a] [<em>--</em>] <em>FILE-LIST</em> </strong><br /> For a every <em>FILE</em> in <em>FILE-LIST</em>, record its path and CRC32 checksum in the database <em>DB-FILE</em>. Relative filepaths are used. If the same path appears more than once in <em>FILE-LIST</em>, the record will be overwritten. Any pre-existing <em>DB-FILE</em> will be overwritten unless <em>-a</em> (append) is present.</p></li>
-<li><p><strong>-V <em>DB-FILE</em> [-x] [<em>--</em>] [<em>FILE-LIST</em>] </strong><br /> For every <em>FILE</em> in <em>FILE-LIST</em>, check if it has a record in <em>DB-FILE</em> and if yes, verify if its current CRC32 checksum matches the checksum recorded in the database. If <em>-x</em> is present, for any tagged <em>FILE</em>, the hexstring-encoded CRC32 checksum is used for comparison instead of computing a reference sum.<br /> If <em>FILE-LIST</em> is absent, for every <em>FILE</em> recorded in <em>DB-FILE</em>, check whether the file still exists and if yes, verify its current CRC32 checksum against the one recorded in the database.</p></li>
+<li><p><strong>-p|--print <em>DB-FILE</em> </strong><br /> Print all records in <em>DB-FILE</em> to stdout and exit.</p></li>
+<li><p><strong>-C|--create-db <em>DB-FILE</em> [-a|--append] [<em>--</em>] <em>FILE-LIST</em> </strong><br /> For a every <em>FILE</em> in <em>FILE-LIST</em>, record its path and CRC32 checksum in the database <em>DB-FILE</em>. Relative filepaths are used. If the same path appears more than once in <em>FILE-LIST</em>, the record will be overwritten. Any pre-existing <em>DB-FILE</em> will be overwritten unless <em>-a</em> (append) is present.</p></li>
+<li><p><strong>-V|--verify-db <em>DB-FILE</em> [-x|--prefer-hexstring] [<em>--</em>] [<em>FILE-LIST</em>] </strong><br /> For every <em>FILE</em> in <em>FILE-LIST</em>, check if it has a record in <em>DB-FILE</em> and if yes, verify if its current CRC32 checksum matches the checksum recorded in the database. If <em>-x</em> is present, for any tagged <em>FILE</em>, the hexstring-encoded CRC32 checksum is used for comparison instead of computing a reference sum.<br /> If <em>FILE-LIST</em> is absent, for every <em>FILE</em> recorded in <em>DB-FILE</em>, check whether the file still exists and if yes, verify its current CRC32 checksum against the one recorded in the database.</p></li>
 </ul>
 </body>
 </html>

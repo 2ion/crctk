@@ -37,7 +37,7 @@ and use the CRC32 information from tags to validate a file.
 .SH COMMAND LINE
 .SS GENERAL OPTIONS
 .IP \[bu] 2
-\f[B]\-c [\-n] [\f[I]\-\-\f[]] \f[I]FILE\f[] \f[]
+\f[B]\-c|\-\-calc [\-n|\-\-numerical] [\f[I]\-\-\f[]] \f[I]FILE\f[] \f[]
 .PD 0
 .P
 .PD
@@ -46,27 +46,27 @@ exit.
 If \f[I]\-n\f[] is present, the numerical value will be output instead
 of the hexstring.
 .IP \[bu] 2
-\f[B]\-e \f[I]EXPRESSION\f[] \f[]
+\f[B]\-e|\-\-tag\-regex \f[I]EXPRESSION\f[] \f[]
 .PD 0
 .P
 .PD
 Replace the built\-in regex used to match tags (see section:
 \f[B]HEXSTRING TAGS\f[]) with \f[I]EXPRESSION\f[].
 .IP \[bu] 2
-\f[B]\-h\f[]
+\f[B]\-h|\-\-help\f[]
 .PD 0
 .P
 .PD
 Print a help text and exit.
 .SS OPTIONS INVOLVING TAGS
 .IP \[bu] 2
-\f[B]\-v [\f[I]\-\-\f[]] \f[I]FILE\f[] \f[]
+\f[B]\-v|\-\-verify [\f[I]\-\-\f[]] \f[I]FILE\f[] \f[]
 .PD 0
 .P
 .PD
 Verify the integrity of \f[I]FILE\f[] using the tag in its filename.
 .IP \[bu] 2
-\f[B]\-t [\-s] [\f[I]\-\-\f[]] \f[I]FILE\f[] \f[]
+\f[B]\-t|\-\-tag [\-s|\-\-strip\-tag] [\f[I]\-\-\f[]] \f[I]FILE\f[] \f[]
 .PD 0
 .P
 .PD
@@ -75,21 +75,21 @@ Fails if \f[I]FILE\f[] has already been tagged.
 If \f[I]\-s\f[] is present, strip any existing tag before appending the
 new one.
 .IP \[bu] 2
-\f[B]\-r [\-\-] \f[I]FILE\f[] \f[]
+\f[B]\-r|\-\-remove\-tag [\-\-] \f[I]FILE\f[] \f[]
 .PD 0
 .P
 .PD
 If \f[I]FILE\f[] is tagged, remove the tag.
 .SS OPTIONS INVOLVING DATABASES
 .IP \[bu] 2
-\f[B]\-p \f[I]DB\-FILE\f[] \f[]
+\f[B]\-p|\-\-print \f[I]DB\-FILE\f[] \f[]
 .PD 0
 .P
 .PD
 Print all records in \f[I]DB\-FILE\f[] to stdout and exit.
 .IP \[bu] 2
-\f[B]\-C \f[I]DB\-FILE\f[] [\-a] [\f[I]\-\-\f[]] \f[I]FILE\-LIST\f[]
-\f[]
+\f[B]\-C|\-\-create\-db \f[I]DB\-FILE\f[] [\-a|\-\-append]
+[\f[I]\-\-\f[]] \f[I]FILE\-LIST\f[] \f[]
 .PD 0
 .P
 .PD
@@ -101,8 +101,8 @@ record will be overwritten.
 Any pre\-existing \f[I]DB\-FILE\f[] will be overwritten unless
 \f[I]\-a\f[] (append) is present.
 .IP \[bu] 2
-\f[B]\-V \f[I]DB\-FILE\f[] [\-x] [\f[I]\-\-\f[]] [\f[I]FILE\-LIST\f[]]
-\f[]
+\f[B]\-V|\-\-verify\-db \f[I]DB\-FILE\f[] [\-x|\-\-prefer\-hexstring]
+[\f[I]\-\-\f[]] [\f[I]FILE\-LIST\f[]] \f[]
 .PD 0
 .P
 .PD
