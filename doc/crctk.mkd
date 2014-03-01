@@ -1,6 +1,6 @@
 % crctk(3)
-% Jens Oliver John <asterisk@2ion.de>
-% Fri  7 Feb 2014
+% Jens Oliver John <dev@2ion.de>
+% Sat  1 Mar 2014
 
 # NAME
 
@@ -64,7 +64,7 @@ from tags to validate a file.
     has already been tagged. If _-s_ is present, strip any existing tag
     before appending the new one.
 
-*   __-r|--remove-tag [--] _FILE_ __  
+*   __-r|--remove-tag [_--_] _FILE_ __  
     If _FILE_ is tagged, remove the tag.
 
 ## OPTIONS INVOLVING DATABASES
