@@ -616,15 +616,23 @@ char* pathcat(const char *p, const char *s) {
 }
 
 int command_calc(int argc, char **argv, int optind, int flags) {
-  const char *filename = argv[argc-1];
+  char *filename = NULL;
   unsigned long crc;
+  int i = optind-1;
 
-  check_access_flags(filename, F_OK | R_OK, 1);
-  crc = computeCRC32(filename);
-  if(flags & CALC_PRINT_NUMERICAL)
-    printf("%s: %lu\n", filename, crc);
-  else
-    printf("%s: %08lX\n", filename, crc);
+  while(argv[++i]) {
+    filename = argv[i];
+    if(check_access_flags_v(filename, F_OK | R_OK, 1) != 0) {
+      printf("%s: Skipping, not a regular file or inaccessible ...\n",
+          filename);
+      continue;
+    }
+    crc = computeCRC32(filename);
+    if(flags & CALC_PRINT_NUMERICAL)
+      printf("%s: %lu\n", filename, crc);
+    else
+      printf("%s: %08lX\n", filename, crc);
+  }
   return EXIT_SUCCESS;
 }
 
