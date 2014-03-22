@@ -20,6 +20,9 @@ crctk: src/crctk.c realpath.o src/crctk.h
 realpath.o: src/realpath.c
 	gcc -c $(cflags) $< $(ldflags)
 
+color.o: src/color.c
+	gcc -c $(cflags) $< $(ldflags)
+
 test: librealpathtest
 	./librealpathtest
 
@@ -35,10 +38,11 @@ README.md: doc/README.head crctk
 	echo '```' >> $@
 
 packages/crctk-$(version_).tar.xz: crctk
+	-mkdir packages
 	git archive master | xz > packages/crctk-$(version_).tar.xz
 
 clean:
-	-rm crctk README.md *.o librealpathtest
+	rm -f crctk README.md *.o librealpathtest
 
 push:
 	git push github master --tags
