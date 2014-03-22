@@ -20,5 +20,8 @@ crctk: $(OBJECTS) src/crctk.c
 src/%.o: src/%.c
 	gcc -c -o $@ $<
 
+librealpathtest: test/realpathtest.c $(OBJECTS)
+	gcc $(cflags) -Isrc -o $@ $^ $(ldflags)
+
 clean:
-	rm -f $(OBJECTS) crctk
+	rm -f $(OBJECTS) crctk librealpathtest
