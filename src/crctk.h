@@ -36,6 +36,8 @@
 #include <unistd.h>
 #include <zlib.h>
 #include "realpath.h"
+#include "util.h"
+#include "database.h"
 
 #define _GNU_SOURCE
 #define LERROR(status, errnum, ...) error_at_line((status), (errnum), \
@@ -81,13 +83,6 @@ enum {
   CHECK_BATCH_PREFER_HEXSTRING = 1 << 3
 };
 
-struct DBItem {
-  char *kbuf;
-  int kbuflen;
-  unsigned long crc;
-  struct DBItem *next;
-};
-
 typedef int     // program exit status
 (*CommandFunction)(
         int,    // argc
@@ -111,9 +106,6 @@ static int command_idle(int, char**, int, int);
 static int command_list_db(int, char**, int, int);
 static int command_remove_tag(int, char**, int, int);
 static int command_tag(int, char**, int, int);
-
-static void check_access_flags(const char*, int, int);
-static int check_access_flags_v(const char*, int, int);
 
 static void compile_regex(regex_t*, const char*, int);
 static char* get_basename(char*);
