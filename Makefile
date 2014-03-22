@@ -21,7 +21,10 @@ src/%.o: src/%.c
 	gcc -c -o $@ $<
 
 librealpathtest: test/realpathtest.c $(OBJECTS)
-	gcc $(cflags) -Isrc -o $@ $^ $(ldflags)
+	gcc $(cflags) -Isrc -o$@ $^ $(ldflags)
+
+newcrclibtest: test/newcrclibtest.c $(OBJECTS)
+	gcc $(cflags) -Isrc -o$@ $^ $(ldflags)
 
 clean:
-	rm -f $(OBJECTS) crctk librealpathtest
+	rm -f $(OBJECTS) crctk librealpathtest newcrclibtest

@@ -35,13 +35,14 @@
 #include <time.h>
 #include <unistd.h>
 #include <zlib.h>
+
 #include "realpath.h"
 #include "util.h"
 #include "database.h"
+#include "crc32.h"
 
 #define _GNU_SOURCE
-#define LERROR(status, errnum, ...) error_at_line((status), (errnum), \
-        (__func__), (__LINE__), __VA_ARGS__)
+
 #ifndef VERSION
 #define VERSION "unknown"
 #endif
@@ -91,10 +92,6 @@ typedef int     // program exit status
         int);   // cmdflags bitmask
 
 /* PROTOTYPES */
-
-static unsigned long getFileSize(const char*);
-static unsigned long computeCRC32(const char*);
-
 // argc, argv, optind, cmdflags
 static int command_calc(int, char**, int, int);
 static int command_calc_batch(int, char**, int, int);
@@ -107,11 +104,6 @@ static int command_list_db(int, char**, int, int);
 static int command_remove_tag(int, char**, int, int);
 static int command_tag(int, char**, int, int);
 
-static void compile_regex(regex_t*, const char*, int);
-static char* get_basename(char*);
-static char* pathcat(const char*, const char*);
-static inline void helper_manage_stackheapbuf(char*, size_t*, int*,
-    unsigned);
 static char* strip_tag(const char*);
 static int tag_pos(char*, char**, char**);
 static char* get_tag(char*);

@@ -25,82 +25,6 @@
 
 #include "crctk.h"
 
-unsigned long getFileSize(const char *filename) {
-    FILE *input_file;
-    unsigned long file_size;
-
-    input_file = fopen(filename, "r");
-    if(input_file == NULL) { 
-        LERROR(0, 0, "Could not open %s for reading", filename);
-        return 0;
-    }
-    fseek(input_file, 0, SEEK_END);
-    file_size = ftell(input_file);
-    rewind(input_file);
-    fclose(input_file);
-    return file_size;
-}
-
-unsigned long computeCRC32(const char *filename) { 
-    int input_fd;
-    Bytef *file_buffer;
-    unsigned long file_size;
-    unsigned long chunk_size=1024;
-    uInt bytes_read;
-    unsigned long crc=0L;
-  
-    file_size = getFileSize(filename);
-    if(file_size == 0 ) { 
-        LERROR(0, 0, "size of %s has been calculated to be 0. "
-            "Cannot calculate CRC", filename);
-        return 0;
-    }
-    file_buffer = malloc(chunk_size);
-    if(file_buffer == NULL) { 
-        LERROR(0, 0, "buffer allocation error");
-        return 0;
-    }
-    crc = crc32(0L, Z_NULL, 0); 
-    input_fd = open(filename, O_RDONLY);
-    if(input_fd == -1) { 
-        LERROR(0, 0, "could not open %s for reading", filename);
-        return 0;
-    }
-    while(1) {
-        bytes_read = read(input_fd, file_buffer, chunk_size);
-        if(bytes_read == 0)
-            break;
-        if(bytes_read == -1) {
-            LERROR(0, errno, "read() returned -1");
-            break;
-        }
-        crc = crc32(crc, file_buffer, bytes_read);
-    }
-    free(file_buffer);
-    close(input_fd);
-    return crc;
-}
-
-void compile_regex(regex_t *regex, const char *regexpr, int cflags) {
-    int ci;
-    char *regex_errbuf = NULL;
-    size_t regex_errbuf_size;
-
-    if(regex == NULL || regexpr == NULL)
-        LERROR(EXIT_FAILURE, 0,
-                "received at least one NULL argument.");
-    if((ci = regcomp(regex, regexpr, cflags)) != 0) {
-        regex_errbuf_size = regerror(ci, regex, NULL, 0);
-        regex_errbuf = malloc(regex_errbuf_size);
-        regerror(ci, regex, regex_errbuf, regex_errbuf_size);
-        if(regex_errbuf == NULL)
-            LERROR(EXIT_FAILURE, 0,
-                    "regex error: failed to allocate memory "
-                    "for the regex error message.");
-        LERROR(EXIT_FAILURE, 0, "%s", regex_errbuf);
-    }
-}
-
 int command_help(int argc, char **argv, int optind, int flags) {
   printf("crctk v" VERSION " (" __DATE__ " " __TIME__ ")\n"
 "CRC32 Hexstring Toolkit\n"
@@ -506,7 +430,6 @@ int command_check_batch(int argc, char **argv, int optind,
   close(fd);
   return EXIT_SUCCESS;
 }
-
 char* strip_tag(const char *str) {
   regex_t regex;
   regmatch_t rm;
@@ -561,27 +484,6 @@ int tag_pos(char *str, char **p, char **q) {
   return 0;
 }
 
-char* get_basename(char *path) {
-    char *r;
-
-    if((r = basename(path)) == NULL)
-        LERROR(EXIT_FAILURE, 0,
-            "could not extract specified path's basename.");
-    return r;
-}
-
-char* pathcat(const char *p, const char *s) {
-    char *r;
-
-    r = calloc(strlen(p) + strlen(s) + 2, sizeof(char));
-    if(r == NULL)
-        LERROR(EXIT_FAILURE, errno, "memory allocation error");
-    strcat(r, p);
-    strcat(r, "/");
-    strcat(r, s);
-    return r;
-}
-
 int command_calc(int argc, char **argv, int optind, int flags) {
   char *filename = NULL;
   unsigned long crc;
@@ -607,25 +509,7 @@ int command_idle(int argc, char **argv, int optind, int flags) {
   return EXIT_SUCCESS;
 }
 
-void helper_manage_stackheapbuf(char *buf, size_t *buflen,
-    int *buf_isstatic, unsigned datalen) {
-  assert(buf != NULL);
-  assert(buflen != NULL);
-  assert(buf_isstatic != NULL);
-  if(*buflen >= datalen)
-    return; // buffer is large enough
-  if(*buf_isstatic == 1) {
-    // allocate new dynamic buffer
-    if((buf = calloc(1, datalen)) == NULL)
-      LERROR(EXIT_FAILURE, errno, "call to calloc failed");
-    *buf_isstatic = 0;
-  } else {
-    // re-allocate buffer
-    if((buf = realloc(buf, datalen)) == NULL)
-      LERROR(EXIT_FAILURE, errno, "call to realloc failed");
-  }
-  *buflen = datalen;
-}
+
 
 int db2array(const char *dbfile, struct DBItem *first) {
   assert(dbfile != NULL);
