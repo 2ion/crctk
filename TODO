@@ -1,2 +1,6 @@
 - option for using absolute paths in the database
 - fix handling of duplicate entries  with the -a option
+- abstract database backend to DB_* API (provide cdb & text-mode db
+  files)
+- consistently use uint32_t instead of unsigned long for crc values to
+  save memory
