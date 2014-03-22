@@ -42,28 +42,30 @@ wide range of documentation formats! By default, we deliver HTML and manpage ver
 More concise usage information.
 
 ```
-crctk v0.3.3-254ba8e (Feb 18 2014 16:17:05)
+crctk v0.3.99-2da8408 (Mar 23 2014 00:13:51)
 CRC32 Hexstring Toolkit
-Copyright (C) 2014 2ion (asterisk!2ion!de)
-Upstream: https://github.com/2ion/crctk
+Copyright (C) 2014 2ion (dev@2ion.de)
 Usage: ./crctk [-aCcefhnprstuVv] <file>|<file-listing>
 Options:
- -v Compute CRC32 and compare with the hexstring
-    in the supplied filename.
-    Return values: EXIT_SUCCESS: match
-                   EXIT_FAILURE: no match
- -V FILE. Read checksums and filenames from a FILE
-    created by the -C option and check if the files
-    have the listed checksums.
- -u HEXSTRING. Check if the specified file has the CRC
-    sum HEXSTRING.
- -f Supplements -V. Instead of calculating the real CRC
-    sum, use a CRC32 hexstring if the file is tagged.
- -x Supplements -V. For any tagged file, use the hexstring as
-    as the reference CRC32 instead of computing anew.
- -c Compute the CRC32 of the given file, print and exit.
- -n Supplements -c. print CRC32 in its numerical format.
- -C for multiple input files, create a checksum listing
+-v, --verify
+  Compute CRC32 and compare with the hexstring in the supplied
+  filename. Exit codes: match -- 0, no match -- 1
+-V DB-FILE, --verify-db DB-FILE
+  Check whether the files record in the database still have the
+  same CRC32 checksums
+-x, --prefer-hexstring
+  Supplements -V. For any tagged file, use the hexstring as
+  the reference CRC32
+-c, --calc
+  Compute the CRC32 for the given file, print and exit
+-n, --numerical
+  Supplements -c. Print the CRC32 in decimal
+-C DB-FILE, --create-db DB-FILE
+   For multiple input files, store a checksum DB in DB-FILE
+   The target file will be overwritten if it exists.
+-a, --append
+   Supplements -C. Append to DB-FILE.
+ -C FILE. for multiple input files, create a checksum listing
     for use with the -V option. Overwrites the given file.
  -a Supplements -C. Append to the given database file instead
     of overwriting it.
@@ -80,4 +82,4 @@ Options:
     match tags when doing -s|-r to EXPR. Default:
     [[:punct:]]\?[[:xdigit:]]\{8\}[[:punct:]]\?
  -h Print this message and exit successfully.
-```
+ ```

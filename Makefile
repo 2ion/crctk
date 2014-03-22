@@ -1,5 +1,5 @@
 .PHONY: clean
-version_	?= 0.3.4
+version_	?= 0.3.99
 prefix ?= $(HOME)/bin
 gccflags	= -Wall -Os -march=native -DVERSION=\"$(version)\"
 cflags = $(gccflags) $(shell pkg-config --cflags libcdb)
