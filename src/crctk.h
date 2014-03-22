@@ -39,7 +39,7 @@
 #include "realpath.h"
 #include "util.h"
 #include "database.h"
-#include "crc32.h"
+#include "crc.h"
 
 #define _GNU_SOURCE
 

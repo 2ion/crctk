@@ -11,7 +11,7 @@
 struct DBItem {
   char *kbuf;
   int kbuflen;
-  unsigned long crc;
+  uint32_t crc;
   struct DBItem *next;
 };
 

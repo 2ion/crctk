@@ -73,7 +73,7 @@ int command_help(int argc, char **argv, int optind, int flags) {
 //FIXME: -a + duplicates truncate database
 int command_calc_batch(int argc, char **argv, int optind, int flags) {
   int i, fd;
-  unsigned long crc;
+  uint32_t crc;
   struct cdb_make cdbm;
   struct DBItem dbibuf = { NULL, 0, 0, NULL };
   struct DBItem *e = &dbibuf;
@@ -92,8 +92,8 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
   if(flags & APPEND_TO_DB)
     do {
       cdb_make_put(&cdbm, e->kbuf, e->kbuflen, &e->crc,
-          sizeof(unsigned long), CDB_PUT_WARN);
-      printf("from %s: <%s> -> %08lX\n", dbiofile, e->kbuf, e->crc);
+          sizeof(uint32_t), CDB_PUT_WARN);
+      printf("from %s: <%s> -> %08X\n", dbiofile, e->kbuf, e->crc);
     } while((e = e->next) != NULL);
 
   for(i = optind; i < argc; ++i) {
@@ -102,13 +102,13 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
       continue;
     }
     printf("*%s: <%s> ... ", dbiofile, argv[i]);
-    if((crc = computeCRC32(argv[i])) == 0) {
+    if((crc = compute_crc32(argv[i])) == 0) {
       LERROR(0,0, "IGNORING: CRC32 is zero: %s", argv[i]);
       continue;
     }
-    printf("%08lX\n", crc);
+    printf("%08X\n", crc);
     cdb_make_put(&cdbm, argv[i], (strlen(argv[i])+1)*sizeof(char),
-        &crc, sizeof(unsigned long), CDB_PUT_REPLACE);
+        &crc, sizeof(uint32_t), CDB_PUT_REPLACE);
   }
   if(cdb_make_finish(&cdbm) != 0) {
     LERROR(0, 0, "cdb_make_finish() failed");
@@ -125,11 +125,13 @@ int command_tag(int argc, char **argv, int optind, int flags) {
   char *newstring = NULL;
   char *workstring = NULL;
   char tagstr[11];
-  char *p, *q, *r;
-  int i;
+  char *p = NULL;
+  char *q = NULL;
+  char *r = NULL;
+  int i = 0;
   int f_free_workstring = 0;
   regex_t regex;
-  unsigned long crcsum;
+  uint32_t crcsum;
 
   check_access_flags(filename, F_OK | R_OK | W_OK, 1);
   string = get_basename((char*)filename);
@@ -150,10 +152,10 @@ int command_tag(int argc, char **argv, int optind, int flags) {
   regfree(&regex);
   if(workstring == NULL)
     workstring = string;
-  crcsum = computeCRC32(filename);
+  crcsum = compute_crc32(filename);
   if(crcsum == 0)
     LERROR(EXIT_FAILURE, 0, "The file's CRC sum is zero.");
-  sprintf(tagstr, "[%08lX]", crcsum);
+  sprintf(tagstr, "[%08X]", crcsum);
   newstring = malloc((strlen(workstring) + 11)*sizeof(char));
   if((p = strrchr(workstring, '.')) != NULL) {
     // has suffix: insert tag in front of suffix
@@ -209,7 +211,7 @@ int command_remove_tag(int argc, char **argv, int optind, int flags) {
 int command_check_hexstring(int argc, char **argv, int optind,
     int flags) {
   const char *filename = argv[argc-1];
-  unsigned long strcrc, crc;
+  uint32_t strcrc, crc;
   regex_t regex;
 
   check_access_flags(filename, F_OK | R_OK, 1);
@@ -222,14 +224,14 @@ int command_check_hexstring(int argc, char **argv, int optind,
       regfree(&regex);
       break;
   }
-  strcrc = (unsigned long) strtol(hexarg, NULL, 16);
-  if((crc = computeCRC32(filename)) == strcrc) {
-    printf("match: computed(%08lX) == hexarg(%08lX)\n",
+  strcrc = (uint32_t) strtol(hexarg, NULL, 16);
+  if((crc = compute_crc32(filename)) == strcrc) {
+    printf("match: computed(%08X) == hexarg(%08X)\n",
         crc, strcrc);
     return EXIT_SUCCESS;
   }
   else {
-    printf("mismatch: computed(%08lX) != hexarg(%08lX)\n",
+    printf("mismatch: computed(%08X) != hexarg(%08X)\n",
             crc, strcrc);
     return EXIT_FAILURE;
   }
@@ -239,8 +241,8 @@ int command_check_hexstring(int argc, char **argv, int optind,
 int command_check(int argc, char **argv, int optind, int flags) {
   const char *filename = argv[argc-1];
   int  ci, ti;                        
-  unsigned long compcrc;              
-  unsigned long matchcrc;             
+  uint32_t compcrc;              
+  uint32_t matchcrc;             
   char *string;                       
   char results[9];                    
   regmatch_t rmatch;                  
@@ -261,14 +263,14 @@ int command_check(int argc, char **argv, int optind, int flags) {
       return EXIT_FAILURE; // Not reached
   }
   regfree(&regex);
-  compcrc = computeCRC32(filename);
-  matchcrc = (unsigned long) strtol(results, NULL, 16);
+  compcrc = compute_crc32(filename);
+  matchcrc = (uint32_t) strtol(results, NULL, 16);
   if(compcrc != matchcrc) {
-    printf("mismatch: filename(%08lX) != computed(%08lX)\n",
+    printf("mismatch: filename(%08X) != computed(%08X)\n",
             matchcrc, compcrc);
     return EXIT_FAILURE;
   } else {
-    printf("match: filename(%08lX) == computed(%08lX)\n",
+    printf("match: filename(%08X) == computed(%08X)\n",
             matchcrc, compcrc);
     return EXIT_FAILURE;
   }
@@ -310,8 +312,8 @@ int command_list_db(int argc, char **argv, int optind, int flags) {
           "Skipping entry ...");
       continue;
     }
-    printf("%s: <%s> -> %08lX\n", dbiofile, kbuf,
-        *(unsigned long*)vbuf);
+    printf("%s: <%s> -> %08X\n", dbiofile, kbuf,
+        *(uint32_t*)vbuf);
   } // while
   cdb_free(&db);
   close(fd);
@@ -330,7 +332,7 @@ int command_check_batch(int argc, char **argv, int optind,
   char *kbuf = statickbuf;
   size_t kbuflen = 255;
   int kbuf_isstatic = 1;
-  unsigned long vbuf, crc;
+  uint32_t vbuf, crc;
   unsigned up, vpos, vlen, klen, kpos;
   int i, err;
   char *x;
@@ -347,7 +349,7 @@ int command_check_batch(int argc, char **argv, int optind,
     if((err = cdb_find(&db, argv[i], klen)) > 0) {
       printf("%s: <%s> ... ", dbiofile, argv[i]);
       vpos = cdb_datapos(&db);
-      if((vlen = cdb_datalen(&db)) != sizeof(unsigned long)) {
+      if((vlen = cdb_datalen(&db)) != sizeof(uint32_t)) {
         LERROR(0,0, "%s: invalid data value /%s", dbiofile,argv[i]);
         continue;
       }
@@ -364,20 +366,20 @@ int command_check_batch(int argc, char **argv, int optind,
               "hexstring: %s", argv[i]);
         else {
           if((crc = strtol((const char*)x, NULL, 16)) == vbuf)
-            printf("OK (%08lX)[x]\n", crc);
+            printf("OK (%08X)[x]\n", crc);
           else
-            printf("ERROR (is: %08lX, db: %08lX)[x]\n", crc, vbuf);
+            printf("ERROR (is: %08X, db: %08X)[x]\n", crc, vbuf);
           free(x);
         }
       } else {
         //
         if(check_access_flags_v(argv[i], F_OK | R_OK, 1) != 0)
           LERROR(0,0, "ERROR: file is not accessible");
-        if((crc = computeCRC32(argv[i])) != 0) {
+        if((crc = compute_crc32(argv[i])) != 0) {
           if(crc == vbuf)
-            printf("OK (%08lX)\n", crc);
+            printf("OK (%08X)\n", crc);
           else
-            printf("ERROR (is: %08lX, db: %08lX)\n", crc, vbuf);
+            printf("ERROR (is: %08X, db: %08X)\n", crc, vbuf);
         } else
           printf("ERROR (CRC32 is zero)\n");
         //
@@ -395,7 +397,7 @@ int command_check_batch(int argc, char **argv, int optind,
       kpos = cdb_keypos(&db);
       vlen = cdb_datalen(&db);
       vpos = cdb_datapos(&db);
-      if((vlen = cdb_datalen(&db)) != sizeof(unsigned long)) {
+      if((vlen = cdb_datalen(&db)) != sizeof(uint32_t)) {
         //FIXME: output key name
         LERROR(0,0, "%s: skipping entry: wrong data size (keypos=%u, "
             "vlen=%u)", dbiofile, kpos, vlen);
@@ -415,11 +417,11 @@ int command_check_batch(int argc, char **argv, int optind,
         LERROR(0,0, "ERROR: file is not accessible");
         continue;
       }
-      if((crc = computeCRC32(kbuf)) != 0) {
+      if((crc = compute_crc32(kbuf)) != 0) {
         if(crc == vbuf)
-          printf("OK (%08lX)\n", crc);
+          printf("OK (%08X)\n", crc);
         else
-          printf("ERROR (is: %08lX, db: %08lX)\n", crc, vbuf);
+          printf("ERROR (is: %08X, db: %08X)\n", crc, vbuf);
       } else
         printf("ERROR (CRC32 is zero)\n");
     }
@@ -430,6 +432,7 @@ int command_check_batch(int argc, char **argv, int optind,
   close(fd);
   return EXIT_SUCCESS;
 }
+
 char* strip_tag(const char *str) {
   regex_t regex;
   regmatch_t rm;
@@ -486,7 +489,7 @@ int tag_pos(char *str, char **p, char **q) {
 
 int command_calc(int argc, char **argv, int optind, int flags) {
   char *filename = NULL;
-  unsigned long crc;
+  uint32_t crc;
   int i = optind-1;
 
   while(argv[++i]) {
@@ -496,11 +499,11 @@ int command_calc(int argc, char **argv, int optind, int flags) {
           filename);
       continue;
     }
-    crc = computeCRC32(filename);
+    crc = compute_crc32(filename);
     if(flags & CALC_PRINT_NUMERICAL)
-      printf("%s: %lu\n", filename, crc);
+      printf("%s: %u\n", filename, crc);
     else
-      printf("%s: %08lX\n", filename, crc);
+      printf("%s: %08X\n", filename, crc);
   }
   return EXIT_SUCCESS;
 }
@@ -508,8 +511,6 @@ int command_calc(int argc, char **argv, int optind, int flags) {
 int command_idle(int argc, char **argv, int optind, int flags) {
   return EXIT_SUCCESS;
 }
-
-
 
 int db2array(const char *dbfile, struct DBItem *first) {
   assert(dbfile != NULL);
@@ -546,9 +547,9 @@ int db2array(const char *dbfile, struct DBItem *first) {
     klen = cdb_keylen(&db);
     vpos = cdb_datapos(&db);
     vlen = cdb_datalen(&db);
-    if(vlen > sizeof(unsigned long)) {
+    if(vlen > sizeof(uint32_t)) {
       LERROR(0,0, "Skipping entry with a data size "
-          "> sizeof(unsigned long)");
+          "> sizeof(uint32_t)");
       continue;
     }
     cur->kbuflen = klen;
