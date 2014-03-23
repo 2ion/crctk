@@ -79,9 +79,4 @@ static int command_list_db(int, char**, int, int);
 static int command_remove_tag(int, char**, int, int);
 static int command_tag(int, char**, int, int);
 
-char* strip_tag(const char*);
-int tag_pos(char*, char**, char**);
-char* get_tag(char*);
-int db2array(const char*, struct DBItem*);
-
 #endif /* CRCTK_H */

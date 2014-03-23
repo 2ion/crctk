@@ -1,5 +1,8 @@
 #include "util.h"
 
+extern const char *crcregex;
+extern const char *crcregex_stripper;
+
 void check_access_flags(const char *path, int access_flags,
     int notdir) {
     struct stat stbuf;
@@ -93,3 +96,59 @@ void helper_manage_stackheapbuf(char *buf, size_t *buflen,
   }
   *buflen = datalen;
 }
+
+char* strip_tag(const char *str) {
+  regex_t regex;
+  regmatch_t rm;
+  const char *p, *q;
+  char *rstr;
+  int i;
+  
+  compile_regex(&regex, crcregex_stripper, REG_ICASE);
+  if(regexec(&regex, str, 1, &rm, 0) == REG_NOMATCH) {
+    // no tag in filename
+    regfree(&regex);
+    return NULL;
+  }
+  rstr = malloc((strlen(str)+1-(rm.rm_eo - rm.rm_so)) * sizeof(char));
+  if(rstr == NULL)
+    LERROR(EXIT_FAILURE, errno, "memory allocation error");
+  for(p = str, q = &str[rm.rm_so], i=0; p < q; ++p)
+    rstr[i++] = *p;
+  for(p = &str[rm.rm_eo]; *p; ++p)
+    rstr[i++] = *p;
+  rstr[i] = '\0';
+  return rstr;
+}
+
+char* get_tag(char *str) {
+  char *r = NULL;
+  char *p = NULL;
+  char *q = NULL;
+
+  if(tag_pos(str, &p, &q) != 0)
+    return NULL;
+  r = malloc(sizeof(char)*9);
+  assert(r != NULL);
+  strncpy(r, (const char*)p, 8);
+  r[8] = '\0';
+  return r;
+}
+
+int tag_pos(char *str, char **p, char **q) {
+  assert(str != NULL);
+  regex_t regex;
+  regmatch_t rm;
+
+  compile_regex(&regex, crcregex, REG_ICASE);
+  if(regexec(&regex, str, 1, &rm, 0) == REG_NOMATCH) {
+    regfree(&regex);
+    return -1;
+  }
+  *p = &str[rm.rm_so];
+  *q = &str[rm.rm_eo]-1;
+  regfree(&regex);
+  return 0;
+}
+
+

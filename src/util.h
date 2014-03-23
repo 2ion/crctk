@@ -12,6 +12,8 @@
 #include <libgen.h>
 #include <string.h>
 
+#include "database.h"
+
 #define LERROR(status, errnum, ...) error_at_line((status), (errnum), \
         (__func__), (__LINE__), __VA_ARGS__)
 
@@ -22,5 +24,9 @@ char* get_basename(char*);
 char* pathcat(const char*, const char*);
 void helper_manage_stackheapbuf(char*, size_t*, int*,
     unsigned);
+char* strip_tag(const char*);
+int tag_pos(char*, char**, char**);
+char* get_tag(char*);
+int db2array(const char*, struct DBItem*);
 
 #endif /* UTIL_H */
