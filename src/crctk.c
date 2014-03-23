@@ -24,101 +24,34 @@
  * */
 
 #include "crctk.h"
+#include "command_calc_batch.h"
+#include "command_help.h"
 
-int command_help(int argc, char **argv, int optind, int flags) {
-  printf("crctk v" VERSION " (" __DATE__ " " __TIME__ ")\n"
-"CRC32 Hexstring Toolkit\n"
-"Copyright (C) 2014 2ion (dev@2ion.de)\n"
-"Usage: %s [-aCcefhnprstuVv] <file>|<file-listing>\n"
-"Options:\n"
-"-v, --verify\n"
-"  Compute CRC32 and compare with the hexstring in the supplied\n"
-"  filename. Exit codes: match -- %d, no match -- %d\n"
-"-V DB-FILE, --verify-db DB-FILE\n"
-"  Check whether the files record in the database still have the\n"
-"  same CRC32 checksums\n"
-"-x, --prefer-hexstring\n"
-"  Supplements -V. For any tagged file, use the hexstring as\n"
-"  the reference CRC32\n"
-"-c, --calc\n"
-"  Compute the CRC32 for the given file, print and exit\n"
-"-n, --numerical\n"
-"  Supplements -c. Print the CRC32 in decimal\n"
-"-C DB-FILE, --create-db DB-FILE\n"
-"   For multiple input files, store a checksum DB in DB-FILE\n"
-"   The target file will be overwritten if it exists.\n"
-"-a, --append\n"
-"   Supplements -C. Append to DB-FILE.\n"
-" -C FILE. for multiple input files, create a checksum listing\n"
-"    for use with the -V option. Overwrites the given file.\n"
-" -a Supplements -C. Append to the given database file instead\n"
-"    of overwriting it.\n"
-" -p FILE. Print the contents of a file created by the -C\n"
-"    options to stdout.\n"
-" -t Tag file with a CRC32 hexstring. Aborts if\n"
-"    the filename does already contain a tag.\n"
-" -s Supplements -t. strip eventually existing tag\n"
-"    and compute a new CRC32 hexstring.\n"
-"    Return values: EXIT_SUCCESS: success\n"
-"                   EXIT_FAILURE: generic failure\n"
-" -r If the file is tagged, remove the tag.\n"
-" -e EXPR. Changes the regular expression used to\n"
-"    match tags when doing -s|-r to EXPR. Default:\n"
-"    [[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?\n"
-" -h Print this message and exit successfully.\n",
-  argv[0], EXIT_SUCCESS, EXIT_FAILURE);
-  return EXIT_SUCCESS;
-}
+const char *crcregex = "[[:xdigit:]]\\{8\\}";
+const char *crcregex_stripper =
+  "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?";
+const char *dbiofile = "crcsums.tdb";
+const char *hexarg = "00000000";
+const char *optstring_short = "+X:xtnvV:hsrC:ce:p:a";
+const struct option options_long[] = {
+  { "verify", no_argument, NULL, 'v' },
+  { "verify-db", required_argument, NULL, 'V' },
+  { "prefer-hexstring", no_argument, NULL, 'x' },
+  { "calc", no_argument, NULL, 'c' },
+  { "numerical", no_argument, NULL, 'n' },
+  { "create-db", required_argument, NULL, 'C' },
+  { "append", no_argument, NULL, 'a' },
+  { "print", required_argument, NULL, 'p' },
+  { "tag", no_argument, NULL, 't' },
+  { "strip-tag", no_argument, NULL, 's' },
+  { "remove-tag", no_argument, NULL, 'r' },
+  { "tag-regex", required_argument, NULL, 'e' },
+  { "help", no_argument, NULL, 'h' },
+  { "version", no_argument, NULL, 'J' },
+  { 0, 0, 0, 0 }
+};
 
 //FIXME: -a + duplicates truncate database
-int command_calc_batch(int argc, char **argv, int optind, int flags) {
-  int i, fd;
-  uint32_t crc;
-  struct cdb_make cdbm;
-  struct DBItem dbibuf = { NULL, 0, 0, NULL };
-  struct DBItem *e = &dbibuf;
-
-  if((flags & APPEND_TO_DB) &&
-      (db2array(dbiofile, &dbibuf) == EXIT_FAILURE))
-    LERROR(EXIT_FAILURE, 0, "option ineffective: append to DB "
-        "(flag -a): could not load the db file");
-
-  if((fd = open(dbiofile, O_WRONLY | O_CREAT ,
-          S_IRUSR | S_IWUSR)) == -1)
-    LERROR(EXIT_FAILURE, errno, "couldn't create file");
-  if((cdb_make_start(&cdbm, fd)) != 0)
-    LERROR(EXIT_FAILURE, 0, "couldn't initialize the cdb database");
-
-  if(flags & APPEND_TO_DB)
-    do {
-      cdb_make_put(&cdbm, e->kbuf, e->kbuflen, &e->crc,
-          sizeof(uint32_t), CDB_PUT_WARN);
-      printf("from %s: <%s> -> %08X\n", dbiofile, e->kbuf, e->crc);
-    } while((e = e->next) != NULL);
-
-  for(i = optind; i < argc; ++i) {
-    if(check_access_flags_v(argv[i], F_OK | R_OK, 1) != 0) {
-      LERROR(0,0, "Ignoring inaccessible file: %s", argv[i]);
-      continue;
-    }
-    printf("*%s: <%s> ... ", dbiofile, argv[i]);
-    if((crc = compute_crc32(argv[i])) == 0) {
-      LERROR(0,0, "IGNORING: CRC32 is zero: %s", argv[i]);
-      continue;
-    }
-    printf("%08X\n", crc);
-    cdb_make_put(&cdbm, argv[i], (strlen(argv[i])+1)*sizeof(char),
-        &crc, sizeof(uint32_t), CDB_PUT_REPLACE);
-  }
-  if(cdb_make_finish(&cdbm) != 0) {
-    LERROR(0, 0, "cdb_make_finish() failed");
-    close(fd);
-    return EXIT_FAILURE;
-  }
-  close(fd);
-  return EXIT_SUCCESS;
-}
-
 int command_tag(int argc, char **argv, int optind, int flags) {
   const char *filename = argv[argc-1];
   char *string = NULL;
@@ -596,6 +529,7 @@ int main(int argc, char **argv) {
       case 'X': hexarg = strdup(optarg); cmd = command_check_hexstring; break;
       case 't': cmd = command_tag; break;
       case 'h': cmd = command_help; break;
+      case 'J': puts("crctk version: " VERSION "\n" "Compiled on: " __DATE__ " " __TIME__); return EXIT_SUCCESS; break;
       default:  return EXIT_FAILURE;
     } // switch
   if(optind >= argc &&

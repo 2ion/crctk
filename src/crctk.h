@@ -52,29 +52,6 @@
 
 /* GLOBALS */
 
-const char *crcregex = "[[:xdigit:]]\\{8\\}";
-const char *crcregex_stripper =
-  "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?";
-const char *dbiofile = "crcsums.tdb";
-const char *hexarg = "00000000";
-const char *optstring_short = "+X:xtnvV:hsrC:ce:p:a";
-const struct option options_long[] = {
-  { "verify", no_argument, NULL, 'v' },
-  { "verify-db", required_argument, NULL, 'V' },
-  { "prefer-hexstring", no_argument, NULL, 'x' },
-  { "calc", no_argument, NULL, 'c' },
-  { "numerical", no_argument, NULL, 'n' },
-  { "create-db", required_argument, NULL, 'C' },
-  { "append", no_argument, NULL, 'a' },
-  { "print", required_argument, NULL, 'p' },
-  { "tag", no_argument, NULL, 't' },
-  { "strip-tag", no_argument, NULL, 's' },
-  { "remove-tag", no_argument, NULL, 'r' },
-  { "tag-regex", required_argument, NULL, 'e' },
-  { "help", no_argument, NULL, 'h' },
-  { 0, 0, 0, 0 }
-};
-
 /* TYPES */
 
 enum {
@@ -94,19 +71,17 @@ typedef int     // program exit status
 /* PROTOTYPES */
 // argc, argv, optind, cmdflags
 static int command_calc(int, char**, int, int);
-static int command_calc_batch(int, char**, int, int);
 static int command_check(int, char**, int, int);
 static int command_check_batch(int, char**, int, int);
 static int command_check_hexstring(int, char**, int, int);
-static int command_help(int, char**, int, int);
 static int command_idle(int, char**, int, int);
 static int command_list_db(int, char**, int, int);
 static int command_remove_tag(int, char**, int, int);
 static int command_tag(int, char**, int, int);
 
-static char* strip_tag(const char*);
-static int tag_pos(char*, char**, char**);
-static char* get_tag(char*);
-static int db2array(const char*, struct DBItem*);
+char* strip_tag(const char*);
+int tag_pos(char*, char**, char**);
+char* get_tag(char*);
+int db2array(const char*, struct DBItem*);
 
 #endif /* CRCTK_H */
