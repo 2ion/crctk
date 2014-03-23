@@ -1,4 +1,5 @@
-.PHONY: clean
+.PHONY: clean install
+prefix ?= /usr/local
 version_	?= 0.3.99
 prefix ?= $(HOME)/bin
 gccflags	= -Wall -Os -march=native -DVERSION=\"$(version)\"
@@ -28,3 +29,9 @@ newcrclibtest: test/newcrclibtest.c $(OBJECTS)
 
 clean:
 	rm -f $(OBJECTS) crctk librealpathtest newcrclibtest
+
+install: crctk
+	@echo Ensuring $(prefix)/bin exists
+	@install -m 755 -d $(prefix)/bin
+	@echo Installing the binary to $(prefix)/bin
+	@install -m 755 crctk $(prefix)/bin
