@@ -21,10 +21,8 @@ sudo apt-get install libcdb-dev zlib1g-dev
 
 ```sh
 make
-# installs only the binary, no documentation
-make install prefix=$HOME/bin
+make install prefix=/usr/local
 ```
-where $prefix is the directory the binary will be copied to.
 
 ## Documentation
 
