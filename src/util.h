@@ -29,6 +29,5 @@ void helper_manage_stackheapbuf(char*, size_t*, int*,
 char* strip_tag(const char*);
 int tag_pos(char*, char**, char**);
 char* get_tag(char*);
-int db2array(const char*, struct DBItem*);
 
 #endif /* UTIL_H */
