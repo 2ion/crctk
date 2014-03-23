@@ -1,8 +1,8 @@
 .PHONY: clean install
 prefix ?= /usr/local
-version_	?= 0.3.99
+version_ ?= 0.3.99
 prefix ?= $(HOME)/bin
-gccflags	= -Wall -Os -march=native -DVERSION=\"$(version)\"
+gccflags = -Wall -Os -march=native -DVERSION=\"$(version)\"
 cflags = $(gccflags) $(shell pkg-config --cflags libcdb)
 ldflags	= -lz $(shell pkg-config --libs libcdb)
 havegit=$(shell test -d .git &>/dev/null; echo $$?)
