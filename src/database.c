@@ -22,11 +22,9 @@ int DB_write(const char *path, const struct DBItem *dbi, int do_truncate) {
           (const char*)e->kbuf,
           (size_t)e->kbuflen,
           (const char*)&e->crc,
-          sizeof(uint32_t))) {
+          sizeof(uint32_t)))
       LERROR(0, 0, "kcdbset: could not add record (%s, %d): %s",
           e->kbuf, e->crc, kcecodename(kcdbecode(db)));
-    } else
-      LERROR(0,0, "Wrote: (%s) -> (%08X)[length:%d]", e->kbuf, e->crc,(int)sizeof(e->crc));
   } while((e = (const struct DBItem*)e->next) != NULL);
   if(!kcdbclose(db)) {
     free(kc_dbiofile);

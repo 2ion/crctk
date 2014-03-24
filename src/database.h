@@ -10,7 +10,7 @@
 
 #include <kclangc.h>
 
-#define CRCTK_DB_TUNINGSUFFIX "#type=kct"
+#define CRCTK_DB_TUNINGSUFFIX "#type=kch"
 
 struct DBItem {
   char *kbuf;
