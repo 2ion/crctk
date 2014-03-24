@@ -6,15 +6,12 @@ int DB_write(const char *path, const struct DBItem *dbi, int do_truncate) {
   assert(path != NULL);
   assert(dbi != NULL);
   assert(dbi->kbuf != NULL);
-  KCDB *db;
+  KCDB *db = kcdbnew();
   char *kc_dbiofile = DB_getkcdbiofile(path);
-  puts(kc_dbiofile);
   const struct DBItem *e = dbi;
   int kcdbopen_flags = do_truncate == 1 ?
     (KCOWRITER | KCOCREATE | KCOTRUNCATE) :
     (KCOWRITER | KCOCREATE);
-
-  db = kcdbnew();
   
   if(!kcdbopen(db, kc_dbiofile, kcdbopen_flags)) {
     LERROR(0, 0, "kcdbopen() error: %s", kcecodename(kcdbecode(db)));
