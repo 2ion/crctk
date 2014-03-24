@@ -78,26 +78,6 @@ char* pathcat(const char *p, const char *s) {
   return r;
 }
 
-void helper_manage_stackheapbuf(char *buf, size_t *buflen,
-    int *buf_isstatic, unsigned datalen) {
-  assert(buf != NULL);
-  assert(buflen != NULL);
-  assert(buf_isstatic != NULL);
-  if(*buflen >= datalen)
-    return; // buffer is large enough
-  if(*buf_isstatic == 1) {
-    // allocate new dynamic buffer
-    if((buf = calloc(1, datalen)) == NULL)
-      LERROR(EXIT_FAILURE, errno, "call to calloc failed");
-    *buf_isstatic = 0;
-  } else {
-    // re-allocate buffer
-    if((buf = realloc(buf, datalen)) == NULL)
-      LERROR(EXIT_FAILURE, errno, "call to realloc failed");
-  }
-  *buflen = datalen;
-}
-
 char* strip_tag(const char *str) {
   regex_t regex;
   regmatch_t rm;

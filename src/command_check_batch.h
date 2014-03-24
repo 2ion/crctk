@@ -6,7 +6,6 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <cdb.h>
 
 #include "crctk.h"
 #include "util.h"

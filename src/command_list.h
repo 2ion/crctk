@@ -6,7 +6,6 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
-#include <cdb.h>
 
 #include "util.h"
 #include "database.h"

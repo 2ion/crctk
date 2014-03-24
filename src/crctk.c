@@ -59,7 +59,6 @@ const struct option options_long[] = {
   { 0, 0, 0, 0 }
 };
 
-
 int main(int argc, char **argv) {
   int opt = 0;
   int cmdflags = 0;

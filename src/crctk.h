@@ -19,36 +19,18 @@
 #ifndef CRCTK_H
 #define CRCTK_H
 
-#include <assert.h>
-#include <cdb.h>
-#include <errno.h>
-#include <error.h>
-#include <fcntl.h>
 #include <getopt.h>
-#include <libgen.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <regex.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <time.h>
-#include <unistd.h>
-#include <zlib.h>
 
 #include "realpath.h"
 #include "util.h"
 #include "database.h"
 #include "crc.h"
 
-#define _GNU_SOURCE
-
 #ifndef VERSION
 #define VERSION "unknown"
 #endif
-#define COPY_DB_STATIC_BUF_LEN 255
-#define DBITEM_PATHBUFLEN 255
-#pragma GCC diagnostic ignored "-Wfree-nonheap-object"
 
 /* TYPES */
 

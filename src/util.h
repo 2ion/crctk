@@ -24,8 +24,6 @@ int check_access_flags_v(const char*, int, int);
 void compile_regex(regex_t*, const char*, int);
 char* get_basename(char*);
 char* pathcat(const char*, const char*);
-void helper_manage_stackheapbuf(char*, size_t*, int*,
-    unsigned);
 char* strip_tag(const char*);
 int tag_pos(char*, char**, char**);
 char* get_tag(char*);
