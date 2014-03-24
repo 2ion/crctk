@@ -26,6 +26,7 @@
 #include "crctk.h"
 #include "command_calc_batch.h"
 #include "command_help.h"
+#include "command_list.h"
 
 const char *crcregex = "[[:xdigit:]]\\{8\\}";
 const char *crcregex_stripper =
@@ -207,54 +208,6 @@ int command_check(int argc, char **argv, int optind, int flags) {
             matchcrc, compcrc);
     return EXIT_FAILURE;
   }
-}
-
-int command_list_db(int argc, char **argv, int optind, int flags) {
-  struct cdb db;
-  char statickbuf[255];
-  char staticvbuf[255];
-  char *kbuf = statickbuf;
-  char *vbuf = staticvbuf;
-  size_t kbuflen = sizeof(statickbuf)*sizeof(char);
-  size_t vbuflen = sizeof(statickbuf)*sizeof(char);
-  int kbuf_isstatic = 1;
-  int vbuf_isstatic = 1;
-  int fd;
-  unsigned up, vpos, vlen, klen, kpos;
-
-  check_access_flags(dbiofile, F_OK | R_OK, 1);
-  if((fd = open(dbiofile, O_RDONLY)) == -1)
-    LERROR(EXIT_FAILURE, errno, "could not open cdb file: %s",
-        dbiofile);
-  if(cdb_init(&db, fd) != 0)
-    LERROR(EXIT_FAILURE, 0, "cdb_init() failed");
-  cdb_seqinit(&up, &db);
-  while(cdb_seqnext(&up, &db) > 0) {
-    vpos = cdb_datapos(&db);
-    vlen = cdb_datalen(&db);
-    kpos = cdb_keypos(&db);
-    klen = cdb_keylen(&db);
-    helper_manage_stackheapbuf(kbuf, &kbuflen, &kbuf_isstatic, klen);
-    helper_manage_stackheapbuf(vbuf, &vbuflen, &vbuf_isstatic, vlen);
-    if(cdb_read(&db, kbuf, klen, kpos) != 0) {
-      LERROR(0,0, "cdb_read(): failed to read key. Skipping entry ...");
-      continue;
-    }
-    if(cdb_read(&db, vbuf, vlen, vpos) != 0) {
-      LERROR(0,0, "cdb_read(): failed to read value. "
-          "Skipping entry ...");
-      continue;
-    }
-    printf("%s: <%s> -> %08X\n", dbiofile, kbuf,
-        *(uint32_t*)vbuf);
-  } // while
-  cdb_free(&db);
-  close(fd);
-  if(kbuf_isstatic == 0)
-    free(kbuf);
-  if(vbuf_isstatic == 0)
-    free(vbuf);
-  return EXIT_SUCCESS;
 }
 
 int command_check_batch(int argc, char **argv, int optind,

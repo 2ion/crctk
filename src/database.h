@@ -10,11 +10,11 @@
 
 #include <kclangc.h>
 
-#define CRCTK_DB_TUNINGSUFFIX "#type=kch"
+#define CRCTK_DB_TUNINGSUFFIX "#type=kct"
 
 struct DBItem {
   char *kbuf;
-  int kbuflen;
+  size_t kbuflen;
   uint32_t crc;
   struct DBItem *next;
 };

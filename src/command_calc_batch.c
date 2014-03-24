@@ -7,7 +7,9 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
   int i;
   int do_truncate = 1;
   uint32_t crc;
-  struct DBItem *e = NULL;
+  struct DBItem first = { NULL, 0, 0, NULL };
+  struct DBItem *e = &first;
+  int at_first = 1;
 
   if(flags & APPEND_TO_DB)
     do_truncate = 0;
@@ -23,15 +25,26 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
       continue;
     }
     printf("%08X\n", crc);
-    e = DB_item_append(e, argv[i], sizeof(char)*(strlen(argv[i]+1)),
-        crc);
+
+    if(at_first == 0) {
+      e->next = DB_item_alloc();
+      e = e->next;
+      e->next = NULL;
+    }
+    e->kbuflen = (strlen(argv[i]) +1)*sizeof(char);
+    e->kbuf = malloc(e->kbuflen);
+    if(e->kbuf==NULL) LERROR(0, EXIT_FAILURE, "memory allocation error");
+    memcpy(e->kbuf, argv[i], e->kbuflen);
+    e->crc = crc;
+    if(at_first == 1) at_first = 0;
+    e->next = NULL;
   }
-  if(e == NULL) {
-    puts("Nothing to do.");
-    return EXIT_SUCCESS;
-  }
-  e->next = NULL;
-  if(DB_write(dbiofile, e, do_truncate) != 0) {
+  LERROR(0,0, "ITERATE OVER ENTRIES FOR TESTING!");
+  e = &first;
+  do {
+    printf("%s -> %08X\n", e->kbuf, e->crc);
+  } while((e = e->next) != NULL);
+  if(DB_write(dbiofile, &first, do_truncate) != 0) {
     LERROR(0,0, "Failed to write the database file: %s",
         dbiofile);
     return EXIT_FAILURE;

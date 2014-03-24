@@ -75,7 +75,6 @@ static int command_check(int, char**, int, int);
 static int command_check_batch(int, char**, int, int);
 static int command_check_hexstring(int, char**, int, int);
 static int command_idle(int, char**, int, int);
-static int command_list_db(int, char**, int, int);
 static int command_remove_tag(int, char**, int, int);
 static int command_tag(int, char**, int, int);
 
