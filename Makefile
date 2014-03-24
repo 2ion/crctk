@@ -31,13 +31,6 @@ clean:
 	rm -f $(OBJECTS) crctk librealpathtest newcrclibtest
 	rm -rf lib/cdb-*
 
-cdb:
-	wget -qOlib/cdb-0.75.tar.gz http://cr.yp.to/cdb/cdb-0.75.tar.gz
-	cd lib ; tar -xf cdb-0.75.tar.gz
-	cd lib/cdb-0.75 ; patch < ../fix-errno.patch
-	make -C lib/cdb-0.75
-	cp lib/cdb-0.75/libcdb.a lib/
-
 install: crctk
 	@echo Ensuring $(prefix)/bin exists
 	@install -m 755 -d $(prefix)/bin
