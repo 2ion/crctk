@@ -2,6 +2,54 @@
 
 extern const char *dbiofile;
 
+int DB_find_open(const char *path, struct DBFinder *dbf) {
+  assert(path != NULL);
+  assert(dbf != NULL);
+  char *kc_dbiofile = DB_getkcdbiofile(path);
+  dbf->db = kcdbnew();
+
+  if(!kcdbopen(dbf->db, kc_dbiofile, KCOREADER)) {
+    LERROR(0,0, "kcdbopen() error: %s", kcecodename(kcdbecode(dbf->db)));
+    return -1;
+  }
+  dbf->cur = kcdbcursor(dbf->db);
+  return 0;
+}
+
+int DB_find_close(struct DBFinder *dbf) {
+  assert(dbf != NULL);
+  kccurdel(dbf->cur);
+  kcdbclose(dbf->db);
+  kcdbdel(dbf->db);
+  return 0;
+}
+
+int DB_find_get(struct DBFinder *dbf, const char *key, uint32_t *crcbuf) {
+  assert(dbf != NULL);
+  assert(key != NULL);
+  assert(crcbuf != NULL);
+  char *v;
+  size_t vs;
+  kccurjump(dbf->cur);
+  if(!kccurjumpkey(dbf->cur, key, sizeof(char)*(strlen(key)+1))) {
+    *crcbuf = 0;
+    return -1;
+  } 
+  if((v = kccurgetvalue(dbf->cur, &vs, 0)) == NULL) {
+    *crcbuf = 0;
+    return -1;
+  }
+  if(vs != sizeof(uint32_t)) {
+    LERROR(0, 0, "The requested key (%s) holds a value of the wrong size",
+        key);
+    *crcbuf = 0;
+    return -1;
+  }
+  memcpy(crcbuf, v, sizeof(uint32_t));
+  kcfree(v);
+  return 0;
+}
+
 int DB_write(const char *path, const struct DBItem *dbi, int do_truncate) {
   assert(path != NULL);
   assert(dbi != NULL);
@@ -81,6 +129,7 @@ int DB_read(const char *path, struct DBItem *dbi) {
     return -1;
   }
   kcdbdel(db);
+  free(kc_dbiofile);
   return 0;
 }
 
