@@ -10,7 +10,7 @@
 
 #include <kclangc.h>
 
-#define CRCTK_DB_TUNINGSUFFIX "#type=kct#zcomp=lzma"
+#define CRCTK_DB_TUNINGSUFFIX "#type=kct#zcomp=gz#opts=cs#apow=0#bnum=30"
 #define DBITEM_NULL { NULL, 0, 0, NULL }
 
 struct DBItem {
