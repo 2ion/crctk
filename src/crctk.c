@@ -34,6 +34,7 @@
 #include "command_check_hexstring.h"
 #include "command_calc.h"
 #include "command_idle.h"
+#include "command_merge.h"
 
 const char *crcregex = "[[:xdigit:]]\\{8\\}";
 const char *crcregex_stripper =
@@ -56,6 +57,7 @@ const struct option options_long[] = {
   { "tag-regex", required_argument, NULL, 'e' },
   { "help", no_argument, NULL, 'h' },
   { "version", no_argument, NULL, 'J' },
+  { "merge", required_argument, NULL, 'm' },
   { 0, 0, 0, 0 }
 };
 
@@ -81,6 +83,7 @@ int main(int argc, char **argv) {
       case 'X': hexarg = strdup(optarg); cmd = command_check_hexstring; break;
       case 't': cmd = command_tag; break;
       case 'h': cmd = command_help; break;
+      case 'm': dbiofile = strdup(optarg); cmd = command_merge; break;
       case 'J':
                 puts("crctk version: " VERSION "\n" "Compiled on: " __DATE__ " " __TIME__);
                 return EXIT_SUCCESS;

@@ -2,6 +2,10 @@
 
 extern const char *dbiofile;
 
+int DB_merge(const char *path, const char **pathlist) {
+  return 0;
+}
+
 int DB_find_open(const char *path, struct DBFinder *dbf) {
   assert(path != NULL);
   assert(dbf != NULL);
