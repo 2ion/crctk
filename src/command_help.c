@@ -23,6 +23,8 @@ int command_help(int argc, char **argv, int optind, int flags) {
 "   The target file will be overwritten if it exists.\n"
 "-a, --append\n"
 "   Supplements -C. Append to DB-FILE.\n"
+"--version\n"
+"   Prints version and compilation information.\n"
 " -C FILE. for multiple input files, create a checksum listing\n"
 "    for use with the -V option. Overwrites the given file.\n"
 " -a Supplements -C. Append to the given database file instead\n"

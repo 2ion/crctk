@@ -1,6 +1,6 @@
 .PHONY: clean install
 prefix ?= /usr/local
-version_ ?= 0.3.99
+version_ ?= 0.3.100
 prefix ?= $(HOME)/bin
 gccflags = -Wall -Os -march=native -DVERSION=\"$(version)\"
 cflags = $(gccflags) $(shell pkg-config --cflags kyotocabinet)

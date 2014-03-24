@@ -81,7 +81,10 @@ int main(int argc, char **argv) {
       case 'X': hexarg = strdup(optarg); cmd = command_check_hexstring; break;
       case 't': cmd = command_tag; break;
       case 'h': cmd = command_help; break;
-      case 'J': puts("crctk version: " VERSION "\n" "Compiled on: " __DATE__ " " __TIME__); return EXIT_SUCCESS; break;
+      case 'J':
+                puts("crctk version: " VERSION "\n" "Compiled on: " __DATE__ " " __TIME__);
+                return EXIT_SUCCESS;
+                break;
       default:  return EXIT_FAILURE;
     } // switch
   if(optind >= argc &&
