@@ -3,4 +3,4 @@
 - abstract database backend to DB_* API (provide cdb & text-mode db
   files)
 - use iteration consistently for commands that operate on single files
-- free DBItem lists
+- free DBItem lists (use a doubly-linked list)
