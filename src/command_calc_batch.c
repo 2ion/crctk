@@ -4,36 +4,13 @@ extern const char *crcregex;
 extern const char *dbiofile;
 
 int command_calc_batch(int argc, char **argv, int optind, int flags) {
-  int i, fd;
+  int i;
+  int do_truncate = 1;
   uint32_t crc;
-  struct cdb_make cdbm;
-  struct DBItem dbibuf = { NULL, 0, 0, NULL };
-  struct DBItem *e = &dbibuf;
+  struct DBItem *e = NULL;
 
-  if((flags & APPEND_TO_DB) &&
-      (db2array(dbiofile, &dbibuf) == EXIT_FAILURE))
-    LERROR(EXIT_FAILURE, 0, "option ineffective: append to DB "
-        "(flag -a): could not load the db file");
-  else {
-    // move old file out of the way
-    if(remove(dbiofile) != 0)
-      LERROR(0, errno, "Failed to remove stale db file %s. Appending might result in errors.\n",
-          dbiofile);
-  }
-
-  if((fd = open(dbiofile, O_WRONLY | O_CREAT ,
-          S_IRUSR | S_IWUSR)) == -1)
-    LERROR(EXIT_FAILURE, errno, "couldn't create file");
-  if((cdb_make_start(&cdbm, fd)) != 0)
-    LERROR(EXIT_FAILURE, 0, "couldn't initialize the cdb database");
-
-  if(flags & APPEND_TO_DB) {
-    do {
-      cdb_make_put(&cdbm, e->kbuf, e->kbuflen, &e->crc,
-          sizeof(uint32_t), CDB_PUT_INSERT);
-      printf("from %s: <%s> -> %08X\n", dbiofile, e->kbuf, e->crc);
-    } while((e = e->next) != NULL);
-  }
+  if(flags & APPEND_TO_DB)
+    do_truncate = 0;
 
   for(i = optind; i < argc; ++i) {
     if(check_access_flags_v(argv[i], F_OK | R_OK, 1) != 0) {
@@ -46,14 +23,18 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
       continue;
     }
     printf("%08X\n", crc);
-    cdb_make_put(&cdbm, argv[i], (strlen(argv[i])+1)*sizeof(char),
-        &crc, sizeof(uint32_t), CDB_PUT_INSERT);
+    e = DB_item_append(e, argv[i], sizeof(char)*(strlen(argv[i]+1)),
+        crc);
   }
-  if(cdb_make_finish(&cdbm) != 0) {
-    LERROR(0, 0, "cdb_make_finish() failed");
-    close(fd);
+  if(e == NULL) {
+    puts("Nothing to do.");
+    return EXIT_SUCCESS;
+  }
+  e->next = NULL;
+  if(DB_write(dbiofile, e, do_truncate) != 0) {
+    LERROR(0,0, "Failed to write the database file: %s",
+        dbiofile);
     return EXIT_FAILURE;
   }
-  close(fd);
   return EXIT_SUCCESS;
 }

@@ -2,42 +2,123 @@
 
 extern const char *dbiofile;
 
-int db_open(const char *file, struct DB *db, struct DBBackend *be) {
-  assert(file != NULL);
-  assert(db != NULL);
-  assert(be != NULL);
-  // init
-  db->file = NULL;
-  db->fd = -1;
-  db->backend = be;
+int DB_write(const char *path, const struct DBItem *dbi, int do_truncate) {
+  assert(path != NULL);
+  assert(dbi != NULL);
+  assert(dbi->kbuf != NULL);
+  KCDB *db;
+  char *kc_dbiofile = DB_getkcdbiofile(path);
+  puts(kc_dbiofile);
+  const struct DBItem *e = dbi;
+  int kcdbopen_flags = do_truncate == 1 ?
+    (KCOWRITER | KCOCREATE | KCOTRUNCATE) :
+    (KCOWRITER | KCOCREATE);
 
-  if((db->fd = be->open(file, db->open_flags)) == -1) {
-    LERROR(0, errno, "%s: opening the database failed", be->name);
+  db = kcdbnew();
+  
+  if(!kcdbopen(db, kc_dbiofile, kcdbopen_flags)) {
+    LERROR(0, 0, "kcdbopen() error: %s", kcecodename(kcdbecode(db)));
     return -1;
   }
-  db->file = strdup(file);
-  assert(db->file != NULL);
+  do {
+    if(!kcdbset(db,
+          (const char*)e->kbuf,
+          (size_t)e->kbuflen,
+          (const char*)&e->crc,
+          sizeof(uint32_t))) {
+      LERROR(0, 0, "kcdbset: could not add record (%s, %d): %s",
+          e->kbuf, e->crc, kcecodename(kcdbecode(db)));
+    }
+  } while((e = (const struct DBItem*)e->next) != NULL);
+  if(!kcdbclose(db)) {
+    free(kc_dbiofile);
+    LERROR(0, 0, "kcdbclose() error: %s", kcecodename(kcdbecode(db)));
+    return -1;
+  }
+  kcdbdel(db);
+  free(kc_dbiofile);
   return 0;
 }
 
-int db_write(struct DB *db, const struct DBItem *dbi) {
-  assert(db != NULL);
+int DB_read(const char *path, struct DBItem *dbi) {
+  assert(path != NULL);
   assert(dbi != NULL);
-  DB_FD_CHECK(db);
-  DB_WRITABLE_CHECK(db);
-  return db->backend->write(db, dbi);
-}
+  KCDB *db = kcdbnew();
+  KCCUR *cur;
+  size_t ksize, vsize;
+  char *kbuf;
+  char *kc_dbiofile = DB_getkcdbiofile(path);
+  const char *vbuf;
+  struct DBItem *curi = dbi;
+  int at_first = 1;
 
-int db_read(struct DB *db, struct DBItem *dbi) {
-  assert(db != NULL);
-  assert(dbi != NULL);
-  DB_FD_CHECK(db);
-  DB_READABLE_CHECK(db);
-  return db->backend->read(db, dbi);
-}
-
-int db_close(struct DB *db) {
+  if(!kcdbopen(db, kc_dbiofile, KCOREADER)) {
+    LERROR(0, 0, "kcdbopen: could not open the db: %s",
+        kcecodename(kcdbecode(db)));
+    return -1;
+  }
+  cur = kcdbcursor(db);
+  kccurjump(cur);
+  while((kbuf = kccurget(cur, &ksize, &vbuf, &vsize, 1)) != NULL) {
+    if(vsize > sizeof(uint32_t)) {
+      LERROR(0,0, "Skipping record with wrong value size");
+      kcfree(kbuf);
+      continue;
+    }
+    if(at_first == 0) {
+      curi->next = DB_item_alloc();
+      curi = curi->next;
+      curi->next = NULL;
+    }
+    curi->kbuf = malloc(ksize);
+    if(curi->kbuf==NULL) LERROR(EXIT_FAILURE, errno, "malloc() failed");
+    curi->kbuflen = ksize;
+    memcpy(curi->kbuf, kbuf, ksize);
+    curi->crc = (uint32_t)(*vbuf);
+    kcfree(kbuf);
+    if(at_first == 1) at_first = 0;
+    curi->next = NULL;
+  }
+  kccurdel(cur);
+  if(!kcdbclose(db)) {
+    LERROR(0, 0, "kcdbclose() error: %s", kcecodename(kcdbecode(db)));
+    return -1;
+  }
+  kcdbdel(db);
   return 0;
+}
+
+struct DBItem* DB_item_alloc(void) {
+  struct DBItem *e = calloc(1, sizeof(struct DBItem));
+  if(e == NULL)
+    LERROR(EXIT_FAILURE, errno, "memory allocation error");
+  return e;
+}
+
+struct DBItem* DB_item_new(const char *kbuf, size_t kbuflen, uint32_t crc) {
+  assert(kbuf != NULL);
+  struct DBItem *e = DB_item_alloc();
+  e->kbuf = malloc(kbuflen);
+  if(e->kbuf == NULL) LERROR(EXIT_FAILURE, errno, "memory allocation error");
+  memcpy(e->kbuf, kbuf, kbuflen);
+  e->crc = crc;
+  return e;
+}
+
+struct DBItem* DB_item_append(struct DBItem *parent, const char *kbuf,
+    size_t kbuflen, uint32_t crc) {
+  assert(kbuf != NULL);
+  if(parent == NULL) return DB_item_new(kbuf, kbuflen, crc);
+  struct DBItem *e = DB_item_new(kbuf, kbuflen, crc);
+  parent->next = e;
+  return e;
+}
+
+char* DB_getkcdbiofile(const char *path) {
+  char *s = malloc(sizeof(char)*(strlen(path) + 2 + strlen(CRCTK_DB_TUNINGSUFFIX)));
+  if(s==NULL) LERROR(EXIT_FAILURE, errno, "malloc() failed");
+  memcpy(s, dbiofile, sizeof(char)*(strlen(path)+1));
+  return strcat(s, CRCTK_DB_TUNINGSUFFIX);
 }
 
 int db2array(const char *dbfile, struct DBItem *first) {

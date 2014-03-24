@@ -3,8 +3,8 @@ prefix ?= /usr/local
 version_ ?= 0.3.99
 prefix ?= $(HOME)/bin
 gccflags = -Wall -Os -march=native -DVERSION=\"$(version)\"
-cflags = $(gccflags) $(shell pkg-config --cflags libcdb)
-ldflags	= -lz $(shell pkg-config --libs libcdb)
+cflags = $(gccflags) $(shell pkg-config --cflags libcdb kyotocabinet)
+ldflags	= -lz $(shell pkg-config --libs libcdb kyotocabinet)
 havegit=$(shell test -d .git &>/dev/null; echo $$?)
 ifeq ($(havegit), 0)
 version = $(version_)-$(shell git rev-parse --short HEAD)
