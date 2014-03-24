@@ -7,7 +7,7 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
   int i;
   int do_truncate = 1;
   uint32_t crc;
-  struct DBItem first = { NULL, 0, 0, NULL };
+  struct DBItem first = DBITEM_NULL;
   struct DBItem *e = &first;
   int at_first = 1;
 
