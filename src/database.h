@@ -11,6 +11,7 @@
 #include <kclangc.h>
 
 #define CRCTK_DB_TUNINGSUFFIX "#type=kch"
+#define DBITEM_NULL { NULL, 0, 0, NULL }
 
 struct DBItem {
   char *kbuf;

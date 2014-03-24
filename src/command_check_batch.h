@@ -14,4 +14,9 @@
 
 int command_check_batch(int, char**, int, int);
 
+int command_check_batch_from_db(int argc, char **argv,
+    int optind, int cmdflags);
+int command_check_batch_from_argv(int argc, char **argv,
+    int optind, int cmdflags);
+
 #endif /* COMMAND_CHECK_BATCH_H */
