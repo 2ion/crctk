@@ -11,12 +11,11 @@ Stable releases are tagged in Git. Everything else is experimental!
 crctk depends on:
 
 - libz
-- libcdb/libtinycdb
-- pandoc (markdown -> manpage converter)
+- libkyotocabinet
 
 On Debian, these may be installed using
 ```sh
-sudo apt-get install libcdb-dev zlib1g-dev
+sudo apt-get install libkyotocabinet-dev zlib1g-dev
 ```
 
 ```sh
@@ -28,12 +27,6 @@ make install prefix=/usr/local
 
 The documentation is written in pandoc markdown and located in /doc, so you can build a 
 wide range of documentation formats! By default, we deliver HTML and manpage versions.
-
-
-## Outstanding Bugs
-
-* The -a option currently somehow corrupts the database file if
-  the same file is being added again.
 
 ## Command line synposis
 
