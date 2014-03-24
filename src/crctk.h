@@ -50,8 +50,6 @@
 #define DBITEM_PATHBUFLEN 255
 #pragma GCC diagnostic ignored "-Wfree-nonheap-object"
 
-/* GLOBALS */
-
 /* TYPES */
 
 enum {
@@ -67,14 +65,5 @@ typedef int     // program exit status
         char**, // argv
         int,    // optind
         int);   // cmdflags bitmask
-
-/* PROTOTYPES */
-// argc, argv, optind, cmdflags
-static int command_calc(int, char**, int, int);
-static int command_check(int, char**, int, int);
-static int command_check_hexstring(int, char**, int, int);
-static int command_idle(int, char**, int, int);
-static int command_remove_tag(int, char**, int, int);
-static int command_tag(int, char**, int, int);
 
 #endif /* CRCTK_H */

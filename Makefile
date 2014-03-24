@@ -28,8 +28,7 @@ newcrclibtest: test/newcrclibtest.c $(OBJECTS)
 	gcc $(cflags) -Isrc -o$@ $^ $(ldflags)
 
 clean:
-	rm -f $(OBJECTS) crctk librealpathtest newcrclibtest
-	rm -rf lib/cdb-*
+	rm -f $(OBJECTS) crctk librealpathtest
 
 install: crctk
 	@echo Ensuring $(prefix)/bin exists
