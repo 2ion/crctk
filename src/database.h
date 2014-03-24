@@ -37,7 +37,6 @@ struct DBItem* DB_item_append(struct DBItem* parent, const char *kbuf,
     size_t kbuflen, uint32_t crc);
 struct DBItem* DB_item_append_terminator(struct DBItem*);
 
-int db2array(const char*, struct DBItem*);
 char* DB_getkcdbiofile(const char *path);
 
 
