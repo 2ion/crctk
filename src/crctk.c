@@ -41,7 +41,7 @@ const char *crcregex_stripper =
   "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?";
 const char *dbiofile = "crcsums.tdb";
 const char *hexarg = "00000000";
-const char *optstring_short = "+X:xtnvV:hsrC:ce:p:a";
+const char *optstring_short = "+X:xtnvV:hsrC:ce:p:am:";
 const struct option options_long[] = {
   { "verify", no_argument, NULL, 'v' },
   { "verify-db", required_argument, NULL, 'V' },

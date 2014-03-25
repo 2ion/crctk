@@ -27,7 +27,7 @@ int DB_merge(const char *path, const char **pathlist, int do_truncate) {
   }
 
   /* open source databases */
-  while(*pathlist[++j]);
+  while(pathlist[++j]);
   dbiofiles = malloc(sizeof(char*)*j);
   if(dbiofiles == NULL)
     LERROR(EXIT_FAILURE, errno, "");
@@ -38,13 +38,14 @@ int DB_merge(const char *path, const char **pathlist, int do_truncate) {
     dbiofiles[i] = DB_getkcdbiofile(pathlist[i]);
     dbsrc[i] = kcdbnew();
     if(!kcdbopen(dbsrc[i], dbiofiles[i], KCOREADER)) {
-      LERROR(0, 0, "Could not open database for merge: %s: %s. Skipping...",
+      printf("[%s]: skipping: is not a database (%s)\n",
           pathlist[i], kcecodename(kcdbecode(dbsrc[i])));
       kcdbdel(dbsrc[i]);
       dbsrc[i] = NULL;
       free(dbiofiles[i]);
       dbiofiles[i] = NULL;
     } else {
+      printf("[%s] provides %d entries\n", pathlist[i], kcdbcount(dbsrc[i]));
       ++k;
     }
   }
@@ -53,9 +54,13 @@ int DB_merge(const char *path, const char **pathlist, int do_truncate) {
   dbsrcfinal = malloc(sizeof(KCDB*)*k);
   if(dbsrcfinal == NULL)
     LERROR(EXIT_FAILURE, errno, "");
+
   for(h = 0, i = 0; i < j && h < k; ++i)
-    if(dbsrc[i])
+    if(dbsrc[i]) {
       dbsrcfinal[h++] = dbsrc[i];
+    }
+
+
   if(!kcdbmerge(db, dbsrcfinal, k, KCMSET)) {
     fprintf(stderr, "Merging failed\n");
     ret = -1;
@@ -73,6 +78,8 @@ int DB_merge(const char *path, const char **pathlist, int do_truncate) {
   free(dbsrc);
   free(dbsrcfinal);
   free(dbiofiles);
+  kcdbclose(db);
+  kcdbdel(db);
 
   return ret;
 }
