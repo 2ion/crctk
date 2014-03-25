@@ -73,10 +73,14 @@ int main(int argc, char **argv) {
   while((opt = getopt_long(argc, argv, optstring_short,
          options_long, NULL)) != -1)
     switch(opt) {
-      case 's': cmdflags |= TAG_ALLOW_STRIP; break;
-      case 'x': cmdflags |= CHECK_BATCH_PREFER_HEXSTRING; break;
-      case 'a': cmdflags |= APPEND_TO_DB; break;
-      case 'n': cmdflags |= CALC_PRINT_NUMERICAL; break;
+      case 's': cmdflags |= TAG_ALLOW_STRIP;
+                break;
+      case 'x': cmdflags |= CHECK_BATCH_PREFER_HEXSTRING;
+                break;
+      case 'a': cmdflags |= APPEND_TO_DB;
+                break;
+      case 'n': cmdflags |= CALC_PRINT_NUMERICAL;
+                break;
       case 'p': dbiofile = strdup(optarg);
                 do_free_dbiofile = 1;
                 cmd = command_list_db;
@@ -87,23 +91,30 @@ int main(int argc, char **argv) {
       case 'e': crcregex_stripper = strdup(optarg);
                 do_free_crcregexstripper = 1;
                 break;
-      case 'c': cmd = command_calc; break;
+      case 'c': cmd = command_calc;
+                break;
       case 'C': dbiofile = strdup(optarg);
                 do_free_dbiofile = 1;
                 cmd = command_calc_batch;
                 break;
-      case 'r': cmd = command_remove_tag; break;
-      case 'v': cmd = command_check; break;
+      case 'r': cmd = command_remove_tag;
+                break;
+      case 'v': cmd = command_check;
+                break;
       case 'X': hexarg = strdup(optarg);
                 do_free_hexarg = 1;
-                cmd = command_check_hexstring; break;
-      case 't': cmd = command_tag; break;
-      case 'h': cmd = command_help; break;
+                cmd = command_check_hexstring;
+                break;
+      case 't': cmd = command_tag;
+                break;
+      case 'h': cmd = command_help;
+                break;
       case 'm': dbiofile = strdup(optarg);
                 do_free_dbiofile = 1;
-                cmd = command_merge; break;
-      case 'J':
-                puts("crctk version: " VERSION "\n" "Compiled on: " __DATE__ " " __TIME__);
+                cmd = command_merge;
+                break;
+      case 'J': puts("crctk version: " VERSION "\n"
+                    "Compiled on: " __DATE__ " " __TIME__);
                 return EXIT_SUCCESS;
                 break;
       default:  return EXIT_FAILURE;
