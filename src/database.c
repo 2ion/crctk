@@ -1,9 +1,80 @@
 #include "database.h"
 
-extern const char *dbiofile;
+int DB_merge(const char *path, const char **pathlist, int do_truncate) {
+  assert(path != NULL);
+  assert(pathlist != NULL);
+  KCDB *db = kcdbnew();
+  char *kcdbiofile = DB_getkcdbiofile(path);
+  KCDB **dbsrc = NULL;
+  KCDB **dbsrcfinal = NULL;
+  char **dbiofiles = NULL;
+  int j = -1;
+  int i = 0;
+  int k = 0;
+  int h = 0;
+  int ret = 0;
+  int kcwriteflags = (do_truncate == 1) ?
+    (KCOWRITER | KCOCREATE | KCOTRUNCATE) :
+    (KCOWRITER | KCOCREATE );
 
-int DB_merge(const char *path, const char **pathlist) {
-  return 0;
+  /* open target database */
+  if(!kcdbopen(db, kcdbiofile, kcwriteflags)) {
+    LERROR(0, 0, "Could not open target database: %s: %s",
+        path, kcecodename(kcdbecode(db)));
+    kcdbdel(db);
+    free(kcdbiofile);
+    return -1;
+  }
+
+  /* open source databases */
+  while(*pathlist[++j]);
+  dbiofiles = malloc(sizeof(char*)*j);
+  if(dbiofiles == NULL)
+    LERROR(EXIT_FAILURE, errno, "");
+  dbsrc = malloc(sizeof(KCDB*)*j);
+  if(dbsrc == NULL)
+    LERROR(EXIT_FAILURE, errno, "");
+  for(k = 0, i = 0; i < j; ++i) {
+    dbiofiles[i] = DB_getkcdbiofile(pathlist[i]);
+    dbsrc[i] = kcdbnew();
+    if(!kcdbopen(dbsrc[i], dbiofiles[i], KCOREADER)) {
+      LERROR(0, 0, "Could not open database for merge: %s: %s. Skipping...",
+          pathlist[i], kcecodename(kcdbecode(dbsrc[i])));
+      kcdbdel(dbsrc[i]);
+      dbsrc[i] = NULL;
+      free(dbiofiles[i]);
+      dbiofiles[i] = NULL;
+    } else {
+      ++k;
+    }
+  }
+
+  /* merge */
+  dbsrcfinal = malloc(sizeof(KCDB*)*k);
+  if(dbsrcfinal == NULL)
+    LERROR(EXIT_FAILURE, errno, "");
+  for(h = 0, i = 0; i < j && h < k; ++i)
+    if(dbsrc[i])
+      dbsrcfinal[h++] = dbsrc[i];
+  if(!kcdbmerge(db, dbsrcfinal, k, KCMSET)) {
+    fprintf(stderr, "Merging failed\n");
+    ret = -1;
+  }
+
+  /* cleanup */
+  for(h = 0; h < k; ++h) {
+    kcdbclose(dbsrcfinal[h]);
+    kcdbdel(dbsrcfinal[h]);
+  }
+  for(i = 0; i < j; ++i) {
+    if(dbiofiles[i] != NULL)
+      free(dbiofiles[i]);
+  }
+  free(dbsrc);
+  free(dbsrcfinal);
+  free(dbiofiles);
+
+  return ret;
 }
 
 int DB_find_open(const char *path, struct DBFinder *dbf) {
@@ -166,7 +237,7 @@ struct DBItem* DB_item_append(struct DBItem *parent, const char *kbuf,
 char* DB_getkcdbiofile(const char *path) {
   char *s = malloc(sizeof(char)*(strlen(path) + 2 + strlen(CRCTK_DB_TUNINGSUFFIX)));
   if(s==NULL) LERROR(EXIT_FAILURE, errno, "malloc() failed");
-  memcpy(s, dbiofile, sizeof(char)*(strlen(path)+1));
+  memcpy(s, path, sizeof(char)*(strlen(path)+1));
   return strcat(s, CRCTK_DB_TUNINGSUFFIX);
 }
 
