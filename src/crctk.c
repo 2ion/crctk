@@ -64,6 +64,10 @@ const struct option options_long[] = {
 int main(int argc, char **argv) {
   int opt = 0;
   int cmdflags = 0;
+  int do_free_dbiofile = 0;
+  int do_free_hexarg = 0;
+  int do_free_crcregexstripper = 0;
+  int ret = EXIT_SUCCESS;
   CommandFunction cmd = command_idle;
 
   while((opt = getopt_long(argc, argv, optstring_short,
@@ -73,17 +77,31 @@ int main(int argc, char **argv) {
       case 'x': cmdflags |= CHECK_BATCH_PREFER_HEXSTRING; break;
       case 'a': cmdflags |= APPEND_TO_DB; break;
       case 'n': cmdflags |= CALC_PRINT_NUMERICAL; break;
-      case 'p': dbiofile = strdup(optarg); cmd = command_list_db; break;
-      case 'V': dbiofile = strdup(optarg); cmd = command_check_batch; break;
-      case 'e': crcregex_stripper = strdup(optarg); break;
+      case 'p': dbiofile = strdup(optarg);
+                do_free_dbiofile = 1;
+                cmd = command_list_db;
+                break;
+      case 'V': dbiofile = strdup(optarg);
+                do_free_dbiofile = 1;
+                cmd = command_check_batch; break;
+      case 'e': crcregex_stripper = strdup(optarg);
+                do_free_crcregexstripper = 1;
+                break;
       case 'c': cmd = command_calc; break;
-      case 'C': dbiofile = strdup(optarg); cmd = command_calc_batch; break;
+      case 'C': dbiofile = strdup(optarg);
+                do_free_dbiofile = 1;
+                cmd = command_calc_batch;
+                break;
       case 'r': cmd = command_remove_tag; break;
       case 'v': cmd = command_check; break;
-      case 'X': hexarg = strdup(optarg); cmd = command_check_hexstring; break;
+      case 'X': hexarg = strdup(optarg);
+                do_free_hexarg = 1;
+                cmd = command_check_hexstring; break;
       case 't': cmd = command_tag; break;
       case 'h': cmd = command_help; break;
-      case 'm': dbiofile = strdup(optarg); cmd = command_merge; break;
+      case 'm': dbiofile = strdup(optarg);
+                do_free_dbiofile = 1;
+                cmd = command_merge; break;
       case 'J':
                 puts("crctk version: " VERSION "\n" "Compiled on: " __DATE__ " " __TIME__);
                 return EXIT_SUCCESS;
@@ -97,5 +115,12 @@ int main(int argc, char **argv) {
     LERROR(EXIT_FAILURE, 0,
             "Too few arguments. Use the -h flag "
             "to view usage information.");
-  return cmd(argc, argv, optind, cmdflags);
+  ret = cmd(argc, argv, optind, cmdflags);
+  if(do_free_dbiofile == 1)
+    free((void*)dbiofile);
+  if(do_free_hexarg == 1)
+    free((void*)hexarg);
+  if(do_free_crcregexstripper == 1)
+    free((void*)crcregex_stripper);
+  return ret;
 }

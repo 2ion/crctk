@@ -80,6 +80,7 @@ int DB_merge(const char *path, const char **pathlist, int do_truncate) {
   free(dbiofiles);
   kcdbclose(db);
   kcdbdel(db);
+  free(kcdbiofile);
 
   return ret;
 }
