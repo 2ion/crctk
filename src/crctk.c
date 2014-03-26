@@ -41,7 +41,7 @@ const char *crcregex_stripper =
   "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?";
 const char *dbiofile = "crcsums.tdb";
 const char *hexarg = "00000000";
-const char *optstring_short = "+X:xtnvV:hsrC:ce:p:am:";
+const char *optstring_short = "+X:xtnvV:hsrC:ce:pam:";
 const struct option options_long[] = {
   { "verify", no_argument, NULL, 'v' },
   { "verify-db", required_argument, NULL, 'V' },
@@ -50,7 +50,7 @@ const struct option options_long[] = {
   { "numerical", no_argument, NULL, 'n' },
   { "create-db", required_argument, NULL, 'C' },
   { "append", no_argument, NULL, 'a' },
-  { "print", required_argument, NULL, 'p' },
+  { "print", no_argument, NULL, 'p' },
   { "tag", no_argument, NULL, 't' },
   { "strip-tag", no_argument, NULL, 's' },
   { "remove-tag", no_argument, NULL, 'r' },
@@ -81,9 +81,7 @@ int main(int argc, char **argv) {
                 break;
       case 'n': cmdflags |= CALC_PRINT_NUMERICAL;
                 break;
-      case 'p': dbiofile = strdup(optarg);
-                do_free_dbiofile = 1;
-                cmd = command_list_db;
+      case 'p': cmd = command_list_db;
                 break;
       case 'V': dbiofile = strdup(optarg);
                 do_free_dbiofile = 1;
