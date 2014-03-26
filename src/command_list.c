@@ -11,7 +11,7 @@ int command_list_db(int argc, char **argv, int optind, int flags) {
     DBITEM_SET_NULL(dbi);
     e = NULL;
     if(DB_read(argv[i], &dbi) != 0) {
-      fprintf(stderr, 0, "[%s] error when reading the file\n", argv[i]);
+      fprintf(stderr, "[%s] not a valid database\n", argv[i]);
       continue;
     }
     if(dbi.kbuf == NULL) {

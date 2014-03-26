@@ -179,11 +179,8 @@ int DB_read(const char *path, struct DBItem *dbi) {
   struct DBItem *curi = dbi;
   int at_first = 1;
 
-  if(!kcdbopen(db, kc_dbiofile, KCOREADER)) {
-    LERROR(0, 0, "kcdbopen: could not open the db: %s",
-        kcecodename(kcdbecode(db)));
+  if(!kcdbopen(db, kc_dbiofile, KCOREADER))
     return -1;
-  }
   cur = kcdbcursor(db);
   kccurjump(cur);
   while((kbuf = kccurget(cur, &ksize, &vbuf, &vsize, 1)) != NULL) {
