@@ -54,11 +54,17 @@ skip_crc_computation:
     e->crc = crc;
     if(at_first == 1) at_first = 0;
     e->next = NULL;
-  }
+    if(X != NULL) { // free memory allocated by get_tag()
+      free(X);
+      X = NULL;
+    }
+  } // for
+
   if(DB_write(dbiofile, &first, do_truncate) != 0) {
     LERROR(0,0, "Failed to write the database file: %s",
         dbiofile);
     return EXIT_FAILURE;
   }
+
   return EXIT_SUCCESS;
 }

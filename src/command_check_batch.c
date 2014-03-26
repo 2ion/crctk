@@ -36,6 +36,7 @@ int command_check_batch_from_argv(int argc, char **argv,
       else
         printf("%s: MISMATCH %s[%08X] -x[%08X]\n", argv[i], dbiofile,
             dbcrc, othercrc);
+      free(X);
       continue;
     }
     othercrc = compute_crc32(argv[i]);
