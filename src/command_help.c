@@ -2,7 +2,7 @@
 
 int command_help(int argc, char **argv, int optind, int flags) {
   printf("crctk - CRC32 Hexstring Toolkit\n"
-"Copyright (C) 2014 2ion (dev@2ion.de)\n"
+"Copyright (C) 2014 Jens Oliver John (dev@2ion.de)\n"
 "Usage: %s [-aCcefhnprstuVv] <file>|<file-listing>\n"
 "Options:\n"
 "-v, --verify\n"

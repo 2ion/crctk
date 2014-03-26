@@ -33,44 +33,61 @@ wide range of documentation formats! By default, we deliver HTML and manpage ver
 More concise usage information.
 
 ```
-crctk v0.3.99-2da8408 (Mar 23 2014 00:13:51)
-CRC32 Hexstring Toolkit
-Copyright (C) 2014 2ion (dev@2ion.de)
+crctk - CRC32 Hexstring Toolkit
+Copyright (C) 2014 Jens Oliver John (dev@2ion.de)
 Usage: ./crctk [-aCcefhnprstuVv] <file>|<file-listing>
 Options:
 -v, --verify
-  Compute CRC32 and compare with the hexstring in the supplied
-  filename. Exit codes: match -- 0, no match -- 1
+  Compute CRC32 and compare with the hexstring
+  in the supplied filename.
 -V DB-FILE, --verify-db DB-FILE
-  Check whether the files record in the database still have the
-  same CRC32 checksums
+  Check whether the files record in the database
+  still have the same CRC32 checksums
 -x, --prefer-hexstring
-  Supplements -V. For any tagged file, use the hexstring as
-  the reference CRC32
+  Supplements -V. For any tagged file, use the
+  hexstring as the reference CRC32
 -c, --calc
-  Compute the CRC32 for the given file, print and exit
+  Compute the CRC32 for the given file and print
+  it, then exit
 -n, --numerical
   Supplements -c. Print the CRC32 in decimal
 -C DB-FILE, --create-db DB-FILE
-   For multiple input files, store a checksum DB in DB-FILE
-   The target file will be overwritten if it exists.
+   For multiple input files, store a checksum DB
+   in DB-FILE The target file will be overwritten
+   if it exists.
 -a, --append
    Supplements -C. Append to DB-FILE.
- -C FILE. for multiple input files, create a checksum listing
-    for use with the -V option. Overwrites the given file.
- -a Supplements -C. Append to the given database file instead
-    of overwriting it.
- -p FILE. Print the contents of a file created by the -C
-    options to stdout.
- -t Tag file with a CRC32 hexstring. Aborts if
-    the filename does already contain a tag.
- -s Supplements -t. strip eventually existing tag
-    and compute a new CRC32 hexstring.
-    Return values: EXIT_SUCCESS: success
-                   EXIT_FAILURE: generic failure
- -r If the file is tagged, remove the tag.
- -e EXPR. Changes the regular expression used to
-    match tags when doing -s|-r to EXPR. Default:
-    [[:punct:]]\?[[:xdigit:]]\{8\}[[:punct:]]\?
- -h Print this message and exit successfully.
- ```
+-m DB-FILE, --merge DB-FILE
+   Given a list of database files as arguments,
+   all of this files' contents will be merged
+   into DB-FILE. The listed databases are not
+   modified. Records will identical keys will
+   replace each other in the order the database
+   files were specified.
+ -C DB-FILE, --create-db DB-FILE
+   For multiple input files, create a checksum
+   listing for use with the -V option. Overwrites
+   the given file.
+ -a, --append
+   Supplements -C and -m. Append to the given
+   database file instead of overwriting it.
+ -p DB-FILE, --print DB-FILE
+   Print the contents of a file created by the -C
+   options to stdout.
+ -t, --tag
+   Tag file with a CRC32 hexstring. Aborts if
+   the filename does already contain a tag.
+ -s, --strip-tag
+   Supplements -t. strip eventually existing tag
+   and compute a new CRC32 hexstring.
+ -r, --remove-tag
+   If the file is tagged, remove the tag.
+ -e EXPR, --tag-regex EXPR
+   Changes the regular expression used to
+   match tags when doing -s|-r to EXPR. Default:
+   [[:punct:]]\?[[:xdigit:]]\{8\}[[:punct:]]\?
+ -h, --help
+   Print this message and exit successfully.
+--version
+   Prints version and compilation information.
+```
