@@ -3,7 +3,7 @@
 int command_help(int argc, char **argv, int optind, int flags) {
   printf("crctk - CRC32 Hexstring Toolkit\n"
 "Copyright (C) 2014 Jens Oliver John (dev@2ion.de)\n"
-"Usage: %s [-aCcefhnprstuVv] <file>|<file-listing>\n"
+"Usage: %s [-aCcefhmnprstuVv] <file>|<file-listing>\n"
 "Options:\n"
 "-v, --verify\n"
 "  Compute CRC32 and compare with the hexstring\n"

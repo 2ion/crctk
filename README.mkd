@@ -35,7 +35,7 @@ More concise usage information.
 ```
 crctk - CRC32 Hexstring Toolkit
 Copyright (C) 2014 Jens Oliver John (dev@2ion.de)
-Usage: ./crctk [-aCcefhnprstuVv] <file>|<file-listing>
+Usage: ./crctk [-aCcefhmnprstuVv] <file>|<file-listing>
 Options:
 -v, --verify
   Compute CRC32 and compare with the hexstring
