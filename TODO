@@ -1,6 +1,3 @@
 - option for using absolute paths in the database
-- fix handling of duplicate entries  with the -a option
-- abstract database backend to DB_* API (provide cdb & text-mode db
-  files)
 - use iteration consistently for commands that operate on single files
 - free DBItem lists (use a doubly-linked list)
