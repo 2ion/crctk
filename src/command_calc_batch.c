@@ -10,6 +10,7 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
   struct DBItem first = DBITEM_NULL;
   struct DBItem *e = &first;
   int at_first = 1;
+  char *X = NULL;
 
   if(flags & APPEND_TO_DB)
     do_truncate = 0;
@@ -20,10 +21,25 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
       continue;
     }
     printf("*%s: <%s> ... ", dbiofile, argv[i]);
+
+    if(flags & CHECK_BATCH_PREFER_HEXSTRING) {
+      X = get_tag(argv[i]);
+      if(X == NULL) {
+        fprintf(stderr, "Option -x is ineffective: filename does "
+            "not contain a hexstring: %s\n", argv[i]);
+        continue;
+      } else {
+        crc = strtol((const char*)X, NULL, 16);
+        goto skip_crc_computation;
+      }
+    }
+
     if((crc = compute_crc32(argv[i])) == 0) {
       LERROR(0,0, "IGNORING: CRC32 is zero: %s", argv[i]);
       continue;
     }
+
+skip_crc_computation:
     printf("%08X\n", crc);
 
     if(at_first == 0) {

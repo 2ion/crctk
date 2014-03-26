@@ -12,7 +12,7 @@ int command_help(int argc, char **argv, int optind, int flags) {
 "  Check whether the files record in the database\n"
 "  still have the same CRC32 checksums\n"
 "-x, --prefer-hexstring\n"
-"  Supplements -V. For any tagged file, use the\n"
+"  Supplements -V, -C. For any tagged file, use the\n"
 "  hexstring as the reference CRC32\n"
 "-c, --calc\n"
 "  Compute the CRC32 for the given file and print\n"

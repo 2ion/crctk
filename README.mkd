@@ -45,7 +45,7 @@ Options:
   Check whether the files record in the database
   still have the same CRC32 checksums
 -x, --prefer-hexstring
-  Supplements -V. For any tagged file, use the
+  Supplements -V, -C. For any tagged file, use the
   hexstring as the reference CRC32
 -c, --calc
   Compute the CRC32 for the given file and print
