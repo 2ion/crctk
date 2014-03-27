@@ -11,7 +11,7 @@
 #include <kclangc.h>
 
 #define CRCTK_DB_TUNINGSUFFIX "#type=kct#zcomp=gz#opts=cs#apow=0#bnum=30"
-#define DBITEM_NULL { NULL, 0, 0, NULL }
+#define DBITEM_NULL { NULL, 0, 0, NULL, NULL }
 #define DBITEM_SET_NULL(e) (e).kbuf=NULL;(e).kbuflen=0;(e).crc=0;(e).next=0;
 
 struct DBItem {
@@ -19,6 +19,7 @@ struct DBItem {
   size_t kbuflen;
   uint32_t crc;
   struct DBItem *next;
+  struct DBItem *prev;
 };
 
 struct DBFinder {
@@ -33,6 +34,7 @@ int DB_find_open(const char *path, struct DBFinder *dbf);
 int DB_find_get(struct DBFinder *dbf, const char *key, uint32_t *crcbuf);
 int DB_find_close(struct DBFinder *dbf);
 
+void DB_item_free(struct DBItem*);
 struct DBItem* DB_item_alloc(void);
 struct DBItem* DB_item_new(const char *kbuf, size_t kbuflen, uint32_t crc);
 struct DBItem* DB_item_append(struct DBItem* parent, const char *kbuf,

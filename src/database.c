@@ -239,10 +239,23 @@ struct DBItem* DB_item_append(struct DBItem *parent, const char *kbuf,
   return e;
 }
 
+void DBItem_free(struct DBItem *dbi) {
+  assert(dbi!=NULL);
+  if(dbi == NULL)
+    LERROR(EXIT_FAILURE, 0, "invalid pointer passed (NULL)");
+  struct DBItem *e = dbi;
+  do {
+    if(e->kbuf != NULL) free(e->kbuf);
+  } while((e = e->next) != NULL);
+  do {
+    if(e->next != NULL) free(e->next);
+  } while((e = e->prev) != NULL);
+  free(e);
+}
+
 char* DB_getkcdbiofile(const char *path) {
   char *s = malloc(sizeof(char)*(strlen(path) + 2 + strlen(CRCTK_DB_TUNINGSUFFIX)));
   if(s==NULL) LERROR(EXIT_FAILURE, errno, "malloc() failed");
   memcpy(s, path, sizeof(char)*(strlen(path)+1));
   return strcat(s, CRCTK_DB_TUNINGSUFFIX);
 }
-
