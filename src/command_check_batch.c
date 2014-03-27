@@ -82,6 +82,9 @@ int command_check_batch_from_db(int argc, char **argv,
       printf("MISMATCH [%08X is really %08X]\n", e->crc, crc);
   } while((e = e->next) != NULL);
 
+  if(dbi.next != NULL)
+    DB_item_free(dbi.next);
+
   return EXIT_SUCCESS;
 }
 

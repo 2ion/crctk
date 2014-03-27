@@ -240,14 +240,17 @@ struct DBItem* DB_item_append(struct DBItem *parent, const char *kbuf,
   return e;
 }
 
-void DBItem_free(struct DBItem *dbi) {
-  assert(dbi!=NULL);
+void DB_item_free(struct DBItem *dbi) {
+  assert(dbi != NULL);
   if(dbi == NULL)
     LERROR(EXIT_FAILURE, 0, "invalid pointer passed (NULL)");
   struct DBItem *e = dbi;
+  struct DBItem *f = NULL;
   do {
     if(e->kbuf != NULL) free(e->kbuf);
+    f = e;
   } while((e = e->next) != NULL);
+  e = f;
   do {
     if(e->next != NULL) free(e->next);
   } while((e = e->prev) != NULL);

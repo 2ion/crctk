@@ -2,7 +2,7 @@
 prefix ?= /usr/local
 version_ ?= 0.4.0
 prefix ?= $(HOME)/bin
-gccflags = -s -Wall -O2 -march=native -DVERSION=\"$(version)\"
+gccflags = -g -Wall -O2 -march=native -DVERSION=\"$(version)\"
 cflags = $(gccflags) $(shell pkg-config --cflags kyotocabinet)
 ldflags	= -lz $(shell pkg-config --libs kyotocabinet)
 havegit=$(shell test -d .git &>/dev/null; echo $$?)

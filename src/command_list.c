@@ -22,7 +22,8 @@ int command_list_db(int argc, char **argv, int optind, int flags) {
     do {
       printf("[%s] %s -> %08X\n", argv[i], e->kbuf, e->crc);
     } while((e = e->next) != NULL);
-    //FIXME: free the linked list e!!
+    if(dbi.next != NULL)
+      DB_item_free(dbi.next);
   }
 
   return EXIT_SUCCESS;
