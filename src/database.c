@@ -191,6 +191,7 @@ int DB_read(const char *path, struct DBItem *dbi) {
     }
     if(at_first == 0) {
       curi->next = DB_item_alloc();
+      curi->next->prev = curi;
       curi = curi->next;
       curi->next = NULL;
     }

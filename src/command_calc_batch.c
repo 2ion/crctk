@@ -44,6 +44,7 @@ skip_crc_computation:
 
     if(at_first == 0) {
       e->next = DB_item_alloc();
+      e->next->prev = e;
       e = e->next;
       e->next = NULL;
     }
