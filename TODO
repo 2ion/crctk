@@ -1,3 +1,2 @@
 - option for using absolute paths in the database
-- use iteration consistently for commands that operate on single files
 - free DBItem lists (use a doubly-linked list)
