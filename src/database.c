@@ -91,7 +91,7 @@ int DB_find_open(const char *path, struct DBFinder *dbf) {
   char *kc_dbiofile = DB_getkcdbiofile(path);
   dbf->db = kcdbnew();
 
-  if(!kcdbopen(dbf->db, kc_dbiofile, KCOREADER)) {
+  if(!kcdbopen(dbf->db, kc_dbiofile, KCOWRITER)) {
     LERROR(0,0, "kcdbopen() error: %s", kcecodename(kcdbecode(dbf->db)));
     return -1;
   }
@@ -130,6 +130,18 @@ int DB_find_get(struct DBFinder *dbf, const char *key, uint32_t *crcbuf) {
   }
   memcpy(crcbuf, v, sizeof(uint32_t));
   kcfree(v);
+  return 0;
+}
+
+int DB_find_remove(struct DBFinder *dbf, const char *key) {
+  assert(dbf != NULL);
+  assert(key != NULL);
+  kccurjump(dbf->cur);
+
+  if(!kccurjumpkey(dbf->cur, key, sizeof(char)*(strlen(key)+1)))
+    return -1;
+  if(!kccurremove(dbf->cur))
+    return -2;
   return 0;
 }
 

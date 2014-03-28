@@ -35,13 +35,14 @@
 #include "command_calc.h"
 #include "command_idle.h"
 #include "command_merge.h"
+#include "command_delete.h"
 
 const char *crcregex = "[[:xdigit:]]\\{8\\}";
 const char *crcregex_stripper =
   "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?";
 const char *dbiofile = "crcsums.tdb";
 const char *hexarg = "00000000";
-const char *optstring_short = "+X:xtnvV:hsrC:ce:pam:";
+const char *optstring_short = "+X:xtnvV:hsrC:cd:e:pam:";
 const struct option options_long[] = {
   { "verify", no_argument, NULL, 'v' },
   { "verify-db", required_argument, NULL, 'V' },
@@ -49,6 +50,7 @@ const struct option options_long[] = {
   { "calc", no_argument, NULL, 'c' },
   { "numerical", no_argument, NULL, 'n' },
   { "create-db", required_argument, NULL, 'C' },
+  { "delete", required_argument, NULL, 'd' },
   { "append", no_argument, NULL, 'a' },
   { "print", no_argument, NULL, 'p' },
   { "tag", no_argument, NULL, 't' },
@@ -114,6 +116,10 @@ int main(int argc, char **argv) {
       case 'J': puts("crctk version: " VERSION "\n"
                     "Compiled on: " __DATE__ " " __TIME__);
                 return EXIT_SUCCESS;
+                break;
+      case 'd': dbiofile = strdup(optarg);
+                do_free_dbiofile = 1;
+                cmd = command_delete;
                 break;
       default:  return EXIT_FAILURE;
     } // switch

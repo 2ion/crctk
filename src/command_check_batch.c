@@ -11,7 +11,7 @@ int command_check_batch_from_argv(int argc, char **argv,
   struct DBFinder dbf;
 
   if(DB_find_open(dbiofile, &dbf) != 0)
-    LERROR(EXIT_FAILURE, 0, "Could not open database: %s");
+    LERROR(EXIT_FAILURE, 0, "%s: Could not open database:", dbiofile);
 
   for(i = optind; i < argc; ++i) {
     if(check_access_flags_v(argv[i], F_OK | R_OK, 1) != 0) {

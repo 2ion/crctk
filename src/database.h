@@ -12,7 +12,9 @@
 
 #define CRCTK_DB_TUNINGSUFFIX "#type=kct#zcomp=gz#opts=cs#apow=0#bnum=30"
 #define DBITEM_NULL { NULL, 0, 0, NULL, NULL }
+#define DBFINDER_NULL { NULL, NULL }
 #define DBITEM_SET_NULL(e) (e).kbuf=NULL;(e).kbuflen=0;(e).crc=0;(e).next=0;
+#define DBFINDER_SET_NULL(e) (e).db=NULL;(e).cur=NULL;
 
 struct DBItem {
   char *kbuf;
@@ -32,6 +34,7 @@ int DB_read(const char *path, struct DBItem *dbi);
 int DB_merge(const char *path, const char **pathlist, int do_truncate);
 int DB_find_open(const char *path, struct DBFinder *dbf);
 int DB_find_get(struct DBFinder *dbf, const char *key, uint32_t *crcbuf);
+int DB_find_remove(struct DBFinder *dbf, const char *key);
 int DB_find_close(struct DBFinder *dbf);
 
 void DB_item_free(struct DBItem*);
