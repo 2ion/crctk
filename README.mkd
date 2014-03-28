@@ -69,12 +69,15 @@ Options:
    For multiple input files, create a checksum
    listing for use with the -V option. Overwrites
    the given file.
+ -d DB-FILE, --delete DB-FILE
+   Delete all files given as arguments from the
+   database DB-FILE if such a record exists.
  -a, --append
    Supplements -C and -m. Append to the given
    database file instead of overwriting it.
- -p DB-FILE, --print DB-FILE
-   Print the contents of a file created by the -C
-   options to stdout.
+ -p, --print
+   For each database in the argument list,
+   print its contents to stdout.
  -t, --tag
    Tag file with a CRC32 hexstring. Aborts if
    the filename does already contain a tag.
