@@ -1,5 +1,5 @@
 .PHONY: clean install 
-prefix ?= /usr/local
+prefix ?= $(HOME)
 version_ ?= 0.4.0
 prefix ?= $(HOME)/bin
 gccflags = -g -Wall -O2 -march=native -DVERSION=\"$(version)\"
