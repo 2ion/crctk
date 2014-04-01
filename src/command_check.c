@@ -22,20 +22,18 @@ int command_check(int argc, char **argv, int optind, int flags) {
       results[ti] = '\0';
       break;
     case REG_NOMATCH:
-      LERROR(EXIT_FAILURE, 0,
-              "the filename does not contain a CRC32 hexstring.");
+      printf(_("The filename does not contain a hexstring: %s\n"), filename);
       return EXIT_FAILURE; // Not reached
   }
   regfree(&regex);
   compcrc = compute_crc32(filename);
   matchcrc = (uint32_t) strtol(results, NULL, 16);
   if(compcrc != matchcrc) {
-    printf("mismatch: filename(%08X) != computed(%08X)\n",
-            matchcrc, compcrc);
+    printf(_("%s: mismatch: %08X is really %08X\n"),
+        matchcrc, compcrc);
     return EXIT_FAILURE;
   } else {
-    printf("match: filename(%08X) == computed(%08X)\n",
-            matchcrc, compcrc);
+    printf(_("%s: match: %08X\n"), matchcrc);
     return EXIT_FAILURE;
   }
 }

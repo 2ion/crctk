@@ -41,9 +41,9 @@ int command_tag(int argc, char **argv, int optind, int flags) {
                   "strip_tag() failed for unknown reasons");
         f_free_workstring = 1;
       } else {
-        LERROR(EXIT_FAILURE, 0,
-            "filename already contains a CRC hexstring. Specify "
-            "the -s flag to allow stripping the old hexstring.");
+        printf(_("<%s> already contains a hexstring. Use the -s switch to strip the existing tag\n"),
+            filename);
+        return EXIT_FAILURE;
       }
     }
     if(workstring == NULL)
