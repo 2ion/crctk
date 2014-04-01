@@ -19,9 +19,13 @@ On Debian, these may be installed using
 sudo apt-get install libkyotocabinet-dev zlib1g-dev
 ```
 
+crctk uses the GNU autotools for building so you go through the familiar
+steps:
+
 ```sh
+./configure --prefix=/your/chosen/prefix/path
 make
-make install prefix=/usr/local
+sudo make install
 ```
 
 ## Documentation

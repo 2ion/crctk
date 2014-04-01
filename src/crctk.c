@@ -113,7 +113,7 @@ int main(int argc, char **argv) {
                 do_free_dbiofile = 1;
                 cmd = command_merge;
                 break;
-      case 'J': puts("crctk version: " VERSION "\n"
+      case 'J': puts("crctk version: " PACKAGE_VERSION "\n"
                     "Compiled on: " __DATE__ " " __TIME__);
                 return EXIT_SUCCESS;
                 break;

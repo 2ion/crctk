@@ -28,9 +28,7 @@
 #include "database.h"
 #include "crc.h"
 
-#ifndef VERSION
-#define VERSION "unknown"
-#endif
+#include "config.h"
 
 /* TYPES */
 
