@@ -220,7 +220,7 @@ $(POFILES): $(srcdir)/$(DOMAIN).pot
 install: install-exec install-data
 install-exec:
 install-data: install-data-@USE_NLS@
-	if test "$(PACKAGE)" = "gettext-tools"; then \
+	if test "$(PACKAGE)" = "crctk"; then \
 	  $(mkdir_p) $(DESTDIR)$(gettextsrcdir); \
 	  for file in $(DISTFILES.common) Makevars.template; do \
 	    $(INSTALL_DATA) $(srcdir)/$$file \
@@ -278,7 +278,7 @@ install-strip: install
 installdirs: installdirs-exec installdirs-data
 installdirs-exec:
 installdirs-data: installdirs-data-@USE_NLS@
-	if test "$(PACKAGE)" = "gettext-tools"; then \
+	if test "$(PACKAGE)" = "crctk"; then \
 	  $(mkdir_p) $(DESTDIR)$(gettextsrcdir); \
 	else \
 	  : ; \
@@ -322,7 +322,7 @@ installcheck:
 uninstall: uninstall-exec uninstall-data
 uninstall-exec:
 uninstall-data: uninstall-data-@USE_NLS@
-	if test "$(PACKAGE)" = "gettext-tools"; then \
+	if test "$(PACKAGE)" = "crctk"; then \
 	  for file in $(DISTFILES.common) Makevars.template; do \
 	    rm -f $(DESTDIR)$(gettextsrcdir)/$$file; \
 	  done; \
@@ -367,7 +367,7 @@ dist distdir:
 # This is a separate target because 'update-po' must be executed before.
 dist2: stamp-po $(DISTFILES)
 	dists="$(DISTFILES)"; \
-	if test "$(PACKAGE)" = "gettext-tools"; then \
+	if test "$(PACKAGE)" = "crctk"; then \
 	  dists="$$dists Makevars.template"; \
 	fi; \
 	if test -f $(srcdir)/$(DOMAIN).pot; then \
@@ -406,7 +406,7 @@ update-po: Makefile
 
 .nop.po-update:
 	@lang=`echo $@ | sed -e 's/\.po-update$$//'`; \
-	if test "$(PACKAGE)" = "gettext-tools"; then PATH=`pwd`/../src:$$PATH; fi; \
+	if test "$(PACKAGE)" = "crctk"; then PATH=`pwd`/../src:$$PATH; fi; \
 	tmpdir=`pwd`; \
 	echo "$$lang:"; \
 	test "$(srcdir)" = . && cdcmd="" || cdcmd="cd $(srcdir) && "; \

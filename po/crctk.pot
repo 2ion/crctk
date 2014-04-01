@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: crctk 0.4.1\n"
 "Report-Msgid-Bugs-To: dev@2ion.de\n"
-"POT-Creation-Date: 2014-04-01 17:58+0900\n"
+"POT-Creation-Date: 2014-04-01 21:37+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,4 +30,101 @@ msgstr ""
 #: src/crctk.c:134
 #, c-format
 msgid "Too few arguments. Use the -h flag to obtain usage information.\n"
+msgstr ""
+
+#: src/command_calc.c:11
+#, c-format
+msgid "Skipping %s: not an accessible or regular file\n"
+msgstr ""
+
+#: src/command_calc.c:16
+#, c-format
+msgid "%s: %u\n"
+msgstr ""
+
+#: src/command_calc.c:18
+#, c-format
+msgid "%s: %08X\n"
+msgstr ""
+
+#: src/command_calc_batch.c:20
+#, c-format
+msgid "Ignoring inaccessible file: %s\n"
+msgstr ""
+
+#: src/command_calc_batch.c:28
+#, c-format
+msgid "-x option does not apply: no hexstring found in filename: %s\n"
+msgstr ""
+
+#: src/command_calc_batch.c:38
+#, c-format
+msgid "Ignoring, CRC32 is zero: %s\n"
+msgstr ""
+
+#: src/command_check.c:25
+#, c-format
+msgid "The filename does not contain a hexstring: %s\n"
+msgstr ""
+
+#: src/command_check.c:32 src/command_check_hexstring.c:30
+#, c-format
+msgid "%s: mismatch: %08X is really %08X\n"
+msgstr ""
+
+#: src/command_check.c:36 src/command_check_hexstring.c:26
+#, c-format
+msgid "%s: match: %08X\n"
+msgstr ""
+
+#: src/command_check_hexstring.c:16
+#, c-format
+msgid "parameter to option -u is not a valid hexstring: %s\n"
+msgstr ""
+
+#: src/command_delete.c:10
+#, c-format
+msgid "could not open database: %s\n"
+msgstr ""
+
+#: src/command_delete.c:17
+#, c-format
+msgid "[%s] deleted key: %s\n"
+msgstr ""
+
+#: src/command_delete.c:20
+#, c-format
+msgid "[%s] no such key: %s\n"
+msgstr ""
+
+#: src/command_delete.c:23
+#, c-format
+msgid "[%s] failed to delete key: %s\n"
+msgstr ""
+
+#: src/command_list.c:14
+#, c-format
+msgid "[%s] not a valid database\n"
+msgstr ""
+
+#: src/command_list.c:18
+#, c-format
+msgid "[%s] database is empty\n"
+msgstr ""
+
+#: src/command_list.c:23
+#, c-format
+msgid "[%s] %s -> %08X\n"
+msgstr ""
+
+#: src/command_remove_tag.c:13
+#, c-format
+msgid "filename does not contain a hexstring: %s\n"
+msgstr ""
+
+#: src/command_tag.c:44
+#, c-format
+msgid ""
+"<%s> already contains a hexstring. Use the -s switch to strip the existing "
+"tag\n"
 msgstr ""
