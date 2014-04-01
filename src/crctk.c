@@ -72,6 +72,10 @@ int main(int argc, char **argv) {
   int ret = EXIT_SUCCESS;
   CommandFunction cmd = command_idle;
 
+  setlocale(LC_ALL, "");
+  bindtextdomain(PACKAGE, LOCALEDIR);
+  textdomain(PACKAGE);
+
   while((opt = getopt_long(argc, argv, optstring_short,
          options_long, NULL)) != -1)
     switch(opt) {
@@ -113,8 +117,8 @@ int main(int argc, char **argv) {
                 do_free_dbiofile = 1;
                 cmd = command_merge;
                 break;
-      case 'J': puts("crctk version: " PACKAGE_VERSION "\n"
-                    "Compiled on: " __DATE__ " " __TIME__);
+      case 'J': printf(_("crctk version: %s\n"), PACKAGE_VERSION);
+                printf(_("Compiled on: %s %s\n"), __DATE__, __TIME__);
                 return EXIT_SUCCESS;
                 break;
       case 'd': dbiofile = strdup(optarg);
@@ -126,10 +130,11 @@ int main(int argc, char **argv) {
   if(optind >= argc &&
       cmd != command_check_batch &&
       cmd != command_list_db && 
-      cmd != command_help)
-    LERROR(EXIT_FAILURE, 0,
-            "Too few arguments. Use the -h flag "
-            "to view usage information.");
+      cmd != command_help) {
+    fprintf(stderr, _("Too few arguments. Use the -h flag to "
+          "obtain usage information.\n"));
+    return EXIT_FAILURE;
+  }
   ret = cmd(argc, argv, optind, cmdflags);
   if(do_free_dbiofile == 1)
     free((void*)dbiofile);

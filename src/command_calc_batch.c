@@ -17,7 +17,7 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
 
   for(i = optind; i < argc; ++i) {
     if(check_access_flags_v(argv[i], F_OK | R_OK, 1) != 0) {
-      LERROR(0,0, "Ignoring inaccessible file: %s", argv[i]);
+      printf(_("Ignoring inaccessible file: %s\n"), argv[i]);
       continue;
     }
     printf("*%s: <%s> ... ", dbiofile, argv[i]);
@@ -25,8 +25,8 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
     if(flags & CHECK_BATCH_PREFER_HEXSTRING) {
       X = get_tag(argv[i]);
       if(X == NULL) {
-        fprintf(stderr, "Option -x is ineffective: filename does "
-            "not contain a hexstring: %s\n", argv[i]);
+        printf(_("-x option does not apply: no hexstring found in filename: %s\n"),
+            argv[i]);
         continue;
       } else {
         crc = strtol((const char*)X, NULL, 16);
@@ -35,7 +35,7 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
     }
 
     if((crc = compute_crc32(argv[i])) == 0) {
-      LERROR(0,0, "IGNORING: CRC32 is zero: %s", argv[i]);
+      printf(_("Ignoring, CRC32 is zero: %s\n"), argv[i]);
       continue;
     }
 

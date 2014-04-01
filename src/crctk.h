@@ -23,6 +23,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <libintl.h>
+#define _(String) gettext (String)
+
 #include "realpath.h"
 #include "util.h"
 #include "database.h"

@@ -1,0 +1,4 @@
+# List of source files which contain translatable strings.
+src/crctk.c
+src/command_calc.c
+src/command_calc_batch.c
