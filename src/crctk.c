@@ -1,6 +1,6 @@
 /*
  * crctk - CRC32 Hexstring Toolkit
- * Copyright (C) 2014 2ion (asterisk!2ion!de)
+ * Copyright (C) 2014 Jens Oliver John <dev@2ion.de>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * The CRC32 computer is based on code by elektron, formerly available
- * at            
- *      http://www.linuxquestions.org/questi...hreadid=199640 and
- *      http://kremlor.net/projects/crc32
- *
- * Thanks to elektron. 
  * */
 
 #include "crctk.h"
