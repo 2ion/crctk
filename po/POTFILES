@@ -1,9 +1,0 @@
-     ../src/crctk.c \
-     ../src/command_calc.c \
-     ../src/command_calc_batch.c \
-     ../src/command_check.c \
-     ../src/command_check_hexstring.c \
-     ../src/command_delete.c \
-     ../src/command_list.c \
-     ../src/command_remove_tag.c \
-     ../src/command_tag.c
