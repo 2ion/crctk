@@ -12,7 +12,7 @@
 GETTEXT_MACRO_VERSION = 0.18
 
 PACKAGE = crctk
-VERSION = 0.4.1
+VERSION = 0.4.2
 PACKAGE_BUGREPORT = dev@2ion.de
 
 SED = /bin/sed
@@ -234,7 +234,7 @@ $(DOMAIN).pot-update: $(POTFILES) $(srcdir)/POTFILES.in remove-potcdate.sed
 	      --files-from=$(srcdir)/POTFILES.in \
 	      --copyright-holder='$(COPYRIGHT_HOLDER)' \
 	      --package-name="$${package_gnu}crctk" \
-	      --package-version='0.4.1' \
+	      --package-version='0.4.2' \
 	      --msgid-bugs-address="$$msgid_bugs_address" \
 	    ;; \
 	esac

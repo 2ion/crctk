@@ -41,7 +41,7 @@ int command_check(int argc, char **argv, int optind, int flags) {
       results[ti] = '\0';
       break;
     case REG_NOMATCH:
-      printf(_("The filename does not contain a hexstring: %s\n"), filename);
+      printf(("The filename does not contain a hexstring: %s\n"), filename);
       return EXIT_FAILURE; // Not reached
   }
   regfree(&regex);
@@ -49,11 +49,11 @@ int command_check(int argc, char **argv, int optind, int flags) {
   matchcrc = (uint32_t) strtol(results, NULL, 16);
   if(compcrc != matchcrc) {
     printf(_("%s: mismatch: %08X is really %08X\n"),
-        matchcrc, compcrc);
+        filename, matchcrc, compcrc);
     return EXIT_FAILURE;
   } else {
-    printf(_("%s: match: %08X\n"), matchcrc);
-    return EXIT_FAILURE;
+    printf(_("%s: match: %08X\n"), filename, matchcrc);
+    return EXIT_SUCCESS;
   }
 }
 
