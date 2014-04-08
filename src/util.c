@@ -121,17 +121,17 @@ char* strip_tag(const char *str) {
   return rstr;
 }
 
-char* get_tag(char *str) {
-  char *r = NULL;
+char (*get_tag(char *str))[9] {
+  char (*r)[9] = NULL;
   char *p = NULL;
   char *q = NULL;
 
   if(tag_pos(str, &p, &q) != 0)
     return NULL;
-  r = malloc(sizeof(char)*9);
+  r = malloc(sizeof *r);
   assert(r != NULL);
-  strncpy(r, (const char*)p, 8);
-  r[8] = '\0';
+  strncpy(*r, (const char*)p, 8);
+  *r[8] = '\0';
   return r;
 }
 

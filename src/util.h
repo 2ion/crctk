@@ -45,6 +45,6 @@ char* get_basename(char*);
 char* pathcat(const char*, const char*);
 char* strip_tag(const char*);
 int tag_pos(char*, char**, char**);
-char* get_tag(char*);
+char (*get_tag(char*))[9];
 
 #endif /* UTIL_H */
