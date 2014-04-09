@@ -29,7 +29,7 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
   struct DBItem first = DBITEM_NULL;
   struct DBItem *e = &first;
   int at_first = 1;
-  char *X = NULL;
+  char (*X)[9];
 
   if(flags & APPEND_TO_DB)
     do_truncate = 0;

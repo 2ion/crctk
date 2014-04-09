@@ -1,4 +1,4 @@
-AC_INIT([crctk], [0.4.3], [dev@2ion.de])
+AC_INIT([crctk], [0.4.4], [dev@2ion.de])
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 AM_GNU_GETTEXT([external])
 AC_PROG_CC
