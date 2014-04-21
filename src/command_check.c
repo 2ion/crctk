@@ -48,11 +48,11 @@ int command_check(int argc, char **argv, int optind, int flags) {
   compcrc = compute_crc32(filename);
   matchcrc = (uint32_t) strtol(results, NULL, 16);
   if(compcrc != matchcrc) {
-    printf(_("%s: mismatch: %08X is really %08X\n"),
+    printf("%s: mismatch: %08X is really %08X\n",
         filename, matchcrc, compcrc);
     return EXIT_FAILURE;
   } else {
-    printf(_("%s: match: %08X\n"), filename, matchcrc);
+    printf("%s: match: %08X\n", filename, matchcrc);
     return EXIT_SUCCESS;
   }
 }
