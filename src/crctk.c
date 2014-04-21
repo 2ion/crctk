@@ -36,7 +36,7 @@ const char *crcregex_stripper =
   "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?";
 const char *dbiofile = "crcsums.tdb";
 const char *hexarg = "00000000";
-const char *optstring_short = "+X:xtnvV:hsrC:cd:e:pam:";
+const char *optstring_short = "+X:xtnvV:hsrC:cd:e:pam:R";
 const struct option options_long[] = {
   { "verify", no_argument, NULL, 'v' },
   { "verify-db", required_argument, NULL, 'V' },
@@ -54,6 +54,7 @@ const struct option options_long[] = {
   { "help", no_argument, NULL, 'h' },
   { "version", no_argument, NULL, 'J' },
   { "merge", required_argument, NULL, 'm' },
+  { "realpath", no_argument, NULL, 'R' },
   { 0, 0, 0, 0 }
 };
 
@@ -66,10 +67,6 @@ int main(int argc, char **argv) {
   int ret = EXIT_SUCCESS;
   CommandFunction cmd = command_idle;
 
-  setlocale(LC_ALL, "");
-  bindtextdomain(PACKAGE, LOCALEDIR);
-  textdomain(PACKAGE);
-
   while((opt = getopt_long(argc, argv, optstring_short,
          options_long, NULL)) != -1)
     switch(opt) {
@@ -80,6 +77,8 @@ int main(int argc, char **argv) {
       case 'a': cmdflags |= APPEND_TO_DB;
                 break;
       case 'n': cmdflags |= CALC_PRINT_NUMERICAL;
+                break;
+      case 'R': cmdflags |= USE_REALPATH;
                 break;
       case 'p': cmd = command_list_db;
                 break;

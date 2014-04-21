@@ -37,7 +37,8 @@ enum {
   TAG_ALLOW_STRIP = 1 << 0,
   CALC_PRINT_NUMERICAL = 1 << 1,
   APPEND_TO_DB = 1 << 2,
-  CHECK_BATCH_PREFER_HEXSTRING = 1 << 3
+  CHECK_BATCH_PREFER_HEXSTRING = 1 << 3,
+  USE_REALPATH = 1 << 4
 };
 
 typedef int     // program exit status
