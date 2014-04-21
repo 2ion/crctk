@@ -25,6 +25,8 @@ extern const char *dbiofile;
 int command_calc_batch(int argc, char **argv, int optind, int flags) {
   int i;
   int do_truncate = 1;
+  int do_free_filename = 0;
+  char *filename = NULL;
   uint32_t crc;
   struct DBItem first = DBITEM_NULL;
   struct DBItem *e = &first;
@@ -35,17 +37,18 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
     do_truncate = 0;
 
   for(i = optind; i < argc; ++i) {
-    if(check_access_flags_v(argv[i], F_OK | R_OK, 1) != 0) {
-      printf("Ignoring inaccessible file: %s\n", argv[i]);
+    filename = argv[i];
+    if(check_access_flags_v(filename, F_OK | R_OK, 1) != 0) {
+      printf("Ignoring inaccessible file: %s\n", filename);
       continue;
     }
-    printf("*%s: <%s> ... ", dbiofile, argv[i]);
+    printf("*%s: <%s> ... ", dbiofile, filename);
 
     if(flags & CHECK_BATCH_PREFER_HEXSTRING) {
-      X = get_tag(argv[i]);
+      X = get_tag(filename);
       if(X == NULL) {
         printf("-x option does not apply: no hexstring found in filename: %s\n",
-            argv[i]);
+            filename);
         continue;
       } else {
         crc = strtol((const char*)X, NULL, 16);
@@ -53,13 +56,20 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
       }
     }
 
-    if((crc = compute_crc32(argv[i])) == 0) {
-      printf("Ignoring, CRC32 is zero: %s\n", argv[i]);
+    if((crc = compute_crc32(filename)) == 0) {
+      printf("Ignoring, CRC32 is zero: %s\n", filename);
       continue;
     }
 
 skip_crc_computation:
     printf("%08X\n", crc);
+
+    if(flags & USE_REALPATH) {
+      filename = realpath((const char*)filename, NULL);
+      if(filename == NULL)
+        LERROR(EXIT_FAILURE, errno, "memory allocation error in realpath()");
+      do_free_filename = 1;
+    }
 
     if(at_first == 0) {
       e->next = DB_item_alloc();
@@ -67,16 +77,21 @@ skip_crc_computation:
       e = e->next;
       e->next = NULL;
     }
-    e->kbuflen = (strlen(argv[i]) +1)*sizeof(char);
+    e->kbuflen = (strlen(filename) +1)*sizeof(char);
     e->kbuf = malloc(e->kbuflen);
     if(e->kbuf==NULL) LERROR(0, EXIT_FAILURE, "memory allocation error");
-    memcpy(e->kbuf, argv[i], e->kbuflen);
+    memcpy(e->kbuf, filename, e->kbuflen);
     e->crc = crc;
     if(at_first == 1) at_first = 0;
     e->next = NULL;
     if(X != NULL) { // free memory allocated by get_tag()
       free(X);
       X = NULL;
+    }
+    if(do_free_filename == 1) {
+      free(filename);
+      filename = NULL;
+      do_free_filename = 0;
     }
   } // for
 
