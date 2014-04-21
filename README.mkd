@@ -5,7 +5,7 @@ for your files easier. As such, it provides functionality as described
 in the following.
 
 Stable releases are tagged in Git. The last stable release is [version
-0.4.3](https://github.com/2ion/crctk/archive/0.4.3.tar.gz).
+0.4.5](https://github.com/2ion/crctk/archive/0.4.5.tar.gz).
 
 ## Compilation and installation
 
