@@ -76,7 +76,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = crctk$(EXEEXT)
+bin_PROGRAMS = crctk$(EXEEXT) ncrctk$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp
@@ -106,6 +106,11 @@ crctk_OBJECTS = $(am_crctk_OBJECTS)
 crctk_LDADD = $(LDADD)
 crctk_LINK = $(CCLD) $(crctk_CFLAGS) $(CFLAGS) $(crctk_LDFLAGS) \
 	$(LDFLAGS) -o $@
+am_ncrctk_OBJECTS = ncrctk-ncrctk.$(OBJEXT)
+ncrctk_OBJECTS = $(am_ncrctk_OBJECTS)
+ncrctk_LDADD = $(LDADD)
+ncrctk_LINK = $(CXXLD) $(ncrctk_CXXFLAGS) $(CXXFLAGS) \
+	$(ncrctk_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -138,8 +143,21 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(crctk_SOURCES)
-DIST_SOURCES = $(crctk_SOURCES)
+CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+AM_V_CXX = $(am__v_CXX_@AM_V@)
+am__v_CXX_ = $(am__v_CXX_@AM_DEFAULT_V@)
+am__v_CXX_0 = @echo "  CXX     " $@;
+am__v_CXX_1 = 
+CXXLD = $(CXX)
+CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
+	-o $@
+AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
+am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
+am__v_CXXLD_0 = @echo "  CXXLD   " $@;
+am__v_CXXLD_1 = 
+SOURCES = $(crctk_SOURCES) $(ncrctk_SOURCES)
+DIST_SOURCES = $(crctk_SOURCES) $(ncrctk_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -176,6 +194,11 @@ CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CPPFLAGS = @CPPFLAGS@
+CWIDGET_CFLAGS = @CWIDGET_CFLAGS@
+CWIDGET_LIBS = @CWIDGET_LIBS@
+CXX = @CXX@
+CXXDEPMODE = @CXXDEPMODE@
+CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
 DEPDIR = @DEPDIR@
@@ -196,6 +219,8 @@ LIBS = @LIBS@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
 MKDIR_P = @MKDIR_P@
+NCURSESW_CFLAGS = @NCURSESW_CFLAGS@
+NCURSESW_LIBS = @NCURSESW_LIBS@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
@@ -210,6 +235,8 @@ PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SIGCPP_CFLAGS = @SIGCPP_CFLAGS@
+SIGCPP_LIBS = @SIGCPP_LIBS@
 STRIP = @STRIP@
 VERSION = @VERSION@
 ZLIB_CFLAGS = @ZLIB_CFLAGS@
@@ -219,6 +246,7 @@ abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
 ac_ct_CC = @ac_ct_CC@
+ac_ct_CXX = @ac_ct_CXX@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
 am__quote = @am__quote@
@@ -256,13 +284,17 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+ncrctk_SOURCES = ncrctk.cc
+#ncrctk_CFLAGS = $(ZLIB_CFLAGS) $(KYOTOCABINET_CFLAGS)  $(CWDIGET_CFLAGS)
+ncrctk_CXXFLAGS = $(ZLIB_CXXFLAGS) $(KYOTOCABINET_CXXFLAGS) $(CWIDGET_CFLAGS) $(SIGCPP_CFLAGS)
+ncrctk_LDFLAGS = $(ZLIB_LIBS) $(KYOTOCABINET_LIBS) $(CWIDGET_LIBS) $(SIGCPP_LIBS)
 crctk_SOURCES = command_calc_batch.c command_calc.c command_check_batch.c command_check.c command_check_hexstring.c command_delete.c command_help.c command_idle.c command_list.c command_merge.c command_remove_tag.c command_tag.c crc.c crctk.c database.c realpath.c util.c
 crctk_CFLAGS = $(ZLIB_CFLAGS) $(KYOTOCABINET_CFLAGS)
 crctk_LDFLAGS = $(ZLIB_LIBS) $(KYOTOCABINET_LIBS)
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .o .obj
+.SUFFIXES: .c .cc .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -340,6 +372,10 @@ crctk$(EXEEXT): $(crctk_OBJECTS) $(crctk_DEPENDENCIES) $(EXTRA_crctk_DEPENDENCIE
 	@rm -f crctk$(EXEEXT)
 	$(AM_V_CCLD)$(crctk_LINK) $(crctk_OBJECTS) $(crctk_LDADD) $(LIBS)
 
+ncrctk$(EXEEXT): $(ncrctk_OBJECTS) $(ncrctk_DEPENDENCIES) $(EXTRA_ncrctk_DEPENDENCIES) 
+	@rm -f ncrctk$(EXEEXT)
+	$(AM_V_CXXLD)$(ncrctk_LINK) $(ncrctk_OBJECTS) $(ncrctk_LDADD) $(LIBS)
+
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 
@@ -363,6 +399,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crctk-database.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crctk-realpath.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crctk-util.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ncrctk-ncrctk.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -615,6 +652,34 @@ crctk-util.obj: util.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='util.c' object='crctk-util.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(crctk_CFLAGS) $(CFLAGS) -c -o crctk-util.obj `if test -f 'util.c'; then $(CYGPATH_W) 'util.c'; else $(CYGPATH_W) '$(srcdir)/util.c'; fi`
+
+.cc.o:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
+
+.cc.obj:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+ncrctk-ncrctk.o: ncrctk.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ncrctk_CXXFLAGS) $(CXXFLAGS) -MT ncrctk-ncrctk.o -MD -MP -MF $(DEPDIR)/ncrctk-ncrctk.Tpo -c -o ncrctk-ncrctk.o `test -f 'ncrctk.cc' || echo '$(srcdir)/'`ncrctk.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/ncrctk-ncrctk.Tpo $(DEPDIR)/ncrctk-ncrctk.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ncrctk.cc' object='ncrctk-ncrctk.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ncrctk_CXXFLAGS) $(CXXFLAGS) -c -o ncrctk-ncrctk.o `test -f 'ncrctk.cc' || echo '$(srcdir)/'`ncrctk.cc
+
+ncrctk-ncrctk.obj: ncrctk.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ncrctk_CXXFLAGS) $(CXXFLAGS) -MT ncrctk-ncrctk.obj -MD -MP -MF $(DEPDIR)/ncrctk-ncrctk.Tpo -c -o ncrctk-ncrctk.obj `if test -f 'ncrctk.cc'; then $(CYGPATH_W) 'ncrctk.cc'; else $(CYGPATH_W) '$(srcdir)/ncrctk.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/ncrctk-ncrctk.Tpo $(DEPDIR)/ncrctk-ncrctk.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ncrctk.cc' object='ncrctk-ncrctk.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ncrctk_CXXFLAGS) $(CXXFLAGS) -c -o ncrctk-ncrctk.obj `if test -f 'ncrctk.cc'; then $(CYGPATH_W) 'ncrctk.cc'; else $(CYGPATH_W) '$(srcdir)/ncrctk.cc'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
