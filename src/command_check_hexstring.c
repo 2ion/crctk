@@ -32,7 +32,7 @@ int command_check_hexstring(int argc, char **argv, int optind,
   compile_regex(&regex, crcregex, REG_ICASE | REG_NOSUB);
   switch(regexec((const regex_t*)&regex, hexarg, 0, NULL, 0)) {
     case REG_NOMATCH:
-      printf(_("parameter to option -u is not a valid hexstring: %s\n"), hexarg);
+      printf("parameter to option -u is not a valid hexstring: %s\n", hexarg);
       return EXIT_FAILURE;
     case 0:
       regfree(&regex);
@@ -42,12 +42,11 @@ int command_check_hexstring(int argc, char **argv, int optind,
   if((crc = compute_crc32(filename)) == strcrc) {
     printf("match: computed(%08X) == hexarg(%08X)\n",
         crc, strcrc);
-    printf(_("%s: match: %08X\n"), crc);
+    printf("%s: match: %08X\n", crc);
     return EXIT_SUCCESS;
   }
   else {
-    printf(_("%s: mismatch: %08X is really %08X\n"),
-          strcrc, crc);
+    printf("%s: mismatch: %08X is really %08X\n", strcrc, crc);
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;

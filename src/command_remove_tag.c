@@ -29,7 +29,7 @@ int command_remove_tag(int argc, char **argv, int optind, int flags) {
     check_access_flags(argv[i], F_OK | R_OK | W_OK, 1);
     str = get_basename((char*)argv[i]);
     if((nstr = strip_tag((const char*) str)) == NULL) {
-      printf(_("filename does not contain a hexstring: %s\n"), argv[i]);
+      printf("filename does not contain a hexstring: %s\n", argv[i]);
       return EXIT_FAILURE;
     }
     d = (const char*) dirname((char*)argv[i]);

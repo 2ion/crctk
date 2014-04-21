@@ -60,7 +60,7 @@ int command_tag(int argc, char **argv, int optind, int flags) {
                   "strip_tag() failed for unknown reasons");
         f_free_workstring = 1;
       } else {
-        printf(_("<%s> already contains a hexstring. Use the -s switch to strip the existing tag\n"),
+        printf("<%s> already contains a hexstring. Use the -s switch to strip the existing tag\n",
             filename);
         return EXIT_FAILURE;
       }

@@ -111,8 +111,8 @@ int main(int argc, char **argv) {
                 do_free_dbiofile = 1;
                 cmd = command_merge;
                 break;
-      case 'J': printf(_("crctk version: %s\n"), PACKAGE_VERSION);
-                printf(_("Compiled on: %s %s\n"), __DATE__, __TIME__);
+      case 'J': printf("crctk version: %s\n", PACKAGE_VERSION);
+                printf("Compiled on: %s %s\n", __DATE__, __TIME__);
                 return EXIT_SUCCESS;
                 break;
       case 'd': dbiofile = strdup(optarg);
@@ -125,8 +125,8 @@ int main(int argc, char **argv) {
       cmd != command_check_batch &&
       cmd != command_list_db && 
       cmd != command_help) {
-    fprintf(stderr, _("Too few arguments. Use the -h flag to "
-          "obtain usage information.\n"));
+    fprintf(stderr, "Too few arguments. Use the -h flag to "
+          "obtain usage information.\n");
     return EXIT_FAILURE;
   }
   ret = cmd(argc, argv, optind, cmdflags);
