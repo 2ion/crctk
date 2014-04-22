@@ -53,7 +53,7 @@ namespace ui
   void w_create_main(void)
   {
     win::main = new nc::Window(0, 0, COLS, LINES, "", nc::clWhite, nc::brWhite);
-    win::main->SetTitle(PACKAGE);
+    win::main->SetTitle("ncrctk");
   }
 
   void w_create_about(void)
