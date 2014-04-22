@@ -588,10 +588,6 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
-SIGCPP_LIBS
-SIGCPP_CFLAGS
-CWIDGET_LIBS
-CWIDGET_CFLAGS
 NCURSESW_LIBS
 NCURSESW_CFLAGS
 KYOTOCABINET_LIBS
@@ -714,11 +710,7 @@ ZLIB_LIBS
 KYOTOCABINET_CFLAGS
 KYOTOCABINET_LIBS
 NCURSESW_CFLAGS
-NCURSESW_LIBS
-CWIDGET_CFLAGS
-CWIDGET_LIBS
-SIGCPP_CFLAGS
-SIGCPP_LIBS'
+NCURSESW_LIBS'
 
 
 # Initialize some variables set by options.
@@ -1365,13 +1357,6 @@ Some influential environment variables:
               C compiler flags for NCURSESW, overriding pkg-config
   NCURSESW_LIBS
               linker flags for NCURSESW, overriding pkg-config
-  CWIDGET_CFLAGS
-              C compiler flags for CWIDGET, overriding pkg-config
-  CWIDGET_LIBS
-              linker flags for CWIDGET, overriding pkg-config
-  SIGCPP_CFLAGS
-              C compiler flags for SIGCPP, overriding pkg-config
-  SIGCPP_LIBS linker flags for SIGCPP, overriding pkg-config
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -4313,188 +4298,8 @@ else
 $as_echo "yes" >&6; }
 
 fi
-
-pkg_failed=no
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for CWIDGET" >&5
-$as_echo_n "checking for CWIDGET... " >&6; }
-
-if test -n "$CWIDGET_CFLAGS"; then
-    pkg_cv_CWIDGET_CFLAGS="$CWIDGET_CFLAGS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"cwidget\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "cwidget") 2>&5
-  ac_status=$?
-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; then
-  pkg_cv_CWIDGET_CFLAGS=`$PKG_CONFIG --cflags "cwidget" 2>/dev/null`
-		      test "x$?" != "x0" && pkg_failed=yes
-else
-  pkg_failed=yes
-fi
- else
-    pkg_failed=untried
-fi
-if test -n "$CWIDGET_LIBS"; then
-    pkg_cv_CWIDGET_LIBS="$CWIDGET_LIBS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"cwidget\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "cwidget") 2>&5
-  ac_status=$?
-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; then
-  pkg_cv_CWIDGET_LIBS=`$PKG_CONFIG --libs "cwidget" 2>/dev/null`
-		      test "x$?" != "x0" && pkg_failed=yes
-else
-  pkg_failed=yes
-fi
- else
-    pkg_failed=untried
-fi
-
-
-
-if test $pkg_failed = yes; then
-   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-
-if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
-        _pkg_short_errors_supported=yes
-else
-        _pkg_short_errors_supported=no
-fi
-        if test $_pkg_short_errors_supported = yes; then
-	        CWIDGET_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "cwidget" 2>&1`
-        else
-	        CWIDGET_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "cwidget" 2>&1`
-        fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$CWIDGET_PKG_ERRORS" >&5
-
-	as_fn_error $? "Package requirements (cwidget) were not met:
-
-$CWIDGET_PKG_ERRORS
-
-Consider adjusting the PKG_CONFIG_PATH environment variable if you
-installed software in a non-standard prefix.
-
-Alternatively, you may set the environment variables CWIDGET_CFLAGS
-and CWIDGET_LIBS to avoid the need to call pkg-config.
-See the pkg-config man page for more details." "$LINENO" 5
-elif test $pkg_failed = untried; then
-     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-	{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
-is in your PATH or set the PKG_CONFIG environment variable to the full
-path to pkg-config.
-
-Alternatively, you may set the environment variables CWIDGET_CFLAGS
-and CWIDGET_LIBS to avoid the need to call pkg-config.
-See the pkg-config man page for more details.
-
-To get pkg-config, see <http://pkg-config.freedesktop.org/>.
-See \`config.log' for more details" "$LINENO" 5; }
-else
-	CWIDGET_CFLAGS=$pkg_cv_CWIDGET_CFLAGS
-	CWIDGET_LIBS=$pkg_cv_CWIDGET_LIBS
-        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-
-fi
-
-pkg_failed=no
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for SIGCPP" >&5
-$as_echo_n "checking for SIGCPP... " >&6; }
-
-if test -n "$SIGCPP_CFLAGS"; then
-    pkg_cv_SIGCPP_CFLAGS="$SIGCPP_CFLAGS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"sigc++-2.0\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "sigc++-2.0") 2>&5
-  ac_status=$?
-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; then
-  pkg_cv_SIGCPP_CFLAGS=`$PKG_CONFIG --cflags "sigc++-2.0" 2>/dev/null`
-		      test "x$?" != "x0" && pkg_failed=yes
-else
-  pkg_failed=yes
-fi
- else
-    pkg_failed=untried
-fi
-if test -n "$SIGCPP_LIBS"; then
-    pkg_cv_SIGCPP_LIBS="$SIGCPP_LIBS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"sigc++-2.0\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "sigc++-2.0") 2>&5
-  ac_status=$?
-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; then
-  pkg_cv_SIGCPP_LIBS=`$PKG_CONFIG --libs "sigc++-2.0" 2>/dev/null`
-		      test "x$?" != "x0" && pkg_failed=yes
-else
-  pkg_failed=yes
-fi
- else
-    pkg_failed=untried
-fi
-
-
-
-if test $pkg_failed = yes; then
-   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-
-if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
-        _pkg_short_errors_supported=yes
-else
-        _pkg_short_errors_supported=no
-fi
-        if test $_pkg_short_errors_supported = yes; then
-	        SIGCPP_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "sigc++-2.0" 2>&1`
-        else
-	        SIGCPP_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "sigc++-2.0" 2>&1`
-        fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$SIGCPP_PKG_ERRORS" >&5
-
-	as_fn_error $? "Package requirements (sigc++-2.0) were not met:
-
-$SIGCPP_PKG_ERRORS
-
-Consider adjusting the PKG_CONFIG_PATH environment variable if you
-installed software in a non-standard prefix.
-
-Alternatively, you may set the environment variables SIGCPP_CFLAGS
-and SIGCPP_LIBS to avoid the need to call pkg-config.
-See the pkg-config man page for more details." "$LINENO" 5
-elif test $pkg_failed = untried; then
-     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-	{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
-is in your PATH or set the PKG_CONFIG environment variable to the full
-path to pkg-config.
-
-Alternatively, you may set the environment variables SIGCPP_CFLAGS
-and SIGCPP_LIBS to avoid the need to call pkg-config.
-See the pkg-config man page for more details.
-
-To get pkg-config, see <http://pkg-config.freedesktop.org/>.
-See \`config.log' for more details" "$LINENO" 5; }
-else
-	SIGCPP_CFLAGS=$pkg_cv_SIGCPP_CFLAGS
-	SIGCPP_LIBS=$pkg_cv_SIGCPP_LIBS
-        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-
-fi
+#PKG_CHECK_MODULES([CWIDGET], [cwidget])
+#PKG_CHECK_MODULES([SIGCPP], [sigc++-2.0])
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure

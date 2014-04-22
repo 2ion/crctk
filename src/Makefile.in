@@ -106,7 +106,8 @@ crctk_OBJECTS = $(am_crctk_OBJECTS)
 crctk_LDADD = $(LDADD)
 crctk_LINK = $(CCLD) $(crctk_CFLAGS) $(CFLAGS) $(crctk_LDFLAGS) \
 	$(LDFLAGS) -o $@
-am_ncrctk_OBJECTS = ncrctk-ncrctk.$(OBJEXT)
+am_ncrctk_OBJECTS = ncrctk-ncrctk.$(OBJEXT) ncrctk-window.$(OBJEXT) \
+	ncrctk-localerror.$(OBJEXT)
 ncrctk_OBJECTS = $(am_ncrctk_OBJECTS)
 ncrctk_LDADD = $(LDADD)
 ncrctk_LINK = $(CXXLD) $(ncrctk_CXXFLAGS) $(CXXFLAGS) \
@@ -194,8 +195,6 @@ CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CPPFLAGS = @CPPFLAGS@
-CWIDGET_CFLAGS = @CWIDGET_CFLAGS@
-CWIDGET_LIBS = @CWIDGET_LIBS@
 CXX = @CXX@
 CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = @CXXFLAGS@
@@ -235,8 +234,6 @@ PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
-SIGCPP_CFLAGS = @SIGCPP_CFLAGS@
-SIGCPP_LIBS = @SIGCPP_LIBS@
 STRIP = @STRIP@
 VERSION = @VERSION@
 ZLIB_CFLAGS = @ZLIB_CFLAGS@
@@ -284,17 +281,17 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-ncrctk_SOURCES = ncrctk.cc
+ncrctk_SOURCES = ncrctk.cc window.cpp localerror.cpp
 #ncrctk_CFLAGS = $(ZLIB_CFLAGS) $(KYOTOCABINET_CFLAGS)  $(CWDIGET_CFLAGS)
-ncrctk_CXXFLAGS = $(ZLIB_CXXFLAGS) $(KYOTOCABINET_CXXFLAGS) $(CWIDGET_CFLAGS) $(SIGCPP_CFLAGS)
-ncrctk_LDFLAGS = $(ZLIB_LIBS) $(KYOTOCABINET_LIBS) $(CWIDGET_LIBS) $(SIGCPP_LIBS)
+ncrctk_CXXFLAGS = $(ZLIB_CXXFLAGS) $(KYOTOCABINET_CXXFLAGS) $(NCURSESW_CFLAGS)
+ncrctk_LDFLAGS = $(ZLIB_LIBS) $(KYOTOCABINET_LIBS) $(NCURSESW_LIBS)
 crctk_SOURCES = command_calc_batch.c command_calc.c command_check_batch.c command_check.c command_check_hexstring.c command_delete.c command_help.c command_idle.c command_list.c command_merge.c command_remove_tag.c command_tag.c crc.c crctk.c database.c realpath.c util.c
 crctk_CFLAGS = $(ZLIB_CFLAGS) $(KYOTOCABINET_CFLAGS)
 crctk_LDFLAGS = $(ZLIB_LIBS) $(KYOTOCABINET_LIBS)
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .cc .o .obj
+.SUFFIXES: .c .cc .cpp .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -399,7 +396,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crctk-database.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crctk-realpath.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crctk-util.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ncrctk-localerror.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ncrctk-ncrctk.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ncrctk-window.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -680,6 +679,48 @@ ncrctk-ncrctk.obj: ncrctk.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ncrctk.cc' object='ncrctk-ncrctk.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ncrctk_CXXFLAGS) $(CXXFLAGS) -c -o ncrctk-ncrctk.obj `if test -f 'ncrctk.cc'; then $(CYGPATH_W) 'ncrctk.cc'; else $(CYGPATH_W) '$(srcdir)/ncrctk.cc'; fi`
+
+ncrctk-window.o: window.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ncrctk_CXXFLAGS) $(CXXFLAGS) -MT ncrctk-window.o -MD -MP -MF $(DEPDIR)/ncrctk-window.Tpo -c -o ncrctk-window.o `test -f 'window.cpp' || echo '$(srcdir)/'`window.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/ncrctk-window.Tpo $(DEPDIR)/ncrctk-window.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='window.cpp' object='ncrctk-window.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ncrctk_CXXFLAGS) $(CXXFLAGS) -c -o ncrctk-window.o `test -f 'window.cpp' || echo '$(srcdir)/'`window.cpp
+
+ncrctk-window.obj: window.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ncrctk_CXXFLAGS) $(CXXFLAGS) -MT ncrctk-window.obj -MD -MP -MF $(DEPDIR)/ncrctk-window.Tpo -c -o ncrctk-window.obj `if test -f 'window.cpp'; then $(CYGPATH_W) 'window.cpp'; else $(CYGPATH_W) '$(srcdir)/window.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/ncrctk-window.Tpo $(DEPDIR)/ncrctk-window.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='window.cpp' object='ncrctk-window.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ncrctk_CXXFLAGS) $(CXXFLAGS) -c -o ncrctk-window.obj `if test -f 'window.cpp'; then $(CYGPATH_W) 'window.cpp'; else $(CYGPATH_W) '$(srcdir)/window.cpp'; fi`
+
+ncrctk-localerror.o: localerror.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ncrctk_CXXFLAGS) $(CXXFLAGS) -MT ncrctk-localerror.o -MD -MP -MF $(DEPDIR)/ncrctk-localerror.Tpo -c -o ncrctk-localerror.o `test -f 'localerror.cpp' || echo '$(srcdir)/'`localerror.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/ncrctk-localerror.Tpo $(DEPDIR)/ncrctk-localerror.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='localerror.cpp' object='ncrctk-localerror.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ncrctk_CXXFLAGS) $(CXXFLAGS) -c -o ncrctk-localerror.o `test -f 'localerror.cpp' || echo '$(srcdir)/'`localerror.cpp
+
+ncrctk-localerror.obj: localerror.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ncrctk_CXXFLAGS) $(CXXFLAGS) -MT ncrctk-localerror.obj -MD -MP -MF $(DEPDIR)/ncrctk-localerror.Tpo -c -o ncrctk-localerror.obj `if test -f 'localerror.cpp'; then $(CYGPATH_W) 'localerror.cpp'; else $(CYGPATH_W) '$(srcdir)/localerror.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/ncrctk-localerror.Tpo $(DEPDIR)/ncrctk-localerror.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='localerror.cpp' object='ncrctk-localerror.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ncrctk_CXXFLAGS) $(CXXFLAGS) -c -o ncrctk-localerror.obj `if test -f 'localerror.cpp'; then $(CYGPATH_W) 'localerror.cpp'; else $(CYGPATH_W) '$(srcdir)/localerror.cpp'; fi`
+
+.cpp.o:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
+
+.cpp.obj:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
