@@ -1,9 +1,9 @@
 
 #define _XOPEN_SOURCE_EXTENDED
 
-#include <locale.h>
 #include <stdlib.h>
 #include <clocale>
+#include <csignal>
 #include <string>
 
 extern "C"
@@ -32,13 +32,24 @@ namespace nc = NCurses;
 
 namespace ui
 {
+  /* prototypes */
+
+  void w_create_main(void);
+  void w_create_about(void);
+  void do_about(void);
+  void init(void);
+  void deinit(void);
+  void sighandler_resize(int);
+
+   /* definitions */
+
   namespace win
   {
     nc::Window *main;
     nc::Window *about;
     nc::Window *log;
   }
-
+ 
   void w_create_main(void)
   {
     win::main = new nc::Window(0, 0, COLS, LINES, "", nc::clWhite, nc::brWhite);
@@ -54,7 +65,7 @@ namespace ui
     *win::about << nc::fmtBold << nc::Colors(nc::clGreen, nc::clDefault) << "ncrctk " << nc::fmtBoldEnd
       << nc::Colors(nc::clDefault, nc::clDefault) << VERSION;
 
-    WCENTERFSP(win::about, "a ncurses interface to the crcTk", 1);
+    WCENTERFSP(win::about, "a ncurses interface to crctk", 1);
     WCENTERFSP(win::about, "Copyright (C) 2014 Jens Oliver John <"PACKAGE_BUGREPORT">", 3);
     WCENTERFSP(win::about, "Licensed under the GNU General Public License v3 or later", 4);
     WCENTERFSP(win::about, "Project homepage: https://github.com/2ion/crctk", 5);
@@ -67,21 +78,39 @@ namespace ui
     win::about->Hide();
   }
 
-  void init(void)
-  {
-    nc::InitScreen(PACKAGE, true);
-    w_create_main();
-    w_create_about();
-    win::main->Display();
-  }
-
   void deinit(void)
   {
     delete win::about;
     delete win::main;
     nc::DestroyScreen();
   }
+
+  void init(void)
+  {
+    nc::InitScreen(PACKAGE, true);
+    signal(SIGWINCH, sighandler_resize);
+    w_create_main();
+    w_create_about();
+    win::main->Display();
+  }
+
+  void sighandler_resize(int sig)
+  {
+    /* indicates that the terminal's got resized */
+    if(sig == SIGWINCH)
+    {
+      ui::win::about->Clear();
+      ui::win::main->Clear();
+
+      ui::win::about->Resize(HALFDIM(COLS), 10);
+      ui::win::about->Display();
+
+      ui::win::main->Resize(COLS, LINES);
+      ui::win::main->Display();
+    }
+  }
 }
+
 
 int main(int argc, char **argv)
 {
