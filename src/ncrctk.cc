@@ -45,9 +45,16 @@ namespace ui
 
   namespace win
   {
+    nc::Window *active;
+
     nc::Window *main;
     nc::Window *about;
     nc::Window *log;
+  }
+
+  namespace menu
+  {
+  
   }
  
   void w_create_main(void)
@@ -92,6 +99,7 @@ namespace ui
     w_create_main();
     w_create_about();
     win::main->Display();
+    win::active = win::main;
   }
 
   void sighandler_resize(int sig)
@@ -109,14 +117,44 @@ namespace ui
       ui::win::main->Display();
     }
   }
+
+  void w_switchto(nc::Window *w, bool is_overlay = false)
+  {
+    if(w == win::active)
+      return;
+    if(is_overlay)
+      win::active->Hide();
+    win::active = w;
+    win::active->Display();
+  }
 }
 
 
 int main(int argc, char **argv)
 {
+  int input = 0;
+
+
   ui::init();
-  ui::do_about();
-  ui::win::about->ReadKey();
+
+  while(1)
+  {
+    ui::win::active->ReadKey(input);
+    if(ui::win::active == ui::win::about)
+    {
+      ui::w_switchto(ui::win::main);
+    } // win::about
+    else if(ui::win::active == ui::win::main)
+    {
+      if(input == 'q')
+        break;
+      if(input == '?')
+      {
+        ui::w_switchto(ui::win::about);
+      }
+    } // win::main
+  }
+
   ui::deinit();
   return 0;
 }
