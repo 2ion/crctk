@@ -108,7 +108,7 @@ crctk_LINK = $(CCLD) $(crctk_CFLAGS) $(CFLAGS) $(crctk_LDFLAGS) \
 	$(LDFLAGS) -o $@
 am_ncrctk_OBJECTS = ncrctk-ncrctk.$(OBJEXT) ncrctk-window.$(OBJEXT) \
 	ncrctk-localerror.$(OBJEXT) ncrctk-tolower.$(OBJEXT) \
-	ncrctk-menu.$(OBJEXT)
+	ncrctk-menu.$(OBJEXT) database.$(OBJEXT) util.$(OBJEXT)
 ncrctk_OBJECTS = $(am_ncrctk_OBJECTS)
 ncrctk_LDADD = $(LDADD)
 ncrctk_LINK = $(CXXLD) $(ncrctk_CXXFLAGS) $(CXXFLAGS) \
@@ -282,7 +282,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-ncrctk_SOURCES = ncrctk.cc window.cpp localerror.cpp tolower.cpp menu.cpp
+ncrctk_SOURCES = ncrctk.cc window.cpp localerror.cpp tolower.cpp menu.cpp database.c util.c
 #ncrctk_CFLAGS = $(ZLIB_CFLAGS) $(KYOTOCABINET_CFLAGS)  $(CWDIGET_CFLAGS)
 ncrctk_CXXFLAGS = $(ZLIB_CXXFLAGS) $(KYOTOCABINET_CXXFLAGS) $(NCURSESW_CFLAGS)
 ncrctk_LDFLAGS = $(ZLIB_LIBS) $(KYOTOCABINET_LIBS) $(NCURSESW_LIBS)
@@ -397,11 +397,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crctk-database.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crctk-realpath.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crctk-util.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/database.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ncrctk-localerror.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ncrctk-menu.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ncrctk-ncrctk.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ncrctk-tolower.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ncrctk-window.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
