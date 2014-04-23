@@ -23,12 +23,22 @@ extern "C"
 
 /* globals */
 
+extern "C"
+{
 const char *crcregex = "[[:xdigit:]]\\{8\\}";
 const char *crcregex_stripper = "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?";
 const char *dbiofile = "crcsums.tdb";
 const char *hexarg = "00000000";
+}
 
 namespace nc = NCurses;
+
+namespace global
+{
+  std::string db;
+}
+
+/* the rest */
 
 namespace ui
 {
@@ -36,6 +46,7 @@ namespace ui
 
   void w_create_main(void);
   void w_create_about(void);
+  void w_switchto(nc::Window*,bool);
   void do_about(void);
   void init(void);
   void deinit(void);
