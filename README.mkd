@@ -7,16 +7,25 @@ in the following.
 Stable releases are tagged in Git. The last stable release is [version
 0.4.5](https://github.com/2ion/crctk/archive/0.4.5.tar.gz).
 
+In the additon to the CLI binary crctk, a ncurses-based interface is
+also in the workings! Its binary is named ncrctk and getting installed
+alongside the basic crctk. It still is in alpha status, but certain
+functionality may already be available. The goal is to get to feature
+parity with the CLI. Both binaries will share large parts of the source
+code.
+
 ## Compilation and installation
 
-crctk depends on:
+You need:
 
-- libz
+- gcc and g++ (or any other compatible C and C++ compilers)
+- libncurses or libncursesw (you need the \*w version for Unicode
+  support!)
 - libkyotocabinet
 
 On Debian, these may be installed using
 ```sh
-sudo apt-get install libkyotocabinet-dev zlib1g-dev
+sudo apt-get install libkyotocabinet-dev zlib1g-dev libncursesw5-dev gcc g++
 ```
 
 crctk uses the GNU autotools for building so you go through the familiar
