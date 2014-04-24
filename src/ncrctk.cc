@@ -143,6 +143,7 @@ namespace ui
     w_create_about();
     w_create_inspector();
     w_create_main();
+    w_create_error();
 
     win::main->Display();
     win::active = win::main;
@@ -180,7 +181,7 @@ namespace ui
     return w->GetString(-1, w->GetWidth()-coords[0]);
   }
 
-  void do_error(const std::string &msg)
+  void do_error(const char *msg)
   {
     win::error->Clear();
     *win::error << msg;
@@ -209,15 +210,12 @@ int main(int argc, char **argv)
       if(input == 'g')
       {
         std::string i = ui::do_prompt(ui::win::active, ui::win::res::inspector::dbprompt);
-        if(!i.empty() &&
-            check_access_flags_v(i.c_str(), F_OK | R_OK | W_OK, 1) == 0)
+        if(!i.empty())
         {
-          if(DB_read(i.c_str(), &ui::win::res::inspector::dbi) != 0)
+          if(check_access_flags_v(i.c_str(), F_OK | R_OK | W_OK, 1) != 0)
           {
-            ui::do_error("The specified file is invalid or inaccessible.");
-          } else
-          {
-            ui::do_error("It worked!");
+            ui::do_error("File doesn't exist or is inaccissble.");
+            continue;
           }
         }
       } else if(input == 'q')
