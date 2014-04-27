@@ -104,8 +104,8 @@ namespace ui
   {
     win::main = new nc::Window(0, 0, COLS, LINES, "", nc::clWhite, nc::brWhite);
     win::main->SetTitle("ncrctk");
-    WPRINTMVL(win::main, "?: Help");
-    WPRINTMVL(win::main, "i: Database inspector");
+    WPRINTMVL(win::main, "?: About");
+    WPRINTMVL(win::main, "i: Inspect database");
     WPRINTMVL(win::main, "q: Quit");
   }
 
