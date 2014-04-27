@@ -25,6 +25,7 @@ extern "C"
 #define SUBWINOCOL 1
 #define SUBWINOLINE 3
 
+#define WPRINTMVL(win, str) *(win)<<(str); (win)->GotoXY(0, (win)->Y()+1);
 #define WPRINTSTRFMT(win, str, fmtp, fmts) *(win)<<(fmtp)<<(str)<<(fmts);
 #define WCENTERFS(win, str, y) (win)->GotoXY(((win)->GetWidth()-(win)->Length((str)))/2, y);
 #define WCENTERFSP(win, str, y) WCENTERFS((win),(str),(y)); *(win)<<(str);
@@ -103,6 +104,9 @@ namespace ui
   {
     win::main = new nc::Window(0, 0, COLS, LINES, "", nc::clWhite, nc::brWhite);
     win::main->SetTitle("ncrctk");
+    WPRINTMVL(win::main, "?: Help");
+    WPRINTMVL(win::main, "i: Database inspector");
+    WPRINTMVL(win::main, "q: Quit");
   }
 
   void w_create_about(void)
