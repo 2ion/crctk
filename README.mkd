@@ -42,7 +42,7 @@ sudo make install-strip
 The documentation is written in pandoc markdown and located in /doc, so you can build a 
 wide range of documentation formats! By default, we deliver HTML and manpage versions.
 
-## Command line synposis
+## Command line synopsis
 
 More concise usage information.
 
@@ -108,6 +108,13 @@ Options:
 --version
    Prints version and compilation information.
 ```
+
+## NCurses interface synopsis
+
+The interface is self-documenting, displaying keymaps where necessary. A
+rough, and possibly out-of-date impression:
+
+![Screenshot](https://raw.githubusercontent.com/2ion/crctk/master/screenshot-cursesui.png)
 
 ## License
 
