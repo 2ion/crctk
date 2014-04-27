@@ -18,12 +18,16 @@ extern "C"
 
 #define HALFDIM(x) ((x)-((x)%2))/2
 #define FORTHDIM(x) HALFDIM((HALFDIM((x))))
-#define WCENTERFS(win, str, y) (win)->GotoXY(((win)->GetWidth()-(win)->Length((str)))/2, y);
-#define WCENTERFSP(win, str, y) WCENTERFS((win),(str),(y)); *(win)<<(str);
 #define SUBWINCOLS (COLS-2)
 #define SUBWINLINES (LINES-4)
 #define SUBWINOCOL 1
 #define SUBWINOLINE 3
+
+#define WPRINTSTRFMT(win, str, fmtp, fmts) *(win)<<(fmtp)<<(str)<<(fmts);
+#define WCENTERFS(win, str, y) (win)->GotoXY(((win)->GetWidth()-(win)->Length((str)))/2, y);
+#define WCENTERFSP(win, str, y) WCENTERFS((win),(str),(y)); *(win)<<(str);
+#define WCENTERFSP_FORMAT(win, str, y, fmtp, fmts) WCENTERFS((win),(str),(y)); WPRINTSTRFMT((win),(str),(fmtp),(fmts));
+#define WCENTERPRINT_BOLD(win, str, y) WCENTERFSP_FORMAT((win),(str),(y), nc::fmtBold, nc::fmtBoldEnd);
 
 /* globals */
 
@@ -52,7 +56,8 @@ namespace ui
   void w_create_about(void);
   void w_create_inspector(void);
   void w_create_error(void);
-  void w_switchto(nc::Window*,bool);
+  void w_create_alphadisclaimer(void);
+  nc::Window* w_switchto(nc::Window*,bool);
   std::string do_prompt(nc::Window*, const int * coords);
   void do_about(void);
   void do_error(std::string &msg);
@@ -71,6 +76,7 @@ namespace ui
     nc::Window *inspector;
     nc::Window *error;
     nc::Window *log;
+    nc::Window *alphadisclaimer;
 
     namespace res
     {
@@ -81,6 +87,14 @@ namespace ui
         struct DBItem dbi = DBITEM_NULL;
       }
     }
+  }
+
+  void w_create_alphadisclaimer(void)
+  {
+    win::alphadisclaimer = new nc::Window(FORTHDIM(COLS),FORTHDIM(LINES),HALFDIM(COLS), 6, "", nc::clWhite, nc::brYellow);
+    win::alphadisclaimer->SetTitle("Disclaimer");
+    WCENTERPRINT_BOLD(win::alphadisclaimer, "This ncurses interface is alpha software and may contain serious bugs.", 0);
+    WCENTERPRINT_BOLD(win::alphadisclaimer, "Use at your own risk. Please report bugs to <"PACKAGE_BUGREPORT">.", 1);
   }
  
   void w_create_main(void)
@@ -144,6 +158,7 @@ namespace ui
     w_create_inspector();
     w_create_main();
     w_create_error();
+    w_create_alphadisclaimer();
 
     win::main->Display();
     win::active = win::main;
@@ -165,14 +180,15 @@ namespace ui
     }
   }
 
-  void w_switchto(nc::Window *w, bool is_overlay = false)
+  nc::Window* w_switchto(nc::Window *w, bool is_overlay = false)
   {
     if(w == win::active)
-      return;
+      return w;
     if(is_overlay)
       win::active->Hide();
     win::active = w;
     win::active->Display();
+    return w;
   }
 
   std::string do_prompt(nc::Window *w, const int * coords)
@@ -197,6 +213,9 @@ int main(int argc, char **argv)
   int input = 0;
 
   ui::init();
+
+  ui::w_switchto(ui::win::alphadisclaimer)->ReadKey();
+  ui::w_switchto(ui::win::main);
 
   while(1)
   {
