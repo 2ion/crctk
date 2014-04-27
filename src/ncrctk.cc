@@ -4,7 +4,9 @@
 #include <stdlib.h>
 #include <clocale>
 #include <csignal>
+#include <cstring>
 #include <string>
+#include <iostream>
 
 extern "C"
 {
@@ -211,6 +213,13 @@ namespace ui
 int main(int argc, char **argv)
 {
   int input = 0;
+
+  if(argc >= 2 && strcmp(argv[1], "--version") == 0)
+  {
+    std::cout << "n"PACKAGE_NAME" version: " PACKAGE_VERSION << std::endl
+      << "Compiled on: " << __DATE__" "__TIME__ << std::endl;
+    return 0;
+  }
 
   ui::init();
 
