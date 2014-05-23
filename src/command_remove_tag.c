@@ -19,6 +19,8 @@
 
 #include "command_remove_tag.h"
 
+extern const char *crcregex_stripper;
+
 int command_remove_tag(int argc, char **argv, int optind, int flags) {
   const char *filename = argv[argc-1];
   char *str, *nstr, *p, *q;
@@ -28,7 +30,7 @@ int command_remove_tag(int argc, char **argv, int optind, int flags) {
   for(i = optind; i < argc; ++i) {
     check_access_flags(argv[i], F_OK | R_OK | W_OK, 1);
     str = get_basename((char*)argv[i]);
-    if((nstr = strip_tag((const char*) str)) == NULL) {
+    if((nstr = strip_tag((const char*) str, crcregex_stripper)) == NULL) {
       printf("filename does not contain a hexstring: %s\n", argv[i]);
       return EXIT_FAILURE;
     }

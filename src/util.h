@@ -43,8 +43,8 @@ int check_access_flags_v(const char*, int, int);
 void compile_regex(regex_t*, const char*, int);
 char* get_basename(char*);
 char* pathcat(const char*, const char*);
-char* strip_tag(const char*);
-int tag_pos(char*, char**, char**);
-char (*get_tag(char*))[9];
+char* strip_tag(const char*, const char*);
+int tag_pos(const char*, char*, char**, char**);
+char (*get_tag(char*, const char*))[9];
 
 #endif /* UTIL_H */

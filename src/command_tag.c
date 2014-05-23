@@ -20,6 +20,7 @@
 #include "command_tag.h"
 
 extern const char *crcregex;
+extern const char *crcregex_stripper;
 
 int command_tag(int argc, char **argv, int optind, int flags) {
   const char *filename = NULL;
@@ -54,7 +55,7 @@ int command_tag(int argc, char **argv, int optind, int flags) {
     string = get_basename((char*)filename);
     if(regexec(&regex, string, 0, 0, 0) == 0) {
       if (flags & TAG_ALLOW_STRIP) {
-        workstring = strip_tag(string);
+        workstring = strip_tag(string, crcregex_stripper);
         if(workstring == NULL)
           LERROR(EXIT_FAILURE, 0,
                   "strip_tag() failed for unknown reasons");

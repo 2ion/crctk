@@ -19,9 +19,6 @@
 
 #include "util.h"
 
-extern const char *crcregex;
-extern const char *crcregex_stripper;
-
 void check_access_flags(const char *path, int access_flags,
     int notdir) {
     struct stat stbuf;
@@ -96,7 +93,7 @@ char* pathcat(const char *p, const char *s) {
   return r;
 }
 
-char* strip_tag(const char *str) {
+char* strip_tag(const char *str, const char *crcregex_stripper) {
   regex_t regex;
   regmatch_t rm;
   const char *p, *q;
@@ -120,12 +117,12 @@ char* strip_tag(const char *str) {
   return rstr;
 }
 
-char (*get_tag(char *str))[9] {
+char (*get_tag(char *str, const char *crcregex))[9] {
   char (*r)[9] = NULL;
   char *p = NULL;
   char *q = NULL;
 
-  if(tag_pos(str, &p, &q) != 0)
+  if(tag_pos(crcregex, str, &p, &q) != 0)
     return NULL;
   r = malloc(sizeof *r);
   assert(r != NULL);
@@ -134,7 +131,7 @@ char (*get_tag(char *str))[9] {
   return r;
 }
 
-int tag_pos(char *str, char **p, char **q) {
+int tag_pos(const char *crcregex, char *str, char **p, char **q) {
   assert(str != NULL);
   regex_t regex;
   regmatch_t rm;

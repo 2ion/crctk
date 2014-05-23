@@ -45,7 +45,7 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
     printf("*%s: <%s> ... ", dbiofile, filename);
 
     if(flags & CHECK_BATCH_PREFER_HEXSTRING) {
-      X = get_tag(filename);
+      X = get_tag(filename, crcregex);
       if(X == NULL) {
         printf("-x option does not apply: no hexstring found in filename: %s\n",
             filename);

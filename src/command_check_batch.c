@@ -20,6 +20,7 @@
 #include "command_check_batch.h"
 
 extern const char *dbiofile;
+extern const char *crcregex;
 
 int command_check_batch_from_argv(int argc, char **argv,
     int optind, int cmdflags) {
@@ -43,7 +44,7 @@ int command_check_batch_from_argv(int argc, char **argv,
       continue;
     }
     if(cmdflags & CHECK_BATCH_PREFER_HEXSTRING) {
-      X = get_tag(argv[i]);
+      X = get_tag(argv[i], crcregex);
       if(X == NULL) {
         fprintf(stderr, "Option -x is ineffective: filename does "
             "not contain a hexstring: %s\n", argv[i]);
