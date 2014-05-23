@@ -21,7 +21,6 @@
 
 extern const char *crcregex;
 extern const char *crcregex_stripper;
-extern const char *dbiofile;
 
 void check_access_flags(const char *path, int access_flags,
     int notdir) {
