@@ -32,9 +32,9 @@
 #define LERROR(status, errnum, ...) error_at_line((status), (errnum), \
         (__func__), (__LINE__), __VA_ARGS__)
 
-extern int my_splitpath(const char *path,
+int my_splitpath(const char *path,
     char **dir, size_t *dirlen,
     char **base, size_t *baselen);
-extern char* my_realpath(const char *path);
+char* my_realpath(const char *path);
 
 #endif
