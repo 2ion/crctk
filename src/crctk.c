@@ -30,13 +30,14 @@
 #include "command_idle.h"
 #include "command_merge.h"
 #include "command_delete.h"
+#include "command_to_realpaths.h"
 
 const char *crcregex = "[[:xdigit:]]\\{8\\}";
 const char *crcregex_stripper =
   "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?";
 const char *dbiofile = "crcsums.tdb";
 const char *hexarg = "00000000";
-const char *optstring_short = "+X:xtnvV:hsrC:cd:e:pam:R";
+const char *optstring_short = "+X:xtnvV:hsRrC:cd:e:Ppam:";
 const struct option options_long[] = {
   { "verify", no_argument, NULL, 'v' },
   { "verify-db", required_argument, NULL, 'V' },
@@ -55,6 +56,7 @@ const struct option options_long[] = {
   { "version", no_argument, NULL, 'J' },
   { "merge", required_argument, NULL, 'm' },
   { "realpath", no_argument, NULL, 'R' },
+  { "to-realpath", no_argument, NULL, 'P' },
   { 0, 0, 0, 0 }
 };
 
@@ -93,6 +95,8 @@ int main(int argc, char **argv) {
       case 'C': dbiofile = strdup(optarg);
                 do_free_dbiofile = 1;
                 cmd = command_calc_batch;
+                break;
+      case 'P': cmd = command_to_realpaths;
                 break;
       case 'r': cmd = command_remove_tag;
                 break;
