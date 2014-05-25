@@ -55,15 +55,13 @@ int DB_find_open(const char *path, struct DBFinder *dbf);
 int DB_find_get(struct DBFinder *dbf, const char *key, uint32_t *crcbuf);
 int DB_find_remove(struct DBFinder *dbf, const char *key);
 int DB_find_close(struct DBFinder *dbf);
-
+int DB_make_paths_absolute(const char *path);
 void DB_item_free(struct DBItem*);
 struct DBItem* DB_item_alloc(void);
 struct DBItem* DB_item_new(const char *kbuf, size_t kbuflen, uint32_t crc);
 struct DBItem* DB_item_append(struct DBItem* parent, const char *kbuf,
     size_t kbuflen, uint32_t crc);
 struct DBItem* DB_item_append_terminator(struct DBItem*);
-
 char* DB_getkcdbiofile(const char *path);
-
 
 #endif /* DATABASE_H */

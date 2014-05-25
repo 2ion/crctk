@@ -294,3 +294,7 @@ char* DB_getkcdbiofile(const char *path) {
   memcpy(s, path, sizeof(char)*(strlen(path)+1));
   return strcat(s, CRCTK_DB_TUNINGSUFFIX);
 }
+
+int DB_make_paths_absolute(const char *path) {
+  return 0;
+}
