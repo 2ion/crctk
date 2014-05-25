@@ -58,6 +58,9 @@ Replace the built\-in regex used to match tags (see section:
 .P
 .PD
 Print a help text and exit.
+.IP \[bu] 2
+\f[B]\-\-version\f[] Print an info text containing the compilation date
+and the program version.
 .SS OPTIONS INVOLVING TAGS
 .IP \[bu] 2
 \f[B]\-v|\-\-verify [\f[I]\-\-\f[]] \f[I]FILE\f[] \f[]
@@ -89,7 +92,7 @@ If \f[I]FILE\f[] is tagged, remove the tag.
 Print all records in \f[I]DB\-FILE\f[] to stdout and exit.
 .IP \[bu] 2
 \f[B]\-C|\-\-create\-db \f[I]DB\-FILE\f[] [\-a|\-\-append]
-[\f[I]\-\-\f[]] \f[I]FILE\-LIST\f[] \f[]
+[\-R|\-\-realpath] [\f[I]\-\-\f[]] \f[I]FILE\-LIST\f[] \f[]
 .PD 0
 .P
 .PD
@@ -100,6 +103,9 @@ If the same path appears more than once in \f[I]FILE\-LIST\f[], the
 record will be overwritten.
 Any pre\-existing \f[I]DB\-FILE\f[] will be overwritten unless
 \f[I]\-a\f[] (append) is present.
+If the \f[I]\-R\f[] (realpath) option was specified, the absolute file
+paths will be used instead the ones on the command line when storing the
+file entries.
 .IP \[bu] 2
 \f[B]\-V|\-\-verify\-db \f[I]DB\-FILE\f[] [\-x|\-\-prefer\-hexstring]
 [\f[I]\-\-\f[]] [\f[I]FILE\-LIST\f[]] \f[]
@@ -119,5 +125,22 @@ If \f[I]FILE\-LIST\f[] is absent, for every \f[I]FILE\f[] recorded in
 \f[I]DB\-FILE\f[], check whether the file still exists and if yes,
 verify its current CRC32 checksum against the one recorded in the
 database.
+.IP \[bu] 2
+\f[B]\-m|\-\-merge \f[I]DB\-FILE\f[] [\-a|\-\-append] [\f[I]\-\-\f[]]
+\f[I]DB\-FILE\-LIST\f[] \f[]
+.PD 0
+.P
+.PD
+For every \f[I]DB\-FILE\f[] in \f[I]DB\-FILE\-LIST\f[], merge its the
+contents into the database supplied as an paramter to the \-m option.
+Duplicate records will overwrite each other in the order they appear.
+.IP \[bu] 2
+\f[B]\-d|\-\-delete \f[I]DB\-FILE\f[] [\f[I]\-\-\f[]]
+\f[I]FILE\-LIST\f[] \f[]
+.PD 0
+.P
+.PD
+Delete every \f[I]FILE\f[] in \f[I]FILE\-LIST\f[] from \f[I]DB\-FILE\f[]
+if it exists.
 .SH AUTHORS
 Jens Oliver John <dev@2ion.de>.

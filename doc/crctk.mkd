@@ -54,6 +54,10 @@ from tags to validate a file.
 *   __-h|--help__  
     Print a help text and exit.
 
+*   __--version__
+    Print an info text containing the compilation date and the program
+    version.
+
 ## OPTIONS INVOLVING TAGS
 
 *   __-v|--verify [_--_] _FILE_ __  
@@ -72,12 +76,14 @@ from tags to validate a file.
 *   __-p|--print _DB-FILE_ __   
     Print all records in _DB-FILE_ to stdout and exit.
 
-*   __-C|--create-db _DB-FILE_ [-a|--append] [_--_] _FILE-LIST_ __   
+*   __-C|--create-db _DB-FILE_ [-a|--append] [-R|--realpath] [_--_] _FILE-LIST_ __   
     For a every _FILE_ in _FILE-LIST_, record its path and CRC32
     checksum in the database _DB-FILE_. Relative filepaths are used.
     If the same path appears more than once in _FILE-LIST_, the record
     will be overwritten. Any pre-existing _DB-FILE_ will be overwritten
-    unless _-a_ (append) is present.
+    unless _-a_ (append) is present. If the _-R_ (realpath) option was specified, 
+    the absolute file paths will be used instead the ones on the command
+    line when storing the file entries.
 
 *   __-V|--verify-db _DB-FILE_ [-x|--prefer-hexstring] [_--_] [_FILE-LIST_] __  
     For every _FILE_ in _FILE-LIST_, check if it has a record in
@@ -89,4 +95,10 @@ from tags to validate a file.
     check whether the file still exists and if yes, verify its current
     CRC32 checksum against the one recorded in the database.
 
+*   __-m|--merge _DB-FILE_ [-a|--append] [_--_] _DB-FILE-LIST_ __  
+    For every _DB-FILE_ in _DB-FILE-LIST_, merge its the contents into
+    the database supplied as an paramter to the -m option. Duplicate
+    records will overwrite each other in the order they appear.
 
+*   __-d|--delete _DB-FILE_ [_--_] _FILE-LIST_ __   
+    Delete every _FILE_ in _FILE-LIST_ from _DB-FILE_ if it exists.

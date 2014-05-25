@@ -39,8 +39,9 @@ sudo make install-strip
 
 ## Documentation
 
-The documentation is written in pandoc markdown and located in /doc, so you can build a 
-wide range of documentation formats! By default, we deliver HTML and manpage versions.
+The documentation is written in pandoc markdown and located in /doc, so
+you can build a wide range of documentation formats! By default, we
+deliver HTML and man page versions.
 
 ## Command line synopsis
 
@@ -49,7 +50,7 @@ More concise usage information.
 ```
 crctk - CRC32 Hexstring Toolkit
 Copyright (C) 2014 Jens Oliver John (dev@2ion.de)
-Usage: ./crctk [-aCcefhmnprstuVv] <file>|<file-listing>
+Usage: ./src/crctk [-aCcefhmnpRrstuVv] <file>|<file-listing>
 Options:
 -v, --verify
   Compute CRC32 and compare with the hexstring
@@ -78,32 +79,39 @@ Options:
    modified. Records will identical keys will
    replace each other in the order the database
    files were specified.
- -C DB-FILE, --create-db DB-FILE
+-C DB-FILE, --create-db DB-FILE
    For multiple input files, create a checksum
    listing for use with the -V option. Overwrites
    the given file.
- -d DB-FILE, --delete DB-FILE
+-d DB-FILE, --delete DB-FILE
    Delete all files given as arguments from the
    database DB-FILE if such a record exists.
- -a, --append
+-a, --append
    Supplements -C and -m. Append to the given
    database file instead of overwriting it.
- -p, --print
+-R, --realpath
+   Supplements -C. When creating the database
+   record the files using their absolute paths.
+-p, --print
    For each database in the argument list,
    print its contents to stdout.
- -t, --tag
+-P, --to-realpath
+   For each database in the argument list,
+   convert all recorded paths from relative to
+   absolute paths
+-t, --tag
    Tag file with a CRC32 hexstring. Aborts if
    the filename does already contain a tag.
- -s, --strip-tag
+-s, --strip-tag
    Supplements -t. strip eventually existing tag
    and compute a new CRC32 hexstring.
- -r, --remove-tag
+-r, --remove-tag
    If the file is tagged, remove the tag.
- -e EXPR, --tag-regex EXPR
+-e EXPR, --tag-regex EXPR
    Changes the regular expression used to
    match tags when doing -s|-r to EXPR. Default:
    [[:punct:]]\?[[:xdigit:]]\{8\}[[:punct:]]\?
- -h, --help
+-h, --help
    Print this message and exit successfully.
 --version
    Prints version and compilation information.
