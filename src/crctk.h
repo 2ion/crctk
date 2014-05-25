@@ -31,6 +31,13 @@
 
 #include "config.h"
 
+/* GLOBALS */
+
+extern const char *crcregex;
+extern const char *crcregex_stripper;
+extern const char *hexarg;
+extern const char *dbiofile;
+
 /* TYPES */
 
 enum {
@@ -40,15 +47,6 @@ enum {
   CHECK_BATCH_PREFER_HEXSTRING = 1 << 3,
   USE_REALPATH = 1 << 4
 };
-
-typedef struct {
-  int cmdflags;
-  int optind;
-  const char *dbiofile;
-  const char *crcregex;
-  const char *crcregex_stripper;
-  const char *hexarg;
-} CLIOptions;
 
 typedef int     // program exit status
 (*CommandFunction)(

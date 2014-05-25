@@ -19,9 +19,6 @@
 
 #include "command_check_batch.h"
 
-extern const char *dbiofile;
-extern const char *crcregex;
-
 int command_check_batch_from_argv(int argc, char **argv,
     int optind, int cmdflags) {
   int i;

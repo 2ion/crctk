@@ -19,8 +19,6 @@
 
 #include "command_merge.h"
 
-extern const char *dbiofile;
-
 int command_merge(int argc, char **argv, int optind, int cmdflags) {
   char *dbsources[argc-optind+1];
   int i, j;

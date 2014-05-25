@@ -19,8 +19,6 @@
 
 #include "command_remove_tag.h"
 
-extern const char *crcregex_stripper;
-
 int command_remove_tag(int argc, char **argv, int optind, int flags) {
   const char *filename = argv[argc-1];
   char *str, *nstr, *p, *q;

@@ -19,9 +19,6 @@
 
 #include "command_check_hexstring.h"
 
-extern const char *crcregex;
-extern const char *hexarg;
-
 int command_check_hexstring(int argc, char **argv, int optind,
     int flags) {
   const char *filename = argv[argc-1];

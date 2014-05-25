@@ -19,8 +19,6 @@
 
 #include "command_check.h"
 
-extern const char *crcregex;
-
 int command_check(int argc, char **argv, int optind, int flags) {
   const char *filename = argv[argc-1];
   int  ci, ti;                        

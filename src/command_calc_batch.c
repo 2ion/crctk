@@ -19,9 +19,6 @@
 
 #include "command_calc_batch.h"
 
-extern const char *crcregex;
-extern const char *dbiofile;
-
 int command_calc_batch(int argc, char **argv, int optind, int flags) {
   int i;
   int do_truncate = 1;

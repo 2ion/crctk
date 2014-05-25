@@ -19,8 +19,6 @@
 
 #include "command_list.h"
 
-extern const char *dbiofile;
-
 int command_list_db(int argc, char **argv, int optind, int flags) {
   struct DBItem dbi = DBITEM_NULL;
   struct DBItem *e = NULL;

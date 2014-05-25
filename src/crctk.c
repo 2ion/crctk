@@ -32,13 +32,16 @@
 #include "command_delete.h"
 #include "command_to_realpaths.h"
 
+/* from crctk.h */
+
 const char *crcregex = "[[:xdigit:]]\\{8\\}";
 const char *crcregex_stripper =
   "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?";
 const char *dbiofile = "crcsums.crctk";
 const char *hexarg = "00000000";
-const char *optstring_short = "+X:xtnvV:hsRrC:cd:e:Ppam:";
-const struct option options_long[] = {
+
+static const char *optstring_short = "+X:xtnvV:hsRrC:cd:e:Ppam:";
+static const struct option options_long[] = {
   { "verify", no_argument, NULL, 'v' },
   { "verify-db", required_argument, NULL, 'V' },
   { "prefer-hexstring", no_argument, NULL, 'x' },
@@ -67,14 +70,6 @@ int main(int argc, char **argv) {
   int do_free_hexarg = 0;
   int do_free_crcregexstripper = 0;
   int ret = EXIT_SUCCESS;
-  CLIOptions options = {
-    .cmdflags = 0,
-    .optind = 0,
-    .dbiofile = dbiofile,
-    .crcregex = crcregex,
-    .crcregex_stripper = crcregex_stripper,
-    .hexarg = hexarg
-  };
   CommandFunction cmd = command_idle;
 
   while((opt = getopt_long(argc, argv, optstring_short,

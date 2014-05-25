@@ -19,9 +19,6 @@
 
 #include "command_tag.h"
 
-extern const char *crcregex;
-extern const char *crcregex_stripper;
-
 int command_tag(int argc, char **argv, int optind, int flags) {
   const char *filename = NULL;
   char *string = NULL;

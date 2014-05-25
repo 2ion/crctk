@@ -19,8 +19,6 @@
 
 #include "command_delete.h"
 
-extern const char *dbiofile;
-
 int command_delete(int argc, char **argv, int optind, int cmdflags) {
   int i = 0;
   struct DBFinder dbf = DBFINDER_NULL;
