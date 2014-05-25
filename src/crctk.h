@@ -41,6 +41,15 @@ enum {
   USE_REALPATH = 1 << 4
 };
 
+typedef struct {
+  int cmdflags;
+  int optind;
+  const char *dbiofile;
+  const char *crcregex;
+  const char *crcregex_stripper;
+  const char *hexarg;
+} CLIOptions;
+
 typedef int     // program exit status
 (*CommandFunction)(
         int,    // argc
