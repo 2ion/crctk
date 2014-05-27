@@ -323,7 +323,7 @@ int DB_make_paths_absolute(const char *path) {
   if(!kcdbopen(mdb[0], ":", KCOWRITER))
     LERROR(EXIT_FAILURE, 0, "in-memory database error: %s",
         kcecodename(kcdbecode(mdb[0])));
-  if(!kcdbopen(tdb, kcdbiofile, KCOWRITER)) {
+  if(!kcdbopen(tdb, kcdbiofile, KCOWRITER | KCOTRUNCATE)) {
     LERROR(0, 0, "Could not open the database: %s: %s",
         path, kcecodename(kcdbecode(tdb)));
     free(kcdbiofile);
