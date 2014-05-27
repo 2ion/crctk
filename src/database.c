@@ -182,7 +182,7 @@ int DB_write(const char *path, const struct DBItem *dbi, int do_truncate) {
   do {
     if(!kcdbset(db,
           (const char*)e->kbuf,
-          (size_t)e->kbuflen,
+          e->kbuflen,
           (const char*)&e->crc,
           sizeof(uint32_t)))
       LERROR(0, 0, "kcdbset: could not add record (%s, %d): %s",
@@ -295,6 +295,74 @@ char* DB_getkcdbiofile(const char *path) {
   return strcat(s, CRCTK_DB_TUNINGSUFFIX);
 }
 
+/* We do the following: read the existing database into an in-memory
+ * stash db while changing relative into absolute paths on-the-fly.
+ * Afterwards, we merge the in-memory database back into the on-disk
+ * one with merge mode set to KCMSET. This is because we need to
+ * read the contents using a cursor anyway and because this is already
+ * implemented in DB_read(). This function can thus be rewritten for
+ * further optimization at a later point.
+ */
 int DB_make_paths_absolute(const char *path) {
-  return 0;
+  assert(path != NULL);
+  int ret = 0;
+  struct DBItem dbi = DBITEM_NULL;
+  struct DBItem *e = NULL;
+  char rpath[PATH_MAX]; /* FIXME: rewrite to escape from PATH_MAX */
+  size_t pathlen = 0;
+  char *kcdbiofile = DB_getkcdbiofile(path);
+  KCDB *tdb = kcdbnew();
+  KCDB *mdb[1];
+  mdb[0] = kcdbnew();
+
+  if(DB_read(path, &dbi) != 0)
+    return -1;
+  if(dbi.kbuf == NULL)
+    return 0;
+
+  if(!kcdbopen(mdb[0], ":", KCOWRITER))
+    LERROR(EXIT_FAILURE, 0, "in-memory database error: %s",
+        kcecodename(kcdbecode(mdb[0])));
+  if(!kcdbopen(tdb, kcdbiofile, KCOWRITER)) {
+    LERROR(0, 0, "Could not open the database: %s: %s",
+        path, kcecodename(kcdbecode(tdb)));
+    free(kcdbiofile);
+    return -1;
+  }
+
+  e = &dbi;
+  do {
+    if(e->kbuf[0] != '/') {
+      if(realpath(e->kbuf, rpath) == NULL)
+        LERROR(EXIT_FAILURE, errno, "realpath() -- memory allocation error");
+      pathlen = strlen(rpath) + 1;
+      LERROR(0,0, "%s -> %s\n", e->kbuf, rpath);
+      if(pathlen > e->kbuflen)
+        if((e->kbuf = realloc(e->kbuf, pathlen)) == NULL)
+          LERROR(EXIT_FAILURE, errno, "realloc() -- memory allocation error");
+      memcpy(e->kbuf, rpath, pathlen);
+      e->kbuflen = pathlen;
+      /* zero for next iteration */
+      pathlen = 0;
+    }
+    kcdbset(mdb[0],
+        (const char*)e->kbuf,
+        e->kbuflen,
+        (const char*)&e->crc,
+        sizeof(uint32_t));
+  } while((e = e->next) != NULL);
+
+  if(!kcdbmerge(tdb, mdb, 1, KCMSET)) {
+    fprintf(stderr, "merging failed.");
+    ret = 0;
+  }
+
+  if(dbi.next != NULL)
+    DB_item_free(dbi.next);
+
+  kcdbclose(tdb);
+  kcdbclose(mdb[0]);
+  free(kcdbiofile);
+
+  return ret;
 }

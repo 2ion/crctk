@@ -20,14 +20,16 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
-#include <assert.h>
+#include <stdlib.h>
+#include <limits.h>
 #include <stdint.h>
+#include <assert.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include "util.h"
-
 #include <kclangc.h>
+
+#include "util.h"
 
 #define CRCTK_DB_TUNINGSUFFIX "#type=kct#zcomp=gz#opts=cs#apow=0#bnum=30"
 #define DBITEM_NULL { NULL, 0, 0, NULL, NULL }
