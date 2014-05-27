@@ -43,6 +43,8 @@ The documentation is written in pandoc markdown and located in /doc, so
 you can build a wide range of documentation formats! By default, we
 deliver HTML and man page versions.
 
+You can browse the HTML documentation [here](https://2ion.github.io/crctk).
+
 ## Command line synopsis
 
 More concise usage information.
