@@ -354,7 +354,7 @@ int DB_make_paths_absolute(const char *path) {
 
   if(!kcdbmerge(tdb, mdb, 1, KCMSET)) {
     fprintf(stderr, "merging failed.");
-    ret = 0;
+    ret = -1;
   }
 
   if(dbi.next != NULL)
