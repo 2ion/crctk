@@ -44,7 +44,7 @@ static const char *optstring_short = "+X:xtnvV:hsRrC:cd:e:Ppam:";
 static const struct option options_long[] = {
   { "verify", no_argument, NULL, 'v' },
   { "verify-db", required_argument, NULL, 'V' },
-  { "prefer-hexstring", no_argument, NULL, 'x' },
+  { "hexstring", no_argument, NULL, 'x' },
   { "calc", no_argument, NULL, 'c' },
   { "numerical", no_argument, NULL, 'n' },
   { "create-db", required_argument, NULL, 'C' },

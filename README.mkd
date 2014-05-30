@@ -52,71 +52,32 @@ More concise usage information.
 ```
 crctk - CRC32 Hexstring Toolkit
 Copyright (C) 2014 Jens Oliver John (dev@2ion.de)
-Usage: crctk [-aCcefhmnPpRrstuVv] <file>|<file-listing>
+Usage: ./src/crctk [-acCdehmnpPrRstvVx] <file>|<file-listing>
 Options:
--v, --verify
-  Compute CRC32 and compare with the hexstring
-  in the supplied filename.
--V DB-FILE, --verify-db DB-FILE
-  Check whether the files record in the database
-  still have the same CRC32 checksums
--x, --prefer-hexstring
-  Supplements -V, -C. For any tagged file, use the
-  hexstring as the reference CRC32
--c, --calc
-  Compute the CRC32 for the given file and print
-  it, then exit
--n, --numerical
-  Supplements -c. Print the CRC32 in decimal
--C DB-FILE, --create-db DB-FILE
-   For multiple input files, store a checksum DB
-   in DB-FILE The target file will be overwritten
-   if it exists.
--a, --append
-   Supplements -C. Append to DB-FILE.
--m DB-FILE, --merge DB-FILE
-   Given a list of database files as arguments,
-   all of this files' contents will be merged
-   into DB-FILE. The listed databases are not
-   modified. Records will identical keys will
-   replace each other in the order the database
-   files were specified.
--C DB-FILE, --create-db DB-FILE
-   For multiple input files, create a checksum
-   listing for use with the -V option. Overwrites
-   the given file.
--d DB-FILE, --delete DB-FILE
-   Delete all files given as arguments from the
-   database DB-FILE if such a record exists.
--a, --append
-   Supplements -C and -m. Append to the given
-   database file instead of overwriting it.
--R, --realpath
-   Supplements -C. When creating the database
-   record the files using their absolute paths.
--p, --print
-   For each database in the argument list,
-   print its contents to stdout.
--P, --to-realpath
-   For each database in the argument list,
-   convert all recorded paths from relative to
-   absolute paths
--t, --tag
-   Tag file with a CRC32 hexstring. Aborts if
-   the filename does already contain a tag.
--s, --strip-tag
-   Supplements -t. strip eventually existing tag
-   and compute a new CRC32 hexstring.
--r, --remove-tag
-   If the file is tagged, remove the tag.
--e EXPR, --tag-regex EXPR
-   Changes the regular expression used to
-   match tags when doing -s|-r to EXPR. Default:
-   [[:punct:]]\?[[:xdigit:]]\{8\}[[:punct:]]\?
--h, --help
-   Print this message and exit successfully.
---version
-   Prints version and compilation information.
+ -a, --append      Supplements -C, -m. Append to DB-FILE
+ -c, --calc        Compute the CRC32 for the given file
+ -C, --create-db   DB-FILE. For multiple input files, create a checksum
+                   database overwriting any existing file
+ -d, --delete      DB-FILE. Delete all given paths from the database
+ -e, --tag-regex   EXPR. Affects -s, -r. Set the regex for matching tags
+ -m, --merge       DB-FILE. Merges all given databases into DB-FILE.
+                   Duplicate records subsequently overwrite each other
+ -n, --numerical   Supplements -c. Prints a decimal CRC32 checksum
+ -p, --print       Print the contents of any given database
+ -P, --to-realpath Convert paths in given databases to absolute paths
+ -r, --remove-tag  Remove any tags from the given files
+ -R, --realpath    Supplements -C, -m. Use absolute file paths
+ -s, --strip-tag   Supplements -t. Replace any existing tag
+ -t, --tag         Add a CRC32 hexstring tag to each given filename
+ -v, --verify      Compute CRC32 and compare with the hexstring
+                   in the supplied filename
+ -V, --verify-db   DB-FILE. Check whether the files record in the
+                   database still have the same CRC32 checksums
+ -x, --hexstring   Supplements -V, -C. For any tagged file, use the
+                   hexstring as the reference CRC32
+
+ -h, --help        Print this message and exit
+ --version         Print the program version and compilation date
 ```
 
 ## NCurses interface synopsis
