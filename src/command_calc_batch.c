@@ -61,12 +61,8 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
 skip_crc_computation:
     printf("%08X\n", crc);
 
-    if(flags & USE_REALPATH) {
-      filename = realpath((const char*)filename, NULL);
-      if(filename == NULL)
-        LERROR(EXIT_FAILURE, errno, "memory allocation error in realpath()");
-      do_free_filename = 1;
-    }
+    if(flags & USE_REALPATH)
+      filename = get_realpath((const char*)filename, &do_free_filename);
 
     if(at_first == 0) {
       e->next = DB_item_alloc();

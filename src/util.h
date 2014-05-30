@@ -46,5 +46,6 @@ char* pathcat(const char*, const char*);
 char* strip_tag(const char*, const char*);
 int tag_pos(const char*, char*, char**, char**);
 char (*get_tag(char*, const char*))[9];
+char* get_realpath(const char*, int*);
 
 #endif /* UTIL_H */

@@ -147,4 +147,10 @@ int tag_pos(const char *crcregex, char *str, char **p, char **q) {
   return 0;
 }
 
-
+char* get_realpath(const char *path, int *do_free_flag) {
+  char *p = realpath((const char*)path, NULL);
+  if(p == NULL)
+    LERROR(EXIT_FAILURE, errno, "memory allocation error in realpath()");
+  *do_free_flag = 1;
+  return p;
+}
