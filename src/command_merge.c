@@ -35,5 +35,9 @@ int command_merge(int argc, char **argv, int optind, int cmdflags) {
   if(DB_merge(dbiofile, (const char**) dbsources, do_truncate) != 0)
     return EXIT_FAILURE;
 
+  if(cmdflags & USE_REALPATH)
+    if(DB_make_paths_absolute(dbiofile) != 0)
+      printf("[%s] conversion to absolute paths failed\n", dbiofile);
+
   return EXIT_SUCCESS;
 }
