@@ -79,12 +79,12 @@ int command_check_batch_from_db(int argc, char **argv,
   struct DBItem *e;
 
   if(DB_read(dbiofile, &dbi) != 0)
-    LERROR(EXIT_FAILURE, 0, "%s: could not read database", dbiofile);
+    LERROR(EXIT_FAILURE, 0, "[%s] file not readable", dbiofile);
   if(dbi.kbuf == NULL)
-    LERROR(EXIT_SUCCESS, 0, "%s: database is empty.", dbiofile);
+    LERROR(EXIT_SUCCESS, 0, "[%s] is empty", dbiofile);
   e = &dbi;
   do {
-    printf("[%s] %s ... ", dbiofile, e->kbuf);
+    printf("[%s] %s -> ", dbiofile, e->kbuf);
     if(check_access_flags_v(e->kbuf, F_OK | R_OK, 1) != 0) {
       printf("ERROR: NO ACCESS\n");
       continue;
