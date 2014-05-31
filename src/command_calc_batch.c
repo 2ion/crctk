@@ -39,7 +39,7 @@ int command_calc_batch(int argc, char **argv, int optind, int flags) {
       printf("Ignoring inaccessible file: %s\n", filename);
       continue;
     }
-    printf("*%s: <%s> ... ", dbiofile, filename);
+    printf("[%s] %s -> ", dbiofile, filename);
 
     if(flags & CHECK_BATCH_PREFER_HEXSTRING) {
       X = get_tag(filename, crcregex);
