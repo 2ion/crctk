@@ -28,31 +28,32 @@ int command_check_batch_from_argv(int argc, char **argv,
   struct DBFinder dbf;
 
   if(DB_find_open(dbiofile, &dbf) != 0)
-    LERROR(EXIT_FAILURE, 0, "%s: Could not open database:", dbiofile);
+    LERROR(EXIT_FAILURE, 0, "[%s] could not open database", dbiofile);
 
   for(i = optind; i < argc; ++i) {
     if(check_access_flags_v(argv[i], F_OK | R_OK, 1) != 0) {
-      fprintf(stderr, "%s: skipping: file is not accessible\n",
+      fprintf(stderr, "[%s] skipping: file is not accessible\n",
           argv[i]);
       continue;
     }
     if(DB_find_get(&dbf, argv[i], &dbcrc) != 0) {
-      fprintf(stderr, "%s: skipping: file not found in database\n", argv[i]);
+      fprintf(stderr, "[%s] skipping: file not found: %s\n",
+          dbiofile, argv[i]);
       continue;
     }
     if(cmdflags & CHECK_BATCH_PREFER_HEXSTRING) {
       X = get_tag(argv[i], crcregex);
       if(X == NULL) {
-        fprintf(stderr, "Option -x is ineffective: filename does "
+        fprintf(stderr, "option -x is ineffective: filename does "
             "not contain a hexstring: %s\n", argv[i]);
         continue;
       }
       othercrc = strtol((const char*)X, NULL, 16);
       if(othercrc = dbcrc)
-        printf("%s: OK [%08X]\n", argv[i], dbcrc);
+        printf("[%s] %s -> OK [%08X]\n", dbiofile, argv[i], dbcrc);
       else
-        printf("%s: MISMATCH %s[%08X] -x[%08X]\n", argv[i], dbiofile,
-            dbcrc, othercrc);
+        printf("[%s] %s -> MISMATCH [%08X] vs. -x[%08X]\n", dbiofile,
+            argv[i], dbcrc, othercrc);
       free(X);
       continue;
     }
@@ -62,10 +63,10 @@ int command_check_batch_from_argv(int argc, char **argv,
       continue;
     }
     if(othercrc == dbcrc)
-      printf("%s: OK [%08X]\n", argv[i], dbcrc);
+      printf("[%s] %s -> OK [%08X]\n", argv[i], dbcrc);
     else
-      printf("%s: MISMATCH %s[%08X] real[%08X]\n", argv[i], dbiofile,
-          dbcrc, othercrc);
+      printf("[%s] %s -> MISMATCH [%08X] vs. [%08X]\n",
+          dbiofile, argv[i], dbcrc, othercrc);
   }
   DB_find_close(&dbf);
   return EXIT_SUCCESS;
