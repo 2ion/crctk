@@ -34,9 +34,9 @@ int command_calc(int argc, char **argv, int optind, int flags) {
     }
     crc = compute_crc32(filename);
     if(flags & CALC_PRINT_NUMERICAL)
-      printf("%s: %u\n", filename, crc);
+      printf("%s -> %u\n", filename, crc);
     else
-      printf("%s: %08X\n", filename, crc);
+      printf("%s -> %08X\n", filename, crc);
   }
   return ret;
 }
