@@ -91,7 +91,7 @@ rough, and possibly out-of-date impression:
 
 This program is licensed under the GNU General Public License v3 or
 later. Parts of it are borrowed from the ncmpcpp project which are
-licensed under the GNU General Public License v2 or later:
+licensed under the GNU General Public License v3 or later:
 
 ```
 crctk - CRC32 Hexstring Toolkit
