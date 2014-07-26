@@ -5,7 +5,9 @@ for your files easier. As such, it provides functionality as described
 in the following.
 
 Stable releases are tagged in Git. The last stable release is [version
-0.4.7](https://github.com/2ion/crctk/releases/tag/0.4.7).
+0.4.8](https://github.com/2ion/crctk/releases/tag/0.4.8). This time, a
+binary Debian package for amd64 is available. The debianization
+lives on the debian branch if you want to build your own package.
 
 In the additon to the CLI binary crctk, a ncurses-based interface is
 also in the workings! Its binary is named ncrctk and getting installed
