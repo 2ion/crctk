@@ -1,0 +1,9 @@
+Package: crctk
+Version: 0.4.7
+Architecture: amd64
+Section: utils
+Depends: libc6 (>= 2.18), libkyotocabinet (>= 1.2.76), zlib1g (>= 1:1.2.8.dfsg-1)
+Description: Toolkit for working with CRCs from the command line
+Maintainer: Jens John <dev@2ion.de>
+Homepage: https://github.com/2ion/crctk
+
