@@ -1,0 +1,14 @@
+# crctk: A Guide by Example
+
+This guide explains the features crctk has using practical examples and
+more verbose language than what would be suitable for a man page.
+
+## This Tool's Purpose
+
+CRCs -- cyclic redundancy checks -- are a type of error detection codes;
+and in particular the CRC32 code is quite short with a length of 8 bytes
+or ASCII characters. It is thus suited for being included into the file
+name proper instead of an checksum catalouge (a function crctk also
+supports).
+
+
