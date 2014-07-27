@@ -22,6 +22,8 @@
 int command_list_db(int argc, char **argv, int optind, int flags) {
   struct DBItem dbi = DBITEM_NULL;
   struct DBItem *e = NULL;
+  char *p = NULL;
+  int do_free_p = 0;
   int i = 0;
 
   for(i = optind; i < argc; ++i) {
@@ -37,7 +39,14 @@ int command_list_db(int argc, char **argv, int optind, int flags) {
     }
     e = &dbi;
     do {
-      printf("[%s] %s -> %08X\n", argv[i], e->kbuf, e->crc);
+      p = e->kbuf;
+      if(flags & USE_REALPATH)
+        p = get_realpath((const char*) e->kbuf, &do_free_p);
+      printf("[%s] %s -> %08X\n", argv[i], p, e->crc);
+      if(do_free_p == 1) {
+        free(p);
+        do_free_p = 0;
+      }
     } while((e = e->next) != NULL);
     if(dbi.next != NULL)
       DB_item_free(dbi.next);
