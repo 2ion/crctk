@@ -5,7 +5,7 @@ for your files easier. As such, it provides functionality as described
 in the following.
 
 Stable releases are tagged in Git. The last stable release is [version
-0.4.8](https://github.com/2ion/crctk/releases/tag/0.4.8). This time, a
+0.4.9](https://github.com/2ion/crctk/releases/tag/0.4.9). This time, a
 binary Debian package for amd64 is available. The debianization
 lives on the debian branch if you want to build your own package.
 
