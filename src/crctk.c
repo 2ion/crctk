@@ -31,16 +31,17 @@
 #include "command_merge.h"
 #include "command_delete.h"
 #include "command_to_realpaths.h"
+#include "util.h"
 
 /* from crctk.h */
 
 const char *crcregex = "[[:xdigit:]]\\{8\\}";
 const char *crcregex_stripper =
   "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?";
-const char *dbiofile = "crcsums.crctk";
+const char *dbiofile = NULL;
 const char *hexarg = "00000000";
 
-static const char *optstring_short = "+X:xtnvV:hsRrC:cd:e:Ppam:";
+static const char *optstring_short = "+X:xtnvV:hSsRrC:cd:e:Ppam:";
 static const struct option options_long[] = {
   { "verify", no_argument, NULL, 'v' },
   { "verify-db", required_argument, NULL, 'V' },
@@ -60,6 +61,7 @@ static const struct option options_long[] = {
   { "merge", required_argument, NULL, 'm' },
   { "realpath", no_argument, NULL, 'R' },
   { "to-realpath", no_argument, NULL, 'P' },
+  { "store", no_argument, NULL, 'S' },
   { 0, 0, 0, 0 }
 };
 
@@ -72,6 +74,10 @@ int main(int argc, char **argv) {
   int ret = EXIT_SUCCESS;
   CommandFunction cmd = command_idle;
 
+#define ASSIGN_OPTARG_IF_NULL(cptr, fptr) if((cptr)==NULL){\
+  (cptr) = strdup(optarg);\
+  (*fptr) = 1;\
+}
   while((opt = getopt_long(argc, argv, optstring_short,
          options_long, NULL)) != -1)
     switch(opt) {
@@ -87,16 +93,20 @@ int main(int argc, char **argv) {
                 break;
       case 'p': cmd = command_list_db;
                 break;
-      case 'V': dbiofile = strdup(optarg);
+      case 'S': cmdflags |= USE_REALPATH;
+                cmdflags |= APPEND_TO_DB;
+                dbiofile = get_capturefilepath();
                 do_free_dbiofile = 1;
-                cmd = command_check_batch; break;
+                break;
+      case 'V': ASSIGN_OPTARG_IF_NULL(dbiofile, &do_free_dbiofile);
+                cmd = command_check_batch;
+                break;
       case 'e': crcregex_stripper = strdup(optarg);
                 do_free_crcregexstripper = 1;
                 break;
       case 'c': cmd = command_calc;
                 break;
-      case 'C': dbiofile = strdup(optarg);
-                do_free_dbiofile = 1;
+      case 'C': ASSIGN_OPTARG_IF_NULL(dbiofile, &do_free_dbiofile);
                 cmd = command_calc_batch;
                 break;
       case 'P': cmd = command_to_realpaths;
@@ -127,6 +137,7 @@ int main(int argc, char **argv) {
                 break;
       default:  return EXIT_FAILURE;
     } // switch
+#undef ASSIGN_OPTARG_IF_NULL
   if(optind >= argc &&
       cmd != command_check_batch &&
       cmd != command_list_db && 

@@ -154,3 +154,7 @@ char* get_realpath(const char *path, int *do_free_flag) {
   *do_free_flag = 1;
   return p;
 }
+
+char* get_capturefilepath(void) {
+  return NULL;
+}

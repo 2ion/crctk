@@ -11,7 +11,6 @@ AC_CONFIG_FILES([Makefile src/Makefile])
 PKG_CHECK_MODULES([ZLIB], [zlib])
 PKG_CHECK_MODULES([KYOTOCABINET], [kyotocabinet])
 PKG_CHECK_MODULES([NCURSESW], [ncursesw])
-#PKG_CHECK_MODULES([CWIDGET], [cwidget])
-#PKG_CHECK_MODULES([SIGCPP], [sigc++-2.0])
+PKG_CHECK_MODULES([XDGBASEDIR], [libxdg-basedir])
 
 AC_OUTPUT
