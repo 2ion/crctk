@@ -20,7 +20,7 @@ code.
 
 You need:
 
-- gcc and g++ (or any other compatible C and C++ compilers)
+- gcc and g++
 - libncurses or libncursesw (you need the \*w version for Unicode
   support!)
 - libkyotocabinet
