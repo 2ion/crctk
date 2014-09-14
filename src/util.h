@@ -31,8 +31,6 @@
 #include <libgen.h>
 #include <string.h>
 
-#include <cdb.h>
-
 #include "database.h"
 
 #define LERROR(status, errnum, ...) error_at_line((status), (errnum), \

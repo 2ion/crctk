@@ -40,8 +40,9 @@ const char *crcregex_stripper =
   "[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?";
 const char *dbiofile = NULL;
 const char *hexarg = "00000000";
+int dotidx = -1;
 
-static const char *optstring_short = "+X:xtnvV:hSsRrC:cd:e:Ppam:";
+static const char *optstring_short = "+X:xtnvV:hSsRrC:cD:d:e:Ppam:";
 static const struct option options_long[] = {
   { "verify", no_argument, NULL, 'v' },
   { "verify-db", required_argument, NULL, 'V' },
@@ -53,6 +54,7 @@ static const struct option options_long[] = {
   { "append", no_argument, NULL, 'a' },
   { "print", no_argument, NULL, 'p' },
   { "tag", no_argument, NULL, 't' },
+  { "dot", required_argument, NULL, 'D' },
   { "strip-tag", no_argument, NULL, 's' },
   { "remove-tag", no_argument, NULL, 'r' },
   { "tag-regex", required_argument, NULL, 'e' },
@@ -134,6 +136,12 @@ int main(int argc, char **argv) {
       case 'd': dbiofile = strdup(optarg);
                 do_free_dbiofile = 1;
                 cmd = command_delete;
+                break;
+      case 'D': dotidx = strtol((const char*)optarg, NULL, 0xA);
+                if(dotidx == LONG_MIN)
+                    LERROR(EXIT_FAILURE, errno, "Integer argument to the -D option underflows");
+                if(dotidx == LONG_MAX)
+                    LERROR(EXIT_FAILURE, errno, "Integer argument to the -D option overflows");
                 break;
       default:  return EXIT_FAILURE;
     } // switch

@@ -37,15 +37,16 @@ extern const char *crcregex;
 extern const char *crcregex_stripper;
 extern const char *hexarg;
 extern const char *dbiofile;
+extern int dotidx;
 
 /* TYPES */
 
 enum {
-  TAG_ALLOW_STRIP = 1 << 0,
-  CALC_PRINT_NUMERICAL = 1 << 1,
-  APPEND_TO_DB = 1 << 2,
-  CHECK_BATCH_PREFER_HEXSTRING = 1 << 3,
-  USE_REALPATH = 1 << 4
+  TAG_ALLOW_STRIP                 = 1 << 0,
+  CALC_PRINT_NUMERICAL            = 1 << 1,
+  APPEND_TO_DB                    = 1 << 2,
+  CHECK_BATCH_PREFER_HEXSTRING    = 1 << 3,
+  USE_REALPATH                    = 1 << 4
 };
 
 typedef int     // program exit status
