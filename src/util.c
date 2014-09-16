@@ -158,3 +158,18 @@ char* get_realpath(const char *path, int *do_free_flag) {
 char* get_capturefilepath(void) {
   return NULL;
 }
+
+int LOG(const char *module, const char *format, ...) {
+  va_list arg;
+  int done;
+  int msize = snprintf(NULL, 0, "[%s%s%s] %s\n\n", ANSI_COLOR_BLUE,
+      module, ANSI_COLOR_RESET, format);
+  char *f = malloc(msize);
+  snprintf(f, msize, "[%s%s%s] %s\n\n", ANSI_COLOR_BLUE,
+      module, ANSI_COLOR_RESET, format);
+  va_start(arg, format);
+  done = vfprintf(stdout, f, arg);
+  va_end(arg);
+  free(f);
+  return done;
+}
