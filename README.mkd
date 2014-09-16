@@ -54,7 +54,7 @@ More concise usage information.
 ```
 crctk - CRC32 Hexstring Toolkit
 Copyright (C) 2014 Jens Oliver John (dev@2ion.de)
-Usage: ./src/crctk [-acCdDehmnpPrRstvVx] <file>|<file-listing>
+Usage: crctk [-acCdDehmnpPrRstvVx] <file>|<file-listing>
 Options:
  -a, --append      Supplements -C, -m. Append to DB-FILE
  -c, --calc        Compute the CRC32 for the given file
@@ -80,6 +80,7 @@ Options:
  -x, --hexstring   Supplements -V, -C. For any tagged file, use the
                    hexstring as the reference CRC32
 
+ --colors          Toggle coloured output
  -h, --help        Print this message and exit
  --version         Print the program version and compilation date
 ```
