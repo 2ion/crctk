@@ -77,6 +77,8 @@ int main(int argc, char **argv) {
   CommandFunction cmd = command_idle;
 
   LOG(__FILE__, "Log Test %d", 1);
+  LOG(__FILE__, "This is a much longer %s", "error message");
+  LOG(__FILE__, "shorter");
 
 #define ASSIGN_OPTARG_IF_NULL(cptr, fptr) if((cptr)==NULL){\
   (cptr) = strdup(optarg);\
