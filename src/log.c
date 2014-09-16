@@ -32,9 +32,11 @@ int LOG(const char *module, const char *format, ...) {
 
   msize = snprintf(NULL, 0, "[%s%s%s] %s\n\n", IFCOLORS(ANSI_COLOR_BLUE),
       module, IFCOLORS(ANSI_COLOR_RESET), format);
-  if(msize>sizeof(LOG_FUNC_BUFFER))
+  if(msize>sizeof(LOG_FUNC_BUFFER)) {
     f = malloc(msize);
-  else
+    if(f == NULL)
+      LERROR(EXIT_FAILURE, errno, "malloc() failed");
+  } else
     f = LOG_FUNC_BUFFER;
   snprintf(f, msize, "[%s%s%s] %s\n\n", IFCOLORS(ANSI_COLOR_BLUE),
       module, IFCOLORS(ANSI_COLOR_RESET), format);
