@@ -29,7 +29,6 @@ int LOG(const char *module, const char *format, ...) {
   char *f = LOG_FUNC_BUFFER;
 
   va_start(arg, format);
-
   msize = snprintf(NULL, 0, "[%s%s%s] %s\n\n", IFCOLORS(ANSI_COLOR_BLUE),
       module, IFCOLORS(ANSI_COLOR_RESET), format);
   if(msize > sizeof(LOG_FUNC_BUFFER)
@@ -37,12 +36,9 @@ int LOG(const char *module, const char *format, ...) {
       LERROR(EXIT_FAILURE, errno, "malloc() failed");
   snprintf(f, msize, "[%s%s%s] %s\n\n", IFCOLORS(ANSI_COLOR_BLUE),
       module, IFCOLORS(ANSI_COLOR_RESET), format);
-
   done = vfprintf(stdout, f, arg);
-
   if(f != LOG_FUNC_BUFFER)
     free(f);
-
   va_end(arg);
 
   return done;
