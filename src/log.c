@@ -25,19 +25,16 @@ static char LOG_FUNC_BUFFER[256];
 int LOG(const char *module, const char *format, ...) {
   va_list arg;
   int done;
-  char *f;
   int msize;
+  char *f = LOG_FUNC_BUFFER;
 
   va_start(arg, format);
 
   msize = snprintf(NULL, 0, "[%s%s%s] %s\n\n", IFCOLORS(ANSI_COLOR_BLUE),
       module, IFCOLORS(ANSI_COLOR_RESET), format);
-  if(msize>sizeof(LOG_FUNC_BUFFER)) {
-    f = malloc(msize);
-    if(f == NULL)
+  if(msize > sizeof(LOG_FUNC_BUFFER)
+      && (f = malloc(msize)) == NULL)
       LERROR(EXIT_FAILURE, errno, "malloc() failed");
-  } else
-    f = LOG_FUNC_BUFFER;
   snprintf(f, msize, "[%s%s%s] %s\n\n", IFCOLORS(ANSI_COLOR_BLUE),
       module, IFCOLORS(ANSI_COLOR_RESET), format);
 
