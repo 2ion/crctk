@@ -25,21 +25,29 @@
 #include <stdarg.h>
 #include "crctk.h"
 
-#define ANSI_COLOR_RED      "\x1b[0;31m"
-#define ANSI_COLOR_GREEN    "\x1b[0;32m"
-#define ANSI_COLOR_YELLOW   "\x1b[0;33m"
-#define ANSI_COLOR_BLUE     "\x1b[0;34m"
-#define ANSI_COLOR_MAGENTA  "\x1b[0;35m"
-#define ANSI_COLOR_CYAN     "\x1b[0;36m"
-#define ANSI_COLOR_REDB     "\x1b[1;31m"
-#define ANSI_COLOR_GREENB   "\x1b[1;32m"
-#define ANSI_COLOR_YELLOWB  "\x1b[1;33m"
-#define ANSI_COLOR_BLUEB    "\x1b[1;34m"
-#define ANSI_COLOR_MAGENTAB "\x1b[1;35m"
-#define ANSI_COLOR_CYANB    "\x1b[1;36m"
-#define ANSI_COLOR_RESET    "\x1b[0m"
-#define IFCOLORS(str)       (flag_use_colors==1?(str):("")) 
+#define ANSI_COLOR_RED        "\x1b[0;31m"
+#define ANSI_COLOR_GREEN      "\x1b[0;32m"
+#define ANSI_COLOR_YELLOW     "\x1b[0;33m"
+#define ANSI_COLOR_BLUE       "\x1b[0;34m"
+#define ANSI_COLOR_MAGENTA    "\x1b[0;35m"
+#define ANSI_COLOR_CYAN       "\x1b[0;36m"
+#define ANSI_COLOR_REDB       "\x1b[1;31m"
+#define ANSI_COLOR_GREENB     "\x1b[1;32m"
+#define ANSI_COLOR_YELLOWB    "\x1b[1;33m"
+#define ANSI_COLOR_BLUEB      "\x1b[1;34m"
+#define ANSI_COLOR_MAGENTAB   "\x1b[1;35m"
+#define ANSI_COLOR_CYANB      "\x1b[1;36m"
+#define ANSI_COLOR_RESET      "\x1b[0m"
+#define IFCOLORS(str)         (flag_use_colors==1?(str):("")) 
+#define CLOG(format, ...)     LOG((__func__), format, ##__VA_ARGS__)
+#define LOG_INFO(msg, ...)    log_info((__func__), msg, ##__VA_ARGS__)
+#define LOG_FAILURE(msg, ...) log_failure((__func__), msg, ##__VA_ARGS__)
+#define LOG_SUCCESS(msg, ...) log_success((__func__), msg, ##__VA_ARGS__)
 
-int LOG(const char *module, const char *format, ...);
+int LOG(FILE *file, const char *color, const char *module,
+    const char *format, va_list ap);
+int log_info(const char *module, const char *format, ...);
+int log_failure(const char *module, const char *format, ...);
+int log_success(const char *module, const char *format, ...);
 
 #endif
