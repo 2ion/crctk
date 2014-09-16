@@ -77,7 +77,7 @@ int command_tag(int argc, char **argv, int optind, int flags) {
 
     if((p = strstr(workstring, ".")) != NULL) {
       // has suffix: insert tag in front of the dot indicated by $dotidx
-      dots = malloc((strlen(workstring) + 1) * sizeof(char*));
+      dots = malloc(strlen(workstring) * sizeof(char*));
       if(dots == NULL)
         LERROR(EXIT_FAILURE, errno, "couldn't allocate <dots> array");
       q = workstring;
