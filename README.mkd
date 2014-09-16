@@ -54,13 +54,15 @@ More concise usage information.
 ```
 crctk - CRC32 Hexstring Toolkit
 Copyright (C) 2014 Jens Oliver John (dev@2ion.de)
-Usage: ./src/crctk [-acCdehmnpPrRstvVx] <file>|<file-listing>
+Usage: ./src/crctk [-acCdDehmnpPrRstvVx] <file>|<file-listing>
 Options:
  -a, --append      Supplements -C, -m. Append to DB-FILE
  -c, --calc        Compute the CRC32 for the given file
  -C, --create-db   DB-FILE. For multiple input files, create a checksum
                    database overwriting any existing file
  -d, --delete      DB-FILE. Delete all given paths from the database
+ -D, --dot         INT. Supplements -t. Insert the tag in front of the INTth
+                   dot in the filename. Negative indices address the INTth last dot.
  -e, --tag-regex   EXPR. Affects -s, -r. Set the regex for matching tags
  -m, --merge       DB-FILE. Merges all given databases into DB-FILE.
                    Duplicate records subsequently overwrite each other

@@ -28,6 +28,7 @@ int command_tag(int argc, char **argv, int optind, int flags) {
   char *p = NULL;
   char *q = NULL;
   char *r = NULL;
+  char **dots = NULL;
   int i = 0;
   int z = 0;
   int f_free_workstring = 0;
@@ -46,6 +47,7 @@ int command_tag(int argc, char **argv, int optind, int flags) {
     workstring = NULL;
     newstring = NULL;
     string = NULL;
+    dots = NULL;
 
     filename = argv[z];
     check_access_flags(filename, F_OK | R_OK | W_OK, 1);
@@ -72,8 +74,30 @@ int command_tag(int argc, char **argv, int optind, int flags) {
     }
     sprintf(tagstr, "[%08X]", crcsum);
     newstring = malloc((strlen(workstring) + 11)*sizeof(char));
-    if((p = strrchr(workstring, '.')) != NULL) {
-      // has suffix: insert tag in front of suffix
+
+    if((p = strstr(workstring, ".")) != NULL) {
+      // has suffix: insert tag in front of the dot indicated by $dotidx
+      dots = malloc((strlen(workstring) + 1) * sizeof(char*));
+      if(dots == NULL)
+        LERROR(EXIT_FAILURE, errno, "couldn't allocate <dots> array");
+      q = workstring;
+      while(*q++);
+      for(p=workstring, i=0; p != q; p++)
+        if(*p=='.'){
+          dots[i++] = p;
+        }
+      if(dotidx < 0) {
+        if(abs(dotidx) > i)
+          p = dots[i-1];
+        else
+          p = dots[dotidx+i];
+      }
+      if(dotidx > 0) {
+        if(dotidx > i)
+          p = dots[0];
+        else
+          p = dots[dotidx-1];
+      }
       for(i=0, q=workstring; q != p; ++q)
         newstring[i++] = *q;
       newstring[i] = '\0';
@@ -83,6 +107,7 @@ int command_tag(int argc, char **argv, int optind, int flags) {
       for(i+=10; p < q; ++p)
         newstring[i++] = *p;
       newstring[i] = '\0';
+
     } else {
       // no suffix: append tag
       newstring[0] = '\0';
@@ -99,6 +124,8 @@ int command_tag(int argc, char **argv, int optind, int flags) {
     free(q);
     free(newstring);
 continue_with_next:
+    if(dots != NULL)
+      free(dots);
     if(f_free_workstring == 1)
       free(workstring);
   } // for z
