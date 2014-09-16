@@ -101,7 +101,8 @@ am_crctk_OBJECTS = crctk-command_calc_batch.$(OBJEXT) \
 	crctk-command_remove_tag.$(OBJEXT) crctk-command_tag.$(OBJEXT) \
 	crctk-crc.$(OBJEXT) crctk-crctk.$(OBJEXT) \
 	crctk-database.$(OBJEXT) crctk-realpath.$(OBJEXT) \
-	crctk-util.$(OBJEXT) crctk-command_to_realpaths.$(OBJEXT)
+	crctk-util.$(OBJEXT) crctk-command_to_realpaths.$(OBJEXT) \
+	crctk-log.$(OBJEXT)
 crctk_OBJECTS = $(am_crctk_OBJECTS)
 crctk_LDADD = $(LDADD)
 crctk_LINK = $(CCLD) $(crctk_CFLAGS) $(CFLAGS) $(crctk_LDFLAGS) \
@@ -288,7 +289,7 @@ ncrctk_SOURCES = ncrctk.cc window.cpp localerror.cpp tolower.cpp menu.cpp databa
 #ncrctk_CFLAGS = $(ZLIB_CFLAGS) $(KYOTOCABINET_CFLAGS)  $(CWDIGET_CFLAGS)
 ncrctk_CXXFLAGS = $(ZLIB_CXXFLAGS) $(KYOTOCABINET_CXXFLAGS) $(NCURSESW_CFLAGS) $(XDGBASEDIR_CFLAGS)
 ncrctk_LDFLAGS = $(ZLIB_LIBS) $(KYOTOCABINET_LIBS) $(NCURSESW_LIBS) $(XDGBASEDIR_LIBS)
-crctk_SOURCES = command_calc_batch.c command_calc.c command_check_batch.c command_check.c command_check_hexstring.c command_delete.c command_help.c command_idle.c command_list.c command_merge.c command_remove_tag.c command_tag.c crc.c crctk.c database.c realpath.c util.c command_to_realpaths.c 
+crctk_SOURCES = command_calc_batch.c command_calc.c command_check_batch.c command_check.c command_check_hexstring.c command_delete.c command_help.c command_idle.c command_list.c command_merge.c command_remove_tag.c command_tag.c crc.c crctk.c database.c realpath.c util.c command_to_realpaths.c log.c
 crctk_CFLAGS = $(ZLIB_CFLAGS) $(KYOTOCABINET_CFLAGS) $(XDGBASEDIR_CFLAGS)
 crctk_LDFLAGS = $(ZLIB_LIBS) $(KYOTOCABINET_LIBS) $(XDGBASEDIR_LIBS)
 all: all-am
@@ -398,6 +399,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crctk-crc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crctk-crctk.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crctk-database.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crctk-log.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crctk-realpath.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crctk-util.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/database.Po@am__quote@
@@ -673,6 +675,20 @@ crctk-command_to_realpaths.obj: command_to_realpaths.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='command_to_realpaths.c' object='crctk-command_to_realpaths.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(crctk_CFLAGS) $(CFLAGS) -c -o crctk-command_to_realpaths.obj `if test -f 'command_to_realpaths.c'; then $(CYGPATH_W) 'command_to_realpaths.c'; else $(CYGPATH_W) '$(srcdir)/command_to_realpaths.c'; fi`
+
+crctk-log.o: log.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(crctk_CFLAGS) $(CFLAGS) -MT crctk-log.o -MD -MP -MF $(DEPDIR)/crctk-log.Tpo -c -o crctk-log.o `test -f 'log.c' || echo '$(srcdir)/'`log.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/crctk-log.Tpo $(DEPDIR)/crctk-log.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='log.c' object='crctk-log.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(crctk_CFLAGS) $(CFLAGS) -c -o crctk-log.o `test -f 'log.c' || echo '$(srcdir)/'`log.c
+
+crctk-log.obj: log.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(crctk_CFLAGS) $(CFLAGS) -MT crctk-log.obj -MD -MP -MF $(DEPDIR)/crctk-log.Tpo -c -o crctk-log.obj `if test -f 'log.c'; then $(CYGPATH_W) 'log.c'; else $(CYGPATH_W) '$(srcdir)/log.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/crctk-log.Tpo $(DEPDIR)/crctk-log.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='log.c' object='crctk-log.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(crctk_CFLAGS) $(CFLAGS) -c -o crctk-log.obj `if test -f 'log.c'; then $(CYGPATH_W) 'log.c'; else $(CYGPATH_W) '$(srcdir)/log.c'; fi`
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

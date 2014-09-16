@@ -28,6 +28,7 @@
 #include "util.h"
 #include "database.h"
 #include "crc.h"
+#include "log.h"
 
 #include "config.h"
 
@@ -38,6 +39,7 @@ extern const char *crcregex_stripper;
 extern const char *hexarg;
 extern const char *dbiofile;
 extern int dotidx;
+extern int flag_use_colors;
 
 /* TYPES */
 

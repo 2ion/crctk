@@ -19,8 +19,6 @@
 
 #include "util.h"
 
-static char LOG_FUNC_BUFFER[256];
-
 void check_access_flags(const char *path, int access_flags,
     int notdir) {
     struct stat stbuf;
@@ -159,24 +157,4 @@ char* get_realpath(const char *path, int *do_free_flag) {
 
 char* get_capturefilepath(void) {
   return NULL;
-}
-
-int LOG(const char *module, const char *format, ...) {
-  va_list arg;
-  int done;
-  char *f;
-  int msize = snprintf(NULL, 0, "[%s%s%s] %s\n\n", ANSI_COLOR_BLUE,
-      module, ANSI_COLOR_RESET, format);
-  if(msize>sizeof(LOG_FUNC_BUFFER))
-    f = malloc(msize);
-  else
-    f = LOG_FUNC_BUFFER;
-  snprintf(f, msize, "[%s%s%s] %s\n\n", ANSI_COLOR_BLUE,
-      module, ANSI_COLOR_RESET, format);
-  va_start(arg, format);
-  done = vfprintf(stdout, f, arg);
-  va_end(arg);
-  if(f != LOG_FUNC_BUFFER)
-    free(f);
-  return done;
 }

@@ -48,6 +48,7 @@ int command_help(int argc, char **argv, int optind, int flags) {
 " -x, --hexstring   Supplements -V, -C. For any tagged file, use the\n"
 "                   hexstring as the reference CRC32\n"
 "\n"
+" --colors          Toggle coloured output\n"
 " -h, --help        Print this message and exit\n"
 " --version         Print the program version and compilation date\n",
   argv[0], EXIT_SUCCESS, EXIT_FAILURE);

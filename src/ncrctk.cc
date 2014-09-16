@@ -10,7 +10,6 @@
 
 extern "C"
 {
-#include "util.h"
 #include "database.h"
 }
 #include "localerror.h"

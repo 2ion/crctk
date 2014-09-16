@@ -41,6 +41,7 @@ const char *crcregex_stripper =
 const char *dbiofile = NULL;
 const char *hexarg = "00000000";
 int dotidx = -1;
+int flag_use_colors = 0;
 
 static const char *optstring_short = "+X:xtnvV:hSsRrC:cD:d:e:Ppam:";
 static const struct option options_long[] = {
@@ -64,6 +65,7 @@ static const struct option options_long[] = {
   { "realpath", no_argument, NULL, 'R' },
   { "to-realpath", no_argument, NULL, 'P' },
   { "store", no_argument, NULL, 'S' },
+  { "colors", no_argument, &flag_use_colors, 1 },
   { 0, 0, 0, 0 }
 };
 
@@ -142,6 +144,8 @@ int main(int argc, char **argv) {
                     LERROR(EXIT_FAILURE, errno, "Integer argument to the -D option underflows");
                 if(dotidx == LONG_MAX)
                     LERROR(EXIT_FAILURE, errno, "Integer argument to the -D option overflows");
+                break;
+      case 0:   continue;
                 break;
       default:  return EXIT_FAILURE;
     } // switch
