@@ -28,15 +28,15 @@ int command_calc(int argc, char **argv, int optind, int flags) {
   while(argv[++i]) {
     filename = argv[i];
     if(check_access_flags_v(filename, F_OK | R_OK, 1) != 0) {
-      printf("Skipping %s: not an accessible or regular file\n", filename);
+      log_failure(filename, "Skipping: not an accessible or regular file");
       ret = EXIT_FAILURE;
       continue;
     }
     crc = compute_crc32(filename);
     if(flags & CALC_PRINT_NUMERICAL)
-      printf("%s -> %u\n", filename, crc);
+      log_success(filename, "%u", crc);
     else
-      printf("%s -> %08X\n", filename, crc);
+      log_success(filename, "%08X", crc);
   }
   return ret;
 }

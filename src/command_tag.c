@@ -60,8 +60,8 @@ int command_tag(int argc, char **argv, int optind, int flags) {
                   "strip_tag() failed for unknown reasons");
         f_free_workstring = 1;
       } else {
-        printf("<%s> already contains a hexstring. Use the -s switch to strip the existing tag\n",
-            filename);
+        log_failure(filename,
+            "Tag already present, use --strip-tag to replace it");
         return EXIT_FAILURE;
       }
     }
@@ -69,7 +69,7 @@ int command_tag(int argc, char **argv, int optind, int flags) {
       workstring = string;
     crcsum = compute_crc32(filename);
     if(crcsum == 0) {
-      LERROR(0, 0, "%s: The file's CRC sum is zero.", filename);
+      log_failure(filename, "CRC32 sum is zero");
       goto continue_with_next;
     }
     sprintf(tagstr, "[%08X]", crcsum);

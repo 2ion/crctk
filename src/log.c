@@ -17,29 +17,41 @@
  *
  * */
 
-
 #include "log.h"
 
 static char LOG_FUNC_BUFFER[256];
 
-int LOG(const char *module, const char *format, ...) {
+int LOG(FILE *file, const char *color, const char *module, const char *format, va_list ap) {
   va_list arg;
   int done;
   int msize;
-  char *f = LOG_FUNC_BUFFER;
+  char *fmt = LOG_FUNC_BUFFER;
 
-  va_start(arg, format);
-  msize = snprintf(NULL, 0, "[%s%s%s] %s\n\n", IFCOLORS(ANSI_COLOR_BLUE),
+  msize = snprintf(NULL, 0, "[%s%s%s] %s\n\n", IFCOLORS(color),
       module, IFCOLORS(ANSI_COLOR_RESET), format);
   if(msize > sizeof(LOG_FUNC_BUFFER)
-      && (f = malloc(msize)) == NULL)
+      && (fmt = malloc(msize)) == NULL)
       LERROR(EXIT_FAILURE, errno, "malloc() failed");
-  snprintf(f, msize, "[%s%s%s] %s\n\n", IFCOLORS(ANSI_COLOR_BLUE),
+  snprintf(fmt, msize, "[%s%s%s] %s\n\n", IFCOLORS(color),
       module, IFCOLORS(ANSI_COLOR_RESET), format);
-  done = vfprintf(stdout, f, arg);
-  if(f != LOG_FUNC_BUFFER)
-    free(f);
-  va_end(arg);
+  done = vfprintf(file, fmt, ap);
+  if(fmt != LOG_FUNC_BUFFER)
+    free(fmt);
 
   return done;
+
 }
+
+#define DEF_LOG_FUNC(name, file, color) \
+  int (name)(const char *module, const char *format, ...) {\
+    int done; \
+    va_list arg; \
+    va_start(arg, format); \
+    done = LOG((file), (color), module, format, arg); \
+    va_end(arg); \
+    return done; \
+  }
+DEF_LOG_FUNC(log_info, stdout, ANSI_COLOR_BLUE)
+DEF_LOG_FUNC(log_failure, stderr, ANSI_COLOR_RED)
+DEF_LOG_FUNC(log_success, stdout, ANSI_COLOR_GREEN)
+#undef DEF_LOG_FUNC
