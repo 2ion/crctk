@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Jens Oliver John dev@2ion.de" />
+  <title>crctk(3)</title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<div id="header">
+<p>This page is a HTML-formatted version of the crctk man page. The project's repository is located <a href="https://github.com/2ion/crctk">here</a>.</p>
+<h1 class="title">crctk(3)</h1>
+<h2 class="author">Jens Oliver John <script type="text/javascript">
+<!--
+h='&#50;&#x69;&#x6f;&#110;&#46;&#100;&#x65;';a='&#64;';n='&#100;&#x65;&#118;';e=n+a+h;
+document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'">'+e+'<\/'+'a'+'>');
+// -->
+</script><noscript>&#100;&#x65;&#118;&#32;&#x61;&#116;&#32;&#50;&#x69;&#x6f;&#110;&#32;&#100;&#x6f;&#116;&#32;&#100;&#x65;</noscript></h2>
+</div>
+<h1 id="name">NAME</h1>
+<p>crctk - CRC32 Hexstring Toolkit</p>
+<h1 id="synposis">SYNPOSIS</h1>
+<p><strong>crctk</strong> [<em>OPTIONS</em>]... [<em>--</em>] [<em>FILE</em>|<em>FILE-LIST</em>]</p>
+<h1 id="description">DESCRIPTION</h1>
+<p>crctk is a program for checking the integrity of files using the CRC32 checksum algorithm and generating CRC32 checksum data. The CRC32 checksums can be input and output in various ways.</p>
+<p>Similar to tools like sha1sum(1), md5sum(1) and others, <em>crctk</em> is also used to create database files containing mappings from filepaths to checksums, which can be used later on to verify a batch of files. crctk, however, uses a binary format -- libtinycdb, an implementation of Daniel J. Bernstein's CDB -- to address a problem with POSIX-compliant filepaths in textual form: Because filepaths may contain every character except '' and '/', a binary format drastically simplifies the parsing of filenames, while the textfiles from sha1sum et al. do not allow filenames containing '', for example. CDB in turn is very fast, simple and stable.</p>
+<h2 id="hexstring-tags">HEXSTRING TAGS</h2>
+<p>Because of their short length, it is common for CRC32 checksums to be included as hexadecimal strings in the filename of a <em>FILE</em>. Such tags are known to crctk as matching the regular expression <strong>[[:punct:]]\?[[:xdigit:]]\{8\}[[:punct:]]\?</strong>, that is a hexadecimal string optionally surrounded by punctuation characters, including brackets (example: [11FFAABB]). crctk is also used to manage such tags: it can tag files, update tags and use the CRC32 information from tags to validate a file.</p>
+<h1 id="command-line">COMMAND LINE</h1>
+<h2 id="general-options">GENERAL OPTIONS</h2>
+<ul>
+<li><p><strong>-c|--calc [-n|--numerical] [<em>--</em>] <em>FILE</em> </strong><br /> Compute the CRC32 checksum of <em>FILE</em>, print it to stdout and exit. If <em>-n</em> is present, the numerical value will be output instead of the hexstring.</p></li>
+<li><p><strong>-e|--tag-regex <em>EXPRESSION</em> </strong><br /> Replace the built-in regex used to match tags (see section: <strong>HEXSTRING TAGS</strong>) with <em>EXPRESSION</em>.</p></li>
+<li><p><strong>-h|--help</strong><br /> Print a help text and exit.</p></li>
+<li><p><strong>--version</strong> Print an info text containing the compilation date and the program version.</p></li>
+</ul>
+<h2 id="options-involving-tags">OPTIONS INVOLVING TAGS</h2>
+<ul>
+<li><p><strong>-v|--verify [<em>--</em>] <em>FILE</em> </strong><br /> Verify the integrity of <em>FILE</em> using the tag in its filename.</p></li>
+<li><p><strong>-t|--tag [-s|--strip-tag] [<em>--</em>] <em>FILE</em> </strong><br /> Tag <em>FILE</em> with the hexstring of its CRC32 checksum. Fails if <em>FILE</em> has already been tagged. If <em>-s</em> is present, strip any existing tag before appending the new one.</p></li>
+<li><p><strong>-r|--remove-tag [<em>--</em>] <em>FILE</em> </strong><br /> If <em>FILE</em> is tagged, remove the tag.</p></li>
+</ul>
+<h2 id="options-involving-databases">OPTIONS INVOLVING DATABASES</h2>
+<ul>
+<li><p><strong>-p|--print <em>DB-FILE</em> </strong><br /> Print all records in <em>DB-FILE</em> to stdout and exit.</p></li>
+<li><p><strong>-C|--create-db <em>DB-FILE</em> [-a|--append] [-R|--realpath] [<em>--</em>] <em>FILE-LIST</em> </strong><br /> For a every <em>FILE</em> in <em>FILE-LIST</em>, record its path and CRC32 checksum in the database <em>DB-FILE</em>. Relative filepaths are used. If the same path appears more than once in <em>FILE-LIST</em>, the record will be overwritten. Any pre-existing <em>DB-FILE</em> will be overwritten unless <em>-a</em> (append) is present. If the <em>-R</em> (realpath) option was specified, the absolute file paths will be used instead the ones on the command line when storing the file entries.</p></li>
+<li><p><strong>-V|--verify-db <em>DB-FILE</em> [-x|--prefer-hexstring] [<em>--</em>] [<em>FILE-LIST</em>] </strong><br /> For every <em>FILE</em> in <em>FILE-LIST</em>, check if it has a record in <em>DB-FILE</em> and if yes, verify if its current CRC32 checksum matches the checksum recorded in the database. If <em>-x</em> is present, for any tagged <em>FILE</em>, the hexstring-encoded CRC32 checksum is used for comparison instead of computing a reference sum.<br /> If <em>FILE-LIST</em> is absent, for every <em>FILE</em> recorded in <em>DB-FILE</em>, check whether the file still exists and if yes, verify its current CRC32 checksum against the one recorded in the database.</p></li>
+<li><p><strong>-m|--merge <em>DB-FILE</em> [-a|--append] [<em>--</em>] <em>DB-FILE-LIST</em> </strong><br /> For every <em>DB-FILE</em> in <em>DB-FILE-LIST</em>, merge its the contents into the database supplied as an paramter to the -m option. Duplicate records will overwrite each other in the order they appear.</p></li>
+<li><p><strong>-d|--delete <em>DB-FILE</em> [<em>--</em>] <em>FILE-LIST</em> </strong><br /> Delete every <em>FILE</em> in <em>FILE-LIST</em> from <em>DB-FILE</em> if it exists.</p></li>
+</ul>
+</body>
+</html>
