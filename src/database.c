@@ -329,9 +329,11 @@ int DB_make_paths_absolute(const char *path) {
       wd = malloc(wdlen);
     else
       wd = realloc(wd, wdlen);
+    if(wd == NULL)
+      LERROR(EXIT_FAILURE, errno, "malloc() failed");
     pwd = getcwd(wd, wdlen);
     if(pwd == NULL && errno != ERANGE)
-      LERROR(EXIT_FAILURE, 0, "unknown error in getcwd()");
+      LERROR(EXIT_FAILURE, errno, "unknown error in getcwd()");
   }
 
   abspath = realpath(path, NULL);
