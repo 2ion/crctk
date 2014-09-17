@@ -311,6 +311,10 @@ int DB_make_paths_absolute(const char *path) {
   char rpath[PATH_MAX]; /* FIXME: rewrite to escape from PATH_MAX */
   size_t pathlen = 0;
   char *kcdbiofile = DB_getkcdbiofile(path);
+  char *pwd = NULL;
+  size_t wdlen = 0;
+  char *wd = NULL;
+  char *abspath = NULL;
   KCDB *tdb = kcdbnew();
   KCDB *mdb[1];
   mdb[0] = kcdbnew();
@@ -320,14 +324,32 @@ int DB_make_paths_absolute(const char *path) {
   if(dbi.kbuf == NULL)
     return 0;
 
+  for(wdlen = PATH_MAX; pwd == NULL; wdlen+=PATH_MAX) {
+    if(wd == NULL)
+      wd = malloc(wdlen);
+    else
+      wd = realloc(wd, wdlen);
+    pwd = getcwd(wd, wdlen);
+    if(pwd == NULL && errno != ERANGE)
+      LERROR(EXIT_FAILURE, 0, "unknown error in getcwd()");
+  }
+
+  abspath = realpath(path, NULL);
+  if(abspath == NULL)
+    LERROR(EXIT_FAILURE, errno, "realpath() failed");
+  if(chdir((const char*) basename(abspath)) != 0) {
+    ret = DB_ECHDIR;
+    goto simple_cleanup;
+  }
+
   if(!kcdbopen(mdb[0], ":", KCOWRITER))
     LERROR(EXIT_FAILURE, 0, "in-memory database error: %s",
         kcecodename(kcdbecode(mdb[0])));
   if(!kcdbopen(tdb, kcdbiofile, KCOWRITER | KCOTRUNCATE)) {
     LERROR(0, 0, "Could not open the database: %s: %s",
         path, kcecodename(kcdbecode(tdb)));
-    free(kcdbiofile);
-    return -1;
+    ret = DB_EOPEN;
+    goto simple_cleanup;
   }
 
   e = &dbi;
@@ -354,7 +376,7 @@ int DB_make_paths_absolute(const char *path) {
 
   if(!kcdbmerge(tdb, mdb, 1, KCMSET)) {
     fprintf(stderr, "merging failed.");
-    ret = -1;
+    ret = DB_EMERGE;
   }
 
   if(dbi.next != NULL)
@@ -362,7 +384,13 @@ int DB_make_paths_absolute(const char *path) {
 
   kcdbclose(tdb);
   kcdbclose(mdb[0]);
+  chdir((const char*)pwd);
+simple_cleanup:
+  kcdbdel(tdb);
+  kcdbdel(mdb[0]);
   free(kcdbiofile);
+  free(abspath);
+  free(wd);
 
   return ret;
 }

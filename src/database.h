@@ -24,6 +24,7 @@
 #include <limits.h>
 #include <stdint.h>
 #include <assert.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -48,6 +49,12 @@ struct DBItem {
 struct DBFinder {
   KCDB *db;
   KCCUR *cur;
+};
+
+enum {
+  DB_ECHDIR   = -1,
+  DB_EOPEN    = -2,
+  DB_EMERGE   = -3 
 };
 
 int DB_write(const char *path, const struct DBItem *dbi, int do_truncate);
