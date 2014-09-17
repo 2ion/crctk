@@ -40,7 +40,7 @@ from tags to validate a file.
 
 # COMMAND LINE
 
-## GENERAL OPTIONS
+## GENERIC OPTIONS
 
 *   __-c|--calc [-n|--numerical] [_--_] _FILE_ __  
     Compute the CRC32 checksum of _FILE_, print it to stdout and exit.
@@ -54,27 +54,38 @@ from tags to validate a file.
 *   __-h|--help__  
     Print a help text and exit.
 
-*   __--version__
+*   __--version__   
     Print an info text containing the compilation date and the program
     version.
+
+*   __--colors__   
+    Enable coloured output where available. Will mess up pipelines, so
+    be careful.
 
 ## OPTIONS INVOLVING TAGS
 
 *   __-v|--verify [_--_] _FILE_ __  
     Verify the integrity of _FILE_ using the tag in its filename.
 
-*   __-t|--tag [-s|--strip-tag] [_--_] _FILE_ __  
+*   __-t|--tag [-s|--strip-tag] [-D|--dot INT] [_--_] _FILE_ __  
     Tag _FILE_ with the hexstring of its CRC32 checksum. Fails if _FILE_
     has already been tagged. If _-s_ is present, strip any existing tag
-    before appending the new one.
+    before appending the new one. By default, the tag is inserted into
+    the filename in front of the last dot. In the case of multi-part
+    suffixes like .tar.gz, it is desireable to insert the tag in another
+    position. Using the --dot option, the tag will be inserted in front
+    of the INTth dot in the filename. Negative indices are also possible
+    and indicate the INTth-last dot to be used. Zero '0' is a nonsense
+    argument to the option and will be ignored. --dot defaults to -1.
 
 *   __-r|--remove-tag [_--_] _FILE_ __  
     If _FILE_ is tagged, remove the tag.
 
 ## OPTIONS INVOLVING DATABASES
 
-*   __-p|--print _DB-FILE_ __   
-    Print all records in _DB-FILE_ to stdout and exit.
+*   __-p|--print [-R|--realpath] _DB-FILE_ __   
+    Print all records in _DB-FILE_ to stdout and exit. If --realpath is
+    specified, the paths will be printed as absolute paths.
 
 *   __-C|--create-db _DB-FILE_ [-a|--append] [-R|--realpath] [_--_] _FILE-LIST_ __   
     For a every _FILE_ in _FILE-LIST_, record its path and CRC32
@@ -95,10 +106,18 @@ from tags to validate a file.
     check whether the file still exists and if yes, verify its current
     CRC32 checksum against the one recorded in the database.
 
-*   __-m|--merge _DB-FILE_ [-a|--append] [_--_] _DB-FILE-LIST_ __  
+*   __-m|--merge _DB-FILE_ [-a|--append] [-R|--realpath] [_--_] _DB-FILE-LIST_ __  
     For every _DB-FILE_ in _DB-FILE-LIST_, merge its the contents into
     the database supplied as an paramter to the -m option. Duplicate
-    records will overwrite each other in the order they appear.
+    records will overwrite each other in the order they appear. If
+    --realpath is specified, all paths in the resulting database will be
+    absolute paths. For this to work, relative paths in the respective
+    databases must still be valid relative to the current working
+    directory.
 
 *   __-d|--delete _DB-FILE_ [_--_] _FILE-LIST_ __   
     Delete every _FILE_ in _FILE-LIST_ from _DB-FILE_ if it exists.
+
+*   __-P|--to-realpath [_--_] _DB-FILE-LIST_ __    
+    Convert all paths in the given databases into absolute paths if
+    possible. For this to work, any relative paths must still be valid.

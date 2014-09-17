@@ -1,2 +1,2 @@
-- option for using absolute paths in the database
-- free DBItem lists (use a doubly-linked list)
+- --realpath should always work relative to the directory the
+  database file in question is in

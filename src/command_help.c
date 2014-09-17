@@ -38,7 +38,7 @@ int command_help(int argc, char **argv, int optind, int flags) {
 " -p, --print       Print the contents of any given database\n"
 " -P, --to-realpath Convert paths in given databases to absolute paths\n"
 " -r, --remove-tag  Remove any tags from the given files\n"
-" -R, --realpath    Supplements -C, -m. Use absolute file paths\n"
+" -R, --realpath    Supplements -C, -m, -p. Use absolute file paths\n"
 " -s, --strip-tag   Supplements -t. Replace any existing tag\n"
 " -t, --tag         Add a CRC32 hexstring tag to each given filename\n"
 " -v, --verify      Compute CRC32 and compare with the hexstring\n"

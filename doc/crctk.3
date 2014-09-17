@@ -35,7 +35,7 @@ including brackets (example: [11FFAABB]).
 crctk is also used to manage such tags: it can tag files, update tags
 and use the CRC32 information from tags to validate a file.
 .SH COMMAND LINE
-.SS GENERAL OPTIONS
+.SS GENERIC OPTIONS
 .IP \[bu] 2
 \f[B]\-c|\-\-calc [\-n|\-\-numerical] [\f[I]\-\-\f[]] \f[I]FILE\f[] \f[]
 .PD 0
@@ -59,8 +59,19 @@ Replace the built\-in regex used to match tags (see section:
 .PD
 Print a help text and exit.
 .IP \[bu] 2
-\f[B]\-\-version\f[] Print an info text containing the compilation date
-and the program version.
+\f[B]\-\-version\f[]
+.PD 0
+.P
+.PD
+Print an info text containing the compilation date and the program
+version.
+.IP \[bu] 2
+\f[B]\-\-colors\f[]
+.PD 0
+.P
+.PD
+Enable coloured output where available.
+Will mess up pipelines, so be careful.
 .SS OPTIONS INVOLVING TAGS
 .IP \[bu] 2
 \f[B]\-v|\-\-verify [\f[I]\-\-\f[]] \f[I]FILE\f[] \f[]
@@ -69,7 +80,8 @@ and the program version.
 .PD
 Verify the integrity of \f[I]FILE\f[] using the tag in its filename.
 .IP \[bu] 2
-\f[B]\-t|\-\-tag [\-s|\-\-strip\-tag] [\f[I]\-\-\f[]] \f[I]FILE\f[] \f[]
+\f[B]\-t|\-\-tag [\-s|\-\-strip\-tag] [\-D|\-\-dot INT] [\f[I]\-\-\f[]]
+\f[I]FILE\f[] \f[]
 .PD 0
 .P
 .PD
@@ -77,6 +89,17 @@ Tag \f[I]FILE\f[] with the hexstring of its CRC32 checksum.
 Fails if \f[I]FILE\f[] has already been tagged.
 If \f[I]\-s\f[] is present, strip any existing tag before appending the
 new one.
+By default, the tag is inserted into the filename in front of the last
+dot.
+In the case of multi\-part suffixes like .tar.gz, it is desireable to
+insert the tag in another position.
+Using the \-\-dot option, the tag will be inserted in front of the INTth
+dot in the filename.
+Negative indices are also possible and indicate the INTth\-last dot to
+be used.
+Zero \[aq]0\[aq] is a nonsense argument to the option and will be
+ignored.
+\-\-dot defaults to \-1.
 .IP \[bu] 2
 \f[B]\-r|\-\-remove\-tag [\f[I]\-\-\f[]] \f[I]FILE\f[] \f[]
 .PD 0
@@ -85,11 +108,13 @@ new one.
 If \f[I]FILE\f[] is tagged, remove the tag.
 .SS OPTIONS INVOLVING DATABASES
 .IP \[bu] 2
-\f[B]\-p|\-\-print \f[I]DB\-FILE\f[] \f[]
+\f[B]\-p|\-\-print [\-R|\-\-realpath] \f[I]DB\-FILE\f[] \f[]
 .PD 0
 .P
 .PD
 Print all records in \f[I]DB\-FILE\f[] to stdout and exit.
+If \-\-realpath is specified, the paths will be printed as absolute
+paths.
 .IP \[bu] 2
 \f[B]\-C|\-\-create\-db \f[I]DB\-FILE\f[] [\-a|\-\-append]
 [\-R|\-\-realpath] [\f[I]\-\-\f[]] \f[I]FILE\-LIST\f[] \f[]
@@ -126,14 +151,18 @@ If \f[I]FILE\-LIST\f[] is absent, for every \f[I]FILE\f[] recorded in
 verify its current CRC32 checksum against the one recorded in the
 database.
 .IP \[bu] 2
-\f[B]\-m|\-\-merge \f[I]DB\-FILE\f[] [\-a|\-\-append] [\f[I]\-\-\f[]]
-\f[I]DB\-FILE\-LIST\f[] \f[]
+\f[B]\-m|\-\-merge \f[I]DB\-FILE\f[] [\-a|\-\-append] [\-R|\-\-realpath]
+[\f[I]\-\-\f[]] \f[I]DB\-FILE\-LIST\f[] \f[]
 .PD 0
 .P
 .PD
 For every \f[I]DB\-FILE\f[] in \f[I]DB\-FILE\-LIST\f[], merge its the
 contents into the database supplied as an paramter to the \-m option.
 Duplicate records will overwrite each other in the order they appear.
+If \-\-realpath is specified, all paths in the resulting database will
+be absolute paths.
+For this to work, relative paths in the respective databases must still
+be valid relative to the current working directory.
 .IP \[bu] 2
 \f[B]\-d|\-\-delete \f[I]DB\-FILE\f[] [\f[I]\-\-\f[]]
 \f[I]FILE\-LIST\f[] \f[]
@@ -142,5 +171,13 @@ Duplicate records will overwrite each other in the order they appear.
 .PD
 Delete every \f[I]FILE\f[] in \f[I]FILE\-LIST\f[] from \f[I]DB\-FILE\f[]
 if it exists.
+.IP \[bu] 2
+\f[B]\-P|\-\-to\-realpath [\f[I]\-\-\f[]] \f[I]DB\-FILE\-LIST\f[] \f[]
+.PD 0
+.P
+.PD
+Convert all paths in the given databases into absolute paths if
+possible.
+For this to work, any relative paths must still be valid.
 .SH AUTHORS
 Jens Oliver John <dev@2ion.de>.
