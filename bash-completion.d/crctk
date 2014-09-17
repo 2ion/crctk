@@ -5,10 +5,10 @@ _crctk(){
   local prev=${COMP_WORDS[COMP_CWORD-1]}
 
   if [[ $cur =~ ^-$ ]] ; then
-    COMPREPLY=( $(compgen -W '-X -x -t -n -v -V -h -s -r -C -c -d -e -p -a -m' -- $cur) )
+    COMPREPLY=( $(compgen -W '-a -c -C -d -D -e -h -m -n -p -P -r -R -s -t -v -V -x' -- $cur) )
     return
   elif [[ $cur =~ ^-- ]] ; then
-    COMPREPLY=( $(compgen -W '--verify --verify-db --prefer-hexstring --calc --numerical --create-db --delete --append --print --tag --strip-tag --remove-tag --tag-regex --help --version --merge' -- $cur) )
+    COMPREPLY=( $(compgen -W '--append --calc --create-db --delete --dot --tag-regex --merge --numerical --print --to-realpath --remove-tag --realpath --strip-tag --tag --verify --verify-db --hexstring --colors --help --version' -- $cur) )
     return
   fi
 }
