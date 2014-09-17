@@ -23,11 +23,11 @@ You need:
 - gcc and g++
 - libkyotocabinet
 - libxdgbasedir
-- ncrctk: libncurses or libncursesw
+- libncurses or libncursesw (for ncrctk only)
 
 On Debian, these may be installed using
 ```sh
-sudo apt-get install libkyotocabinet-dev zlib1g-dev libncursesw5-dev gcc g++
+sudo apt-get install libkyotocabinet-dev zlib1g-dev libncursesw5-dev gcc g++ libxdg-basedir-dev
 ```
 
 crctk uses the GNU autotools for building so you go through the familiar
