@@ -1,19 +1,33 @@
 # README
 
-crctk is a toolkit that helps making using CRC32 as a checksum algorithm
-for your files easier. As such, it provides functionality as described
-in the following.
+crctk is a program for checking the integrity of files using the CRC32
+checksum algorithm and generating CRC32 checksum data. The CRC32
+checksums can be input and output in various ways.
+
+Similar to tools like sha1sum(1), md5sum(1) and others, *crctk* is also
+used to create database files containing mappings from filepaths to
+checksums, which can be used later on to verify a batch of files. crctk
+offers functionality to work with such files.
+
+Because of their short length, it is common for CRC32 checksums to be
+included as hexadecimal strings in the filename of a _FILE_. Such tags
+are known to crctk as matching the regular expression
+__[[:punct:]]\\?[[:xdigit:]]\\{8\\}[[:punct:]]\\?__, that is a
+hexadecimal string optionally surrounded by punctuation characters,
+including brackets (example: [11FFAABB]). crctk can be used to manage
+such tags: it can tag files, update tags and use the CRC32 information
+from tags to validate a file.
+
+## Releases
 
 Stable releases are tagged in Git. The last stable release is [version
-0.4.9](https://github.com/2ion/crctk/releases/tag/0.4.9). This time, a
-binary Debian package for amd64 is available. The debianization
-lives on the debian branch if you want to build your own package.
+0.4.10](https://github.com/2ion/crctk/releases/tag/0.4.9). 
 
 In the additon to the CLI binary crctk, a ncurses-based interface is
-also in the workings! Its binary is named ncrctk and getting installed
+also in the workings. Its binary is named ncrctk and getting installed
 alongside the basic crctk. It still is in alpha status, but certain
 functionality may already be available. The goal is to get to feature
-parity with the CLI. Both binaries will share large parts of the source
+parity with the CLI. Both binaries are going to share large parts of the source
 code.
 
 ## Compilation and installation
