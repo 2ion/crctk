@@ -144,6 +144,10 @@ int main(int argc, char **argv) {
                     LERROR(EXIT_FAILURE, errno, "Integer argument to the -D option underflows");
                 if(dotidx == LONG_MAX)
                     LERROR(EXIT_FAILURE, errno, "Integer argument to the -D option overflows");
+                if(dotidx == 0) {
+                  LOG_INFO("Argument to --dot, -D is zero which makes no sense: defaulting to -1 instead");
+                  dotidx = -1;
+                }
                 break;
       case 0:   continue;
                 break;
