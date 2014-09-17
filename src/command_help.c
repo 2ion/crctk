@@ -51,7 +51,7 @@ int command_help(int argc, char **argv, int optind, int flags) {
 " --colors          Toggle coloured output\n"
 " -h, --help        Print this message and exit\n"
 " --version         Print the program version and compilation date\n",
-  argv[0], EXIT_SUCCESS, EXIT_FAILURE);
+  argc>0?argv[0]:"crctk", EXIT_SUCCESS, EXIT_FAILURE);
   return EXIT_SUCCESS;
 }
 
