@@ -21,7 +21,7 @@
 
 int command_help(int argc, char **argv, int optind, int flags) {
   printf("crctk - CRC32 Hexstring Toolkit\n"
-"Copyright (C) 2014 Jens Oliver John (dev@2ion.de)\n"
+"Copyright (C) 2014 Jens Oliver John <dev@2ion.de>\n"
 "Usage: %s [-acCdDehmnpPrRstvVx] <file>|<file-listing>\n"
 "Options:\n"
 " -a, --append      Supplements -C, -m. Append to DB-FILE\n"
@@ -48,7 +48,8 @@ int command_help(int argc, char **argv, int optind, int flags) {
 " -x, --hexstring   Supplements -V, -C. For any tagged file, use the\n"
 "                   hexstring as the reference CRC32\n"
 "\n"
-" --colors          Toggle coloured output\n"
+" --colors          Toggle coloured output. Alternatively, define the\n"
+"                   CRCTK_ENABLE_COLORS environment variable.\n"
 " -h, --help        Print this message and exit\n"
 " --version         Print the program version and compilation date\n",
   argc>0?argv[0]:"crctk", EXIT_SUCCESS, EXIT_FAILURE);
