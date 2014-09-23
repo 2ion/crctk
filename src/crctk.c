@@ -68,6 +68,7 @@ static const struct option options_long[] = {
   { "store", no_argument, NULL, 'S' },
   { "colors", no_argument, &flag_use_colors, 1 },
   { "quiet", no_argument, NULL, 'q' },
+  { "verify-hex", required_argument, NULL, 'X' },
   { 0, 0, 0, 0 }
 };
 

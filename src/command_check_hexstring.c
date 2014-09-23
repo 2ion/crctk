@@ -21,30 +21,31 @@
 
 int command_check_hexstring(int argc, char **argv, int optind,
     int flags) {
-  const char *filename = argv[argc-1];
+  int ret = EXIT_SUCCESS;
+  int i = optind-1;
   uint32_t strcrc, crc;
-  regex_t regex;
+  long int cast;
 
-  check_access_flags(filename, F_OK | R_OK, 1);
-  compile_regex(&regex, crcregex, REG_ICASE | REG_NOSUB);
-  switch(regexec((const regex_t*)&regex, hexarg, 0, NULL, 0)) {
-    case REG_NOMATCH:
-      printf("parameter to option -u is not a valid hexstring: %s\n", hexarg);
-      return EXIT_FAILURE;
-    case 0:
-      regfree(&regex);
-      break;
+  if(flags & CALC_PRINT_NUMERICAL)
+    cast = (uint32_t) strtol(hexarg, NULL, 10);
+  else
+    cast = (uint32_t) strtol(hexarg, NULL, 16);
+  if((cast == LONG_MIN || cast == LONG_MAX) &&
+    errno == ERANGE)
+    cast = 0;
+  strcrc = (uint32_t) cast;
+
+  while(argv[++i]) {
+    if(check_access_flags_v(argv[i], F_OK | R_OK, 1) != 0) {
+      log_failure(argv[i], "not accessible, not a file or doesn't exist");
+      ret = EXIT_FAILURE;
+      continue;
+    }
+    if((crc = compute_crc32(argv[i])) == strcrc)
+      log_success(argv[i], "match");
+    else 
+      log_failure(argv[i], "mismatch: %08X is really %08X", strcrc, crc);
   }
-  strcrc = (uint32_t) strtol(hexarg, NULL, 16);
-  if((crc = compute_crc32(filename)) == strcrc) {
-    printf("match: computed(%08X) == hexarg(%08X)\n",
-        crc, strcrc);
-    printf("%s: match: %08X\n", crc);
-    return EXIT_SUCCESS;
-  }
-  else {
-    printf("%s: mismatch: %08X is really %08X\n", strcrc, crc);
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+
+  return ret;
 }
