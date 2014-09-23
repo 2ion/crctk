@@ -48,7 +48,7 @@ int LOG(FILE *file, const char *color, const char *module, const char *format, v
     int done; \
     va_list arg; \
     if(flag_be_quiet == 1) \
-      return 0; \
+      return 0; /* number of bytes written is zero */ \
     va_start(arg, format); \
     done = LOG((file), (color), module, format, arg); \
     va_end(arg); \
