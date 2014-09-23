@@ -29,8 +29,8 @@ int command_list_db(int argc, char **argv, int optind, int flags) {
   for(i = optind; i < argc; ++i) {
     DBITEM_SET_NULL(dbi);
     e = NULL;
-    if(DB_read(argv[i], &dbi) != 0) {
-      fprintf(stderr, "[%s] not a valid database\n", argv[i]);
+    if(access(argv[i], F_OK | R_OK) != 0 || DB_read(argv[i], &dbi) != 0) {
+      fprintf(stderr, "[%s] does not exist or is not a valid database\n", argv[i]);
       continue;
     }
     if(dbi.kbuf == NULL) {
