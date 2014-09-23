@@ -168,7 +168,7 @@ int main(int argc, char **argv) {
   }
 
   /* pick up environment variables */
-  if(secure_getenv("CRCTK_ENABLE_COLORS") != NULL)
+  if(getenv("CRCTK_ENABLE_COLORS"))
     flag_use_colors = 1;
 
   ret = cmd(argc, argv, optind, cmdflags);
