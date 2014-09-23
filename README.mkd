@@ -18,50 +18,6 @@ including brackets (example: [11FFAABB]). crctk can be used to manage
 such tags: it can tag files, update tags and use the CRC32 information
 from tags to validate a file.
 
-## Releases
-
-Stable releases are tagged in Git. The last stable release is [version
-0.4.10](https://github.com/2ion/crctk/releases/tag/0.4.9). 
-
-In the additon to the CLI binary crctk, a ncurses-based interface is
-also in the workings. Its binary is named ncrctk and getting installed
-alongside the basic crctk. It still is in alpha status, but certain
-functionality may already be available. The goal is to get to feature
-parity with the CLI. Both binaries are going to share large parts of the source
-code.
-
-## Compilation and installation
-
-You need:
-
-- GNU autoconf and automake (for the build system)
-- gcc and g++
-- libkyotocabinet
-- libxdgbasedir
-- libncurses or libncursesw (for ncrctk only)
-
-On Debian, these may be installed using
-```sh
-sudo apt-get install libkyotocabinet-dev zlib1g-dev libncursesw5-dev gcc g++ libxdg-basedir-dev
-```
-
-crctk uses the GNU autotools for building so you go through the familiar
-steps:
-
-```sh
-./configure --prefix=/your/chosen/prefix/path
-make
-sudo make install-strip
-```
-
-## Documentation
-
-The documentation is written in pandoc markdown and located in /doc, so
-you can build a wide range of documentation formats! By default, we
-deliver HTML and man page versions.
-
-You can browse the HTML documentation [here](https://2ion.github.io/crctk).
-
 ## Command line synopsis
 
 More concise usage information.
@@ -104,6 +60,50 @@ Options:
  -h, --help        Print this message and exit
  --version         Print the program version and compilation date
 ```
+
+## Compilation and installation
+
+You need:
+
+- GNU autoconf and automake (for the build system)
+- gcc and g++
+- libkyotocabinet
+- libxdgbasedir
+- libncurses or libncursesw (for ncrctk only)
+
+On Debian, these may be installed using
+```sh
+sudo apt-get install libkyotocabinet-dev zlib1g-dev libncursesw5-dev gcc g++ libxdg-basedir-dev
+```
+
+crctk uses the GNU autotools for building so you go through the familiar
+steps:
+
+```sh
+./configure --prefix=/your/chosen/prefix/path
+make
+sudo make install-strip
+```
+
+## Releases
+
+Stable releases are tagged in Git. The last stable release is [version
+0.4.10](https://github.com/2ion/crctk/releases/tag/0.4.9). 
+
+In the additon to the CLI binary crctk, a ncurses-based interface is
+also in the workings. Its binary is named ncrctk and getting installed
+alongside the basic crctk. It still is in alpha status, but certain
+functionality may already be available. The goal is to get to feature
+parity with the CLI. Both binaries are going to share large parts of the source
+code.
+
+## Documentation
+
+The documentation is written in pandoc markdown and located in /doc, so
+you can build a wide range of documentation formats! By default, we
+deliver HTML and man page versions.
+
+You can browse the HTML documentation [here](https://2ion.github.io/crctk).
 
 ## NCurses interface synopsis
 
