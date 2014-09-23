@@ -162,12 +162,19 @@ int main(int argc, char **argv) {
           "obtain usage information.\n");
     return EXIT_FAILURE;
   }
+
+  /* pick up environment variables */
+  if(secure_getenv("CRCTK_ENABLE_COLORS") != NULL)
+    flag_use_colors = 1;
+
   ret = cmd(argc, argv, optind, cmdflags);
+
   if(do_free_dbiofile == 1)
     free((void*)dbiofile);
   if(do_free_hexarg == 1)
     free((void*)hexarg);
   if(do_free_crcregexstripper == 1)
     free((void*)crcregex_stripper);
+
   return ret;
 }
