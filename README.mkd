@@ -68,8 +68,8 @@ More concise usage information.
 
 ```
 crctk - CRC32 Hexstring Toolkit
-Copyright (C) 2014 Jens Oliver John (dev@2ion.de)
-Usage: ./src/crctk [-acCdDehmnpPrRstvVx] <file>|<file-listing>
+Copyright (C) 2014 Jens Oliver John <dev@2ion.de>
+Usage: crctk [-acCdDehmnpPqrRstvVx] <file>|<file-listing>
 Options:
  -a, --append      Supplements -C, -m. Append to DB-FILE
  -c, --calc        Compute the CRC32 for the given file
@@ -81,9 +81,10 @@ Options:
  -e, --tag-regex   EXPR. Affects -s, -r. Set the regex for matching tags
  -m, --merge       DB-FILE. Merges all given databases into DB-FILE.
                    Duplicate records subsequently overwrite each other
- -n, --numerical   Supplements -c. Prints a decimal CRC32 checksum
+ -n, --numerical   Supplements -c, -X. Use decimal CRC32 checksums
  -p, --print       Print the contents of any given database
  -P, --to-realpath Convert paths in given databases to absolute paths
+ -q, --quiet       Suppress all text output
  -r, --remove-tag  Remove any tags from the given files
  -R, --realpath    Supplements -C, -m, -p. Use absolute file paths
  -s, --strip-tag   Supplements -t. Replace any existing tag
@@ -92,10 +93,14 @@ Options:
                    in the supplied filename
  -V, --verify-db   DB-FILE. Check whether the files record in the
                    database still have the same CRC32 checksums
+ -X, --verify-hex  INT. Check if the specified files match the given
+                   CRC32 code INT. If --numerical was specified, expects
+                   a base 16 number, otherwise a base 10 number
  -x, --hexstring   Supplements -V, -C. For any tagged file, use the
                    hexstring as the reference CRC32
 
- --colors          Toggle coloured output
+ --colors          Toggle coloured output. Alternatively, define the
+                   CRCTK_ENABLE_COLORS environment variable.
  -h, --help        Print this message and exit
  --version         Print the program version and compilation date
 ```
