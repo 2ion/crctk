@@ -34,18 +34,21 @@ int LOG(FILE *file, const char *color, const char *module, const char *format, v
       LERROR(EXIT_FAILURE, errno, "malloc() failed");
   snprintf(fmt, msize, "[%s%s%s] %s\n\n", IFCOLORS(color),
       module, IFCOLORS(ANSI_COLOR_RESET), format);
+
   done = vfprintf(file, fmt, ap);
+
   if(fmt != LOG_FUNC_BUFFER)
     free(fmt);
 
   return done;
-
 }
 
 #define DEF_LOG_FUNC(name, file, color) \
   int (name)(const char *module, const char *format, ...) {\
     int done; \
     va_list arg; \
+    if(flag_be_quiet == 1) \
+      return 0; \
     va_start(arg, format); \
     done = LOG((file), (color), module, format, arg); \
     va_end(arg); \

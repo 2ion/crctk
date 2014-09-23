@@ -40,6 +40,7 @@ extern const char *hexarg;
 extern const char *dbiofile;
 extern int dotidx;
 extern int flag_use_colors;
+extern int flag_be_quiet;
 
 /* TYPES */
 

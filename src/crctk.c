@@ -42,8 +42,9 @@ const char *dbiofile = NULL;
 const char *hexarg = "00000000";
 int dotidx = -1;
 int flag_use_colors = 0;
+int flag_be_quiet = 0;
 
-static const char *optstring_short = "+X:xtnvV:hSsRrC:cD:d:e:Ppam:";
+static const char *optstring_short = "+X:xtnvV:hSsRrC:cD:d:e:Ppam:q";
 static const struct option options_long[] = {
   { "verify", no_argument, NULL, 'v' },
   { "verify-db", required_argument, NULL, 'V' },
@@ -66,6 +67,7 @@ static const struct option options_long[] = {
   { "to-realpath", no_argument, NULL, 'P' },
   { "store", no_argument, NULL, 'S' },
   { "colors", no_argument, &flag_use_colors, 1 },
+  { "quiet", no_argument, NULL, 'q' },
   { 0, 0, 0, 0 }
 };
 
@@ -148,6 +150,8 @@ int main(int argc, char **argv) {
                   LOG_INFO("Argument to --dot, -D is zero which makes no sense: defaulting to -1 instead");
                   dotidx = -1;
                 }
+                break;
+      case 'q': flag_be_quiet = 1;
                 break;
       case 0:   continue;
                 break;

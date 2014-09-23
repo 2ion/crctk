@@ -39,18 +39,18 @@ int command_check(int argc, char **argv, int optind, int flags) {
       results[ti] = '\0';
       break;
     case REG_NOMATCH:
-      printf(("The filename does not contain a hexstring: %s\n"), filename);
+      log_failure(filename, "filename does not contain a hexstring");
       return EXIT_FAILURE; // Not reached
   }
   regfree(&regex);
   compcrc = compute_crc32(filename);
   matchcrc = (uint32_t) strtol(results, NULL, 16);
   if(compcrc != matchcrc) {
-    printf("%s: mismatch: %08X is really %08X\n",
-        filename, matchcrc, compcrc);
+    log_failure(filename, "mismatch: %08X is really %08X",
+        matchcrc, compcrc);
     return EXIT_FAILURE;
   } else {
-    printf("%s: match: %08X\n", filename, matchcrc);
+    log_success(filename, "OK");
     return EXIT_SUCCESS;
   }
 }

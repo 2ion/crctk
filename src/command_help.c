@@ -22,7 +22,7 @@
 int command_help(int argc, char **argv, int optind, int flags) {
   printf("crctk - CRC32 Hexstring Toolkit\n"
 "Copyright (C) 2014 Jens Oliver John <dev@2ion.de>\n"
-"Usage: %s [-acCdDehmnpPrRstvVx] <file>|<file-listing>\n"
+"Usage: %s [-acCdDehmnpPqrRstvVx] <file>|<file-listing>\n"
 "Options:\n"
 " -a, --append      Supplements -C, -m. Append to DB-FILE\n"
 " -c, --calc        Compute the CRC32 for the given file\n"
@@ -37,6 +37,7 @@ int command_help(int argc, char **argv, int optind, int flags) {
 " -n, --numerical   Supplements -c. Prints a decimal CRC32 checksum\n"
 " -p, --print       Print the contents of any given database\n"
 " -P, --to-realpath Convert paths in given databases to absolute paths\n"
+" -q, --quiet       Suppress all text output\n"
 " -r, --remove-tag  Remove any tags from the given files\n"
 " -R, --realpath    Supplements -C, -m, -p. Use absolute file paths\n"
 " -s, --strip-tag   Supplements -t. Replace any existing tag\n"
