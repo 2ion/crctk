@@ -289,9 +289,15 @@ void DB_item_free(struct DBItem *dbi) {
 }
 
 char* DB_getkcdbiofile(const char *path) {
-  char *s = malloc(sizeof(char)*(strlen(path) + 2 + strlen(CRCTK_DB_TUNINGSUFFIX)));
-  if(s==NULL) LERROR(EXIT_FAILURE, errno, "malloc() failed");
-  memcpy(s, path, sizeof(char)*(strlen(path)+1));
+  char *rp = realpath(path, NULL);
+  if(rp==NULL)
+    LERROR(EXIT_FAILURE, errno, "realpath() failed");
+  char *s = malloc(sizeof(char)*(strlen(rp)
+        + 2
+        + strlen(CRCTK_DB_TUNINGSUFFIX)));
+  if(s==NULL)
+    LERROR(EXIT_FAILURE, errno, "malloc() failed");
+  memcpy(s, rp, sizeof(char)*(strlen(rp)+1));
   return strcat(s, CRCTK_DB_TUNINGSUFFIX);
 }
 
@@ -336,10 +342,15 @@ int DB_make_paths_absolute(const char *path) {
       LERROR(EXIT_FAILURE, errno, "unknown error in getcwd()");
   }
 
+  LERROR(0, 0, "$pwd=%s", pwd);
+
   abspath = realpath(path, NULL);
   if(abspath == NULL)
     LERROR(EXIT_FAILURE, errno, "realpath() failed");
-  if(chdir((const char*) basename(abspath)) != 0) {
+  LERROR(0,0, "$abspath=%s", abspath);
+
+  if(chdir((const char*) dirname(abspath)) != 0) {
+    LERROR(0,0, "chdir failed");
     ret = DB_ECHDIR;
     goto simple_cleanup;
   }
