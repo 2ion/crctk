@@ -30,11 +30,12 @@ int command_list_db(int argc, char **argv, int optind, int flags) {
     DBITEM_SET_NULL(dbi);
     e = NULL;
     if(access(argv[i], F_OK | R_OK) != 0 || DB_read(argv[i], &dbi) != 0) {
-      fprintf(stderr, "[%s] does not exist or is not a valid database\n", argv[i]);
+      log_failure(argv[i], "doesn't exist or isn't a valid database");
       continue;
     }
     if(dbi.kbuf == NULL) {
       printf("[%s] database is empty\n", argv[i]);
+      log_info(argv[i], "is empty");
       continue;
     }
     e = &dbi;
@@ -42,7 +43,7 @@ int command_list_db(int argc, char **argv, int optind, int flags) {
       p = e->kbuf;
       if(flags & USE_REALPATH)
         p = get_realpath((const char*) e->kbuf, &do_free_p);
-      printf("[%s] %s -> %08X\n", argv[i], p, e->crc);
+      log_success(argv[i], "%s -> %08X", p, e->crc);
       if(do_free_p == 1) {
         free(p);
         do_free_p = 0;
