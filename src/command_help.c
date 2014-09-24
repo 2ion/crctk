@@ -22,7 +22,7 @@
 int command_help(int argc, char **argv, int optind, int flags) {
   printf("crctk - CRC32 Hexstring Toolkit\n"
 "Copyright (C) 2014 Jens Oliver John <dev@2ion.de>\n"
-"Usage: %s [-acCdDehmnpPqrRstvVx] <file>|<file-listing>\n"
+"Usage: %s [-acCdDehmnopPqrRstvVx] <file>|<file-listing>\n"
 "Options:\n"
 " -a, --append      Supplements -C, -m. Append to DB-FILE\n"
 " -c, --calc        Compute the CRC32 for the given file\n"
@@ -35,6 +35,8 @@ int command_help(int argc, char **argv, int optind, int flags) {
 " -m, --merge       DB-FILE. Merges all given databases into DB-FILE.\n"
 "                   Duplicate records subsequently overwrite each other\n"
 " -n, --numerical   Supplements -c, -X. Use decimal CRC32 checksums\n"
+" -o, --colors      Toggle coloured output. Alternatively, define the\n"
+"                   CRCTK_ENABLE_COLORS environment variable.\n"
 " -p, --print       Print the contents of any given database\n"
 " -P, --to-realpath Convert paths in given databases to absolute paths\n"
 " -q, --quiet       Suppress all text output\n"
@@ -52,8 +54,6 @@ int command_help(int argc, char **argv, int optind, int flags) {
 " -x, --hexstring   Supplements -V, -C. For any tagged file, use the\n"
 "                   hexstring as the reference CRC32\n"
 "\n"
-" --colors          Toggle coloured output. Alternatively, define the\n"
-"                   CRCTK_ENABLE_COLORS environment variable.\n"
 " -h, --help        Print this message and exit\n"
 " --version         Print the program version and compilation date\n",
   argc>0?argv[0]:"crctk", EXIT_SUCCESS, EXIT_FAILURE);

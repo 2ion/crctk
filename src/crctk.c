@@ -45,7 +45,7 @@ int dotidx = -1;
 int flag_use_colors = 0;
 int flag_be_quiet = 0;
 
-static const char *optstring_short = "+X:xtnvV:hSsRrC:cD:d:e:Ppam:q";
+static const char *optstring_short = "+X:xtnvV:hSsRrC:cD:d:e:Ppam:qo";
 static const struct option options_long[] = {
   { "verify", no_argument, NULL, 'v' },
   { "verify-db", required_argument, NULL, 'V' },
@@ -67,7 +67,7 @@ static const struct option options_long[] = {
   { "realpath", no_argument, NULL, 'R' },
   { "to-realpath", no_argument, NULL, 'P' },
   { "store", no_argument, NULL, 'S' },
-  { "colors", no_argument, &flag_use_colors, 1 },
+  { "colors", no_argument, NULL, 'o' },
   { "quiet", no_argument, NULL, 'q' },
   { "verify-hex", required_argument, NULL, 'X' },
   { 0, 0, 0, 0 }
@@ -154,6 +154,8 @@ int main(int argc, char **argv) {
                 }
                 break;
       case 'q': flag_be_quiet = 1;
+                break;
+      case 'o': flag_use_colors = 1;
                 break;
       case 0:   continue;
                 break;
