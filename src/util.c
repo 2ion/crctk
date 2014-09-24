@@ -172,7 +172,7 @@ char* get_capturefilepath(void) {
     ddir, CAPTURE_DIR, CAPTURE_FILE); 
   if((path = malloc(pathlen)) == NULL) {
     xdgWipeHandle(&xh);
-    LERROR(EXIT_FAILURE, errno, "malloc() failed");
+    MLCERROR();
   }
   snprintf(path, pathlen, "%s/%s/%s",
       ddir, CAPTURE_DIR, CAPTURE_FILE);
@@ -182,7 +182,7 @@ char* get_capturefilepath(void) {
   if((dpath = malloc(dpathlen)) == NULL) {
     xdgWipeHandle(&xh);
     free(path);
-    LERROR(EXIT_FAILURE, errno, "malloc() failed");
+    MLCERROR();
   }
   snprintf(dpath, dpathlen, "%s/%s", ddir, CAPTURE_DIR);
 

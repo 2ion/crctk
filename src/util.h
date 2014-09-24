@@ -38,6 +38,7 @@
 
 #define LERROR(status, errnum, ...) error_at_line((status), (errnum), \
         (__func__), (__LINE__), __VA_ARGS__)
+#define MLCERROR() LERROR(EXIT_FAILURE, errno, "malloc() failed")
 #define CAPTURE_DIR "crctk"
 #define CAPTURE_FILE "stash.crctk"
 
