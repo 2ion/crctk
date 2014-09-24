@@ -86,7 +86,7 @@ char* pathcat(const char *p, const char *s) {
 
   r = calloc(strlen(p) + strlen(s) + 2, sizeof(char));
   if(r == NULL)
-    LERROR(EXIT_FAILURE, errno, "memory allocation error");
+    MLCERROR();
   strcat(r, p);
   strcat(r, "/");
   strcat(r, s);
@@ -108,7 +108,7 @@ char* strip_tag(const char *str, const char *crcregex_stripper) {
   }
   rstr = malloc((strlen(str)+1-(rm.rm_eo - rm.rm_so)) * sizeof(char));
   if(rstr == NULL)
-    LERROR(EXIT_FAILURE, errno, "memory allocation error");
+    MLCERROR();
   for(p = str, q = &str[rm.rm_so], i=0; p < q; ++p)
     rstr[i++] = *p;
   for(p = &str[rm.rm_eo]; *p; ++p)
