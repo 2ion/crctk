@@ -21,24 +21,25 @@
 #define UTIL_H
 
 #include <assert.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <unistd.h>
+#include <basedir.h>
 #include <errno.h>
 #include <error.h>
-#include <regex.h>
 #include <libgen.h>
+#include <regex.h>
+#include <stdarg.h>
+#include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "database.h"
 #include "crctk.h"
 
-/* ANSI color escapes */
-
 #define LERROR(status, errnum, ...) error_at_line((status), (errnum), \
         (__func__), (__LINE__), __VA_ARGS__)
+#define CAPTURE_DIR "crctk"
+#define CAPTURE_FILE "stash.crctk"
 
 void check_access_flags(const char*, int, int);
 int check_access_flags_v(const char*, int, int);

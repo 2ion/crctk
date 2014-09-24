@@ -156,5 +156,47 @@ char* get_realpath(const char *path, int *do_free_flag) {
 }
 
 char* get_capturefilepath(void) {
-  return NULL;
+  xdgHandle xh;
+  const char *ddir;
+  char *path;
+  size_t pathlen;
+  char *dpath;
+  size_t dpathlen;
+
+  if(!xdgInitHandle(&xh))
+    return NULL;
+
+  /* determine the capture file's path */
+  ddir = xdgDataHome(&xh);
+  pathlen = snprintf(NULL, 0, "%s/%s/%s",
+    ddir, CAPTURE_DIR, CAPTURE_FILE); 
+  if((path = malloc(pathlen)) == NULL) {
+    xdgWipeHandle(&xh);
+    LERROR(EXIT_FAILURE, errno, "malloc() failed");
+  }
+  snprintf(path, pathlen, "%s/%s/%s",
+      ddir, CAPTURE_DIR, CAPTURE_FILE);
+
+  /* determine the capture file's parent directory's path */
+  dpathlen = snprintf(NULL, 0, "%s/%s", ddir, CAPTURE_DIR);
+  if((dpath = malloc(dpathlen)) == NULL) {
+    xdgWipeHandle(&xh);
+    free(path);
+    LERROR(EXIT_FAILURE, errno, "malloc() failed");
+  }
+  snprintf(dpath, dpathlen, "%s/%s", ddir, CAPTURE_DIR);
+
+  /* create the parent directory if it doesn't exist */
+  if(access((const char*)dpath, F_OK | R_OK) != 0
+      && xdgMakePath(dpath, S_IRWXU) != 0) {
+    xdgWipeHandle(&xh);
+    free(path);
+    free(dpath);
+    return NULL;
+  }
+
+  free(dpath);
+  xdgWipeHandle(&xh);
+  
+  return path;
 }
