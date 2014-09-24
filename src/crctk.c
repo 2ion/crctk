@@ -17,20 +17,21 @@
  *
  * */
 
-#include "crctk.h"
-#include "command_calc_batch.h"
-#include "command_check_batch.h"
-#include "command_help.h"
-#include "command_list.h"
-#include "command_tag.h"
-#include "command_remove_tag.h"
-#include "command_check.h"
-#include "command_check_hexstring.h"
 #include "command_calc.h"
-#include "command_idle.h"
-#include "command_merge.h"
+#include "command_calc_batch.h"
+#include "command_check.h"
+#include "command_check_batch.h"
+#include "command_check_hexstring.h"
 #include "command_delete.h"
+#include "command_help.h"
+#include "command_idle.h"
+#include "command_list.h"
+#include "command_merge.h"
+#include "command_remove_tag.h"
+#include "command_store.h"
+#include "command_tag.h"
 #include "command_to_realpaths.h"
+#include "crctk.h"
 #include "util.h"
 
 /* from crctk.h */
