@@ -8,9 +8,15 @@
 #include <string>
 #include <iostream>
 
+/*
 extern "C"
 {
 #include "database.h"
+}
+*/
+extern "C"
+{
+#include "util.h"
 }
 #include "localerror.h"
 #include "window.h"

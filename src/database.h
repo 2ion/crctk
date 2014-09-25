@@ -31,6 +31,7 @@
 #include <kclangc.h>
 
 #include "util.h"
+#include "log.h"
 
 #define CRCTK_DB_TUNINGSUFFIX "#type=kct#zcomp=gz#opts=cs#apow=0#bnum=30"
 #define DBITEM_NULL { NULL, 0, 0, NULL, NULL }
@@ -54,7 +55,7 @@ struct DBFinder {
 enum {
   DB_ECHDIR   = -1,
   DB_EOPEN    = -2,
-  DB_EMERGE   = -3 
+  DB_EMERGE   = -3
 };
 
 int DB_write(const char *path, const struct DBItem *dbi, int do_truncate);
