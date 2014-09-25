@@ -30,6 +30,7 @@
 #include <fcntl.h>
 #include <kclangc.h>
 
+#include "config.h" /* _FORTIFY_SOURCE=1 */
 #include "util.h"
 #include "log.h"
 

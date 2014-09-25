@@ -13,4 +13,11 @@ PKG_CHECK_MODULES([KYOTOCABINET], [kyotocabinet])
 PKG_CHECK_MODULES([NCURSESW], [ncursesw])
 PKG_CHECK_MODULES([XDGBASEDIR], [libxdg-basedir])
 
+AH_VERBATIM([_FORTIFY_SOURCE],
+[/* Fortify source in gcc */
+#if __OPTIMIZE__
+#define _FORTIFY_SOURCE 2
+#endif
+])
+
 AC_OUTPUT

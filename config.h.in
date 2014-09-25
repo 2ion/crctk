@@ -23,3 +23,9 @@
 
 /* Version number of package */
 #undef VERSION
+
+/* Fortify source in gcc */
+#if __OPTIMIZE__
+#define _FORTIFY_SOURCE 2
+#endif
+

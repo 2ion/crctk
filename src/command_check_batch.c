@@ -27,32 +27,34 @@ int command_check_batch_from_argv(int argc, char **argv,
   char *X;
   struct DBFinder dbf;
 
-  if(DB_find_open(dbiofile, &dbf) != 0)
-    LERROR(EXIT_FAILURE, 0, "[%s] could not open database", dbiofile);
+  if(DB_find_open(dbiofile, &dbf) != 0) {
+    log_failure(dbiofile, "could not open database");
+    return EXIT_FAILURE;
+  }
 
   for(i = optind; i < argc; ++i) {
     if(check_access_flags_v(argv[i], F_OK | R_OK, 1) != 0) {
-      fprintf(stderr, "[%s] skipping: file is not accessible\n",
+      log_failure(dbiofile, "skipping: file is not accessible: %s",
           argv[i]);
       continue;
     }
     if(DB_find_get(&dbf, argv[i], &dbcrc) != 0) {
-      fprintf(stderr, "[%s] skipping: file not found: %s\n",
-          dbiofile, argv[i]);
+      log_info(dbiofile, "skipping: file not in database: %s",
+          argv[i]);
       continue;
     }
     if(cmdflags & CHECK_BATCH_PREFER_HEXSTRING) {
       X = get_tag(argv[i], crcregex);
       if(X == NULL) {
-        fprintf(stderr, "option -x is ineffective: filename does "
-            "not contain a hexstring: %s\n", argv[i]);
+        log_info("--hexstring", "option is ineffective: filename does "
+            "not contain a hexstring: %s", argv[i]);
         continue;
       }
       othercrc = strtol((const char*)X, NULL, 16);
       if(othercrc = dbcrc)
-        printf("[%s] %s -> OK [%08X]\n", dbiofile, argv[i], dbcrc);
+        log_success(dbiofile, "%s -> OK [%08X]", argv[i], dbcrc);
       else
-        printf("[%s] %s -> MISMATCH [%08X] vs. -x[%08X]\n", dbiofile,
+        log_failure(dbiofile, "%s -> MISMATCH [%08X] vs. -x[%08X]\n",
             argv[i], dbcrc, othercrc);
       free(X);
       continue;
