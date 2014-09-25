@@ -24,20 +24,20 @@ int command_delete(int argc, char **argv, int optind, int cmdflags) {
   struct DBFinder dbf = DBFINDER_NULL;
 
   if(DB_find_open(dbiofile, &dbf) != 0) {
-    printf("could not open database: %s\n", dbiofile);
+    log_failure(dbiofile, "could not open the database");
     return EXIT_FAILURE;
   }
 
   for(i = optind; i < argc; ++i) {
     switch(DB_find_remove(&dbf, (const char*)argv[i])) {
       case 0:
-        printf("[%s] deleted key: %s\n", dbiofile, argv[i]);
+        log_success(dbiofile, "deleted key: %s", argv[i]);
         break;
       case -1:
-        printf("[%s] no such key: %s\n", dbiofile, argv[i]);
+        log_info(dbiofile, "no such key: %s", argv[i]);
         break;
       case -2:
-        printf("[%s] failed to delete key: %s\n", dbiofile, argv[i]);
+        log_failure(dbiofile, "failed to delete key: %s", argv[i]);
         break;
       default:
         break;
