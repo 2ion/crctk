@@ -37,7 +37,7 @@ int command_merge(int argc, char **argv, int optind, int cmdflags) {
 
   if(cmdflags & USE_REALPATH)
     if(DB_make_paths_absolute(dbiofile) != 0)
-      printf("[%s] conversion to absolute paths failed\n", dbiofile);
+      log_failure(dbiofile, "couldn't make file paths absolute");
 
   return EXIT_SUCCESS;
 }
