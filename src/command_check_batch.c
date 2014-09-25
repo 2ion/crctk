@@ -61,14 +61,14 @@ int command_check_batch_from_argv(int argc, char **argv,
     }
     othercrc = compute_crc32(argv[i]);
     if(othercrc == 0) {
-      fprintf(stderr, "%s: error: CRC32 is zero\n", argv[i]);
+      log_info(argv[i], "CRC32 is zero");
       continue;
     }
     if(othercrc == dbcrc)
-      printf("[%s] %s -> OK [%08X]\n", argv[i], dbcrc);
+      log_success(dbiofile, "%s -> OK [%08X]", argv[i], dbcrc);
     else
-      printf("[%s] %s -> MISMATCH [%08X] vs. [%08X]\n",
-          dbiofile, argv[i], dbcrc, othercrc);
+      log_failure(dbiofile, "MISMATCH [%08X] vs. [%08X]",
+          argv[i], dbcrc, othercrc);
   }
   DB_find_close(&dbf);
   return EXIT_SUCCESS;
@@ -80,26 +80,31 @@ int command_check_batch_from_db(int argc, char **argv,
   struct DBItem dbi = DBITEM_NULL;
   struct DBItem *e;
 
-  if(DB_read(dbiofile, &dbi) != 0)
-    LERROR(EXIT_FAILURE, 0, "[%s] file not readable", dbiofile);
-  if(dbi.kbuf == NULL)
-    LERROR(EXIT_SUCCESS, 0, "[%s] is empty", dbiofile);
+  if(DB_read(dbiofile, &dbi) != 0) {
+    log_failure(dbiofile, "database is not readable");
+    return EXIT_FAILURE;
+  }
+  if(dbi.kbuf == NULL) {
+    log_info(dbiofile, "database is empty");
+    return EXIT_SUCCESS;
+  }
+
   e = &dbi;
   do {
-    printf("[%s] %s -> ", dbiofile, e->kbuf);
     if(check_access_flags_v(e->kbuf, F_OK | R_OK, 1) != 0) {
-      printf("ERROR: NO ACCESS\n");
+      log_failure(dbiofile, "%s -> NO ACCESS", e->kbuf);
       continue;
     }
     crc = compute_crc32(e->kbuf);
     if(crc == 0) {
-      printf("ERROR: CRC32 is zero\n", e->kbuf);
+      log_info(dbiofile, "%s -> CRC32 is zero", e->kbuf);
       continue;
     }
     if(crc == e->crc)
-      printf("OK [%08X]\n", crc);
+      log_success(dbiofile, "%s -> OK [%08X]", e->kbuf, crc);
     else
-      printf("MISMATCH [%08X is really %08X]\n", e->crc, crc);
+      log_failure(dbiofile, "%s -> MISMATCH [%08X is now %08X]",
+          e->kbuf, e->crc, crc);
   } while((e = e->next) != NULL);
 
   if(dbi.next != NULL)
