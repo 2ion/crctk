@@ -34,7 +34,6 @@ int command_list_db(int argc, char **argv, int optind, int flags) {
       continue;
     }
     if(dbi.kbuf == NULL) {
-      printf("[%s] database is empty\n", argv[i]);
       log_info(argv[i], "is empty");
       continue;
     }
