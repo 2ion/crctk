@@ -1,2 +1,2 @@
-- --realpath should always work relative to the directory the
-  database file in question is in
+- see that -x is handled correctly in all command modules
+- log.c: allow split log messages to indicate progress
