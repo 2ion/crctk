@@ -38,8 +38,8 @@ int DB_merge(const char *path, const char **pathlist, int do_truncate) {
 
   /* open target database */
   if(!kcdbopen(db, kcdbiofile, kcwriteflags)) {
-    LERROR(0, 0, "Could not open target database: %s: %s",
-        path, kcecodename(kcdbecode(db)));
+    log_failure(path, "opening the database failed: %s",
+        kcecodename(kcdbecode(db)));
     kcdbdel(db);
     free(kcdbiofile);
     return -1;
@@ -57,14 +57,14 @@ int DB_merge(const char *path, const char **pathlist, int do_truncate) {
     dbiofiles[i] = DB_getkcdbiofile(pathlist[i]);
     dbsrc[i] = kcdbnew();
     if(!kcdbopen(dbsrc[i], dbiofiles[i], KCOREADER)) {
-      printf("[%s]: skipping: is not a database (%s)\n",
-          pathlist[i], kcecodename(kcdbecode(dbsrc[i])));
+      log_info(pathlist[i], "skipping: %s",
+          kcecodename(kcdbecode(dbsrc[i])));
       kcdbdel(dbsrc[i]);
       dbsrc[i] = NULL;
       free(dbiofiles[i]);
       dbiofiles[i] = NULL;
     } else {
-      printf("[%s] provides %d entries\n", pathlist[i], kcdbcount(dbsrc[i]));
+      log_info(pathlist[i], "provides %d entries", kcdbcount(dbsrc[i]));
       ++k;
     }
   }
@@ -72,17 +72,16 @@ int DB_merge(const char *path, const char **pathlist, int do_truncate) {
   /* merge */
   dbsrcfinal = malloc(sizeof(KCDB*)*k);
   if(dbsrcfinal == NULL)
-    LERROR(EXIT_FAILURE, errno, "");
+    MLCERROR();
 
   for(h = 0, i = 0; i < j && h < k; ++i)
     if(dbsrc[i]) {
       dbsrcfinal[h++] = dbsrc[i];
     }
 
-
   if(!kcdbmerge(db, dbsrcfinal, k, KCMSET)) {
-    fprintf(stderr, "Merging failed\n");
-    ret = -1;
+    log_failure(path, "merging failed");
+    ret = DB_EMERGE;
   }
 
   /* cleanup */
@@ -111,7 +110,8 @@ int DB_find_open(const char *path, struct DBFinder *dbf) {
   dbf->db = kcdbnew();
 
   if(!kcdbopen(dbf->db, kc_dbiofile, KCOWRITER)) {
-    LERROR(0,0, "kcdbopen() error: %s", kcecodename(kcdbecode(dbf->db)));
+    log_failure(path, "opening the database failed: %s",
+        kcecodename(kcdbecode(dbf->db)));
     return -1;
   }
   dbf->cur = kcdbcursor(dbf->db);
@@ -176,7 +176,8 @@ int DB_write(const char *path, const struct DBItem *dbi, int do_truncate) {
     (KCOWRITER | KCOCREATE);
   
   if(!kcdbopen(db, kc_dbiofile, kcdbopen_flags)) {
-    LERROR(0, 0, "kcdbopen() error: %s", kcecodename(kcdbecode(db)));
+    log_failure(path, "opening the database failed: %s",
+        kcecodename(kcdbecode(db)));
     return -1;
   }
   do {
@@ -190,7 +191,8 @@ int DB_write(const char *path, const struct DBItem *dbi, int do_truncate) {
   } while((e = (const struct DBItem*)e->next) != NULL);
   if(!kcdbclose(db)) {
     free(kc_dbiofile);
-    LERROR(0, 0, "kcdbclose() error: %s", kcecodename(kcdbecode(db)));
+    log_failure(path, "closing the database failed: %s",
+        kcecodename(kcdbecode(db)));
     return -1;
   }
   kcdbdel(db);
@@ -227,7 +229,8 @@ int DB_read(const char *path, struct DBItem *dbi) {
       curi->next = NULL;
     }
     curi->kbuf = malloc(ksize);
-    if(curi->kbuf==NULL) LERROR(EXIT_FAILURE, errno, "malloc() failed");
+    if(curi->kbuf == NULL)
+      MLCERROR();
     curi->kbuflen = ksize;
     memcpy(curi->kbuf, kbuf, ksize);
     memcpy(&curi->crc, vbuf, vsize);
@@ -237,7 +240,8 @@ int DB_read(const char *path, struct DBItem *dbi) {
   }
   kccurdel(cur);
   if(!kcdbclose(db)) {
-    LERROR(0, 0, "kcdbclose() error: %s", kcecodename(kcdbecode(db)));
+    log_failure(path, "closing the database failed: %s",
+        kcecodename(kcdbecode(db)));
     return -1;
   }
   kcdbdel(db);
@@ -248,7 +252,7 @@ int DB_read(const char *path, struct DBItem *dbi) {
 struct DBItem* DB_item_alloc(void) {
   struct DBItem *e = calloc(1, sizeof(struct DBItem));
   if(e == NULL)
-    LERROR(EXIT_FAILURE, errno, "memory allocation error");
+    MLCERROR();
   return e;
 }
 
@@ -256,7 +260,8 @@ struct DBItem* DB_item_new(const char *kbuf, size_t kbuflen, uint32_t crc) {
   assert(kbuf != NULL);
   struct DBItem *e = DB_item_alloc();
   e->kbuf = malloc(kbuflen);
-  if(e->kbuf == NULL) LERROR(EXIT_FAILURE, errno, "memory allocation error");
+  if(e->kbuf == NULL)
+    MLCERROR();
   memcpy(e->kbuf, kbuf, kbuflen);
   e->crc = crc;
   return e;
@@ -265,7 +270,8 @@ struct DBItem* DB_item_new(const char *kbuf, size_t kbuflen, uint32_t crc) {
 struct DBItem* DB_item_append(struct DBItem *parent, const char *kbuf,
     size_t kbuflen, uint32_t crc) {
   assert(kbuf != NULL);
-  if(parent == NULL) return DB_item_new(kbuf, kbuflen, crc);
+  if(parent == NULL)
+    return DB_item_new(kbuf, kbuflen, crc);
   struct DBItem *e = DB_item_new(kbuf, kbuflen, crc);
   parent->next = e;
   return e;
@@ -290,13 +296,13 @@ void DB_item_free(struct DBItem *dbi) {
 
 char* DB_getkcdbiofile(const char *path) {
   char *rp = realpath(path, NULL);
-  if(rp==NULL)
+  if(rp == NULL)
     LERROR(EXIT_FAILURE, errno, "realpath() failed");
   char *s = malloc(sizeof(char)*(strlen(rp)
         + 2
         + strlen(CRCTK_DB_TUNINGSUFFIX)));
-  if(s==NULL)
-    LERROR(EXIT_FAILURE, errno, "malloc() failed");
+  if(s == NULL)
+    MLCERROR();
   memcpy(s, rp, sizeof(char)*(strlen(rp)+1));
   return strcat(s, CRCTK_DB_TUNINGSUFFIX);
 }
@@ -336,18 +342,15 @@ int DB_make_paths_absolute(const char *path) {
     else
       wd = realloc(wd, wdlen);
     if(wd == NULL)
-      LERROR(EXIT_FAILURE, errno, "malloc() failed");
+      MLCERROR();
     pwd = getcwd(wd, wdlen);
     if(pwd == NULL && errno != ERANGE)
       LERROR(EXIT_FAILURE, errno, "unknown error in getcwd()");
   }
 
-  LERROR(0, 0, "$pwd=%s", pwd);
-
   abspath = realpath(path, NULL);
   if(abspath == NULL)
     LERROR(EXIT_FAILURE, errno, "realpath() failed");
-  LERROR(0,0, "$abspath=%s", abspath);
 
   if(chdir((const char*) dirname(abspath)) != 0) {
     LERROR(0,0, "chdir failed");
@@ -359,8 +362,8 @@ int DB_make_paths_absolute(const char *path) {
     LERROR(EXIT_FAILURE, 0, "in-memory database error: %s",
         kcecodename(kcdbecode(mdb[0])));
   if(!kcdbopen(tdb, kcdbiofile, KCOWRITER | KCOTRUNCATE)) {
-    LERROR(0, 0, "Could not open the database: %s: %s",
-        path, kcecodename(kcdbecode(tdb)));
+    log_failure(path, "opening the database failed: %s",
+        kcecodename(kcdbecode(tdb)));
     ret = DB_EOPEN;
     goto simple_cleanup;
   }
@@ -388,7 +391,7 @@ int DB_make_paths_absolute(const char *path) {
   } while((e = e->next) != NULL);
 
   if(!kcdbmerge(tdb, mdb, 1, KCMSET)) {
-    fprintf(stderr, "merging failed.");
+    log_failure(path, "merging failed");
     ret = DB_EMERGE;
   }
 
