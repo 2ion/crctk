@@ -29,14 +29,14 @@ int command_remove_tag(int argc, char **argv, int optind, int flags) {
     check_access_flags(argv[i], F_OK | R_OK | W_OK, 1);
     str = get_basename((char*)argv[i]);
     if((nstr = strip_tag((const char*) str, crcregex_stripper)) == NULL) {
-      printf("filename does not contain a hexstring: %s\n", argv[i]);
+      log_failure(argv[i], "no hexstring found");
       return EXIT_FAILURE;
     }
     d = (const char*) dirname((char*)argv[i]);
     p = pathcat(d, (const char*)str);
     q = pathcat(d, (const char*)nstr);
     if(rename((const char*) p, (const char*) q) != 0)
-      LERROR(EXIT_FAILURE, errno, "failed call to rename()");
+      LERROR(EXIT_FAILURE, errno, "rename() failed");
     free(p);
     free(q);
     free(nstr);
