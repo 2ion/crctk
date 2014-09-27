@@ -1,4 +1,4 @@
-AC_INIT([crctk], [0.4.10], [dev@2ion.de])
+AC_INIT([crctk], [0.5.0], [dev@2ion.de])
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 
 AC_PROG_CXX
@@ -11,7 +11,6 @@ AC_CONFIG_FILES([Makefile src/Makefile])
 PKG_CHECK_MODULES([ZLIB], [zlib])
 PKG_CHECK_MODULES([KYOTOCABINET], [kyotocabinet])
 PKG_CHECK_MODULES([NCURSESW], [ncursesw])
-PKG_CHECK_MODULES([XDGBASEDIR], [libxdg-basedir])
 
 AH_VERBATIM([_FORTIFY_SOURCE],
 [/* Fortify source in gcc */
