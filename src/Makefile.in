@@ -90,8 +90,7 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_crctk_OBJECTS = crctk-command_store.$(OBJEXT) \
-	crctk-command_calc_batch.$(OBJEXT) \
+am_crctk_OBJECTS = crctk-command_calc_batch.$(OBJEXT) \
 	crctk-command_calc.$(OBJEXT) \
 	crctk-command_check_batch.$(OBJEXT) \
 	crctk-command_check.$(OBJEXT) \
@@ -290,7 +289,7 @@ ncrctk_SOURCES = ncrctk.cc window.cpp localerror.cpp tolower.cpp menu.cpp util.c
 #ncrctk_CFLAGS = $(ZLIB_CFLAGS) $(KYOTOCABINET_CFLAGS)  $(CWDIGET_CFLAGS)
 ncrctk_CXXFLAGS = $(ZLIB_CXXFLAGS) $(KYOTOCABINET_CXXFLAGS) $(NCURSESW_CFLAGS) $(XDGBASEDIR_CFLAGS)
 ncrctk_LDFLAGS = $(ZLIB_LIBS) $(KYOTOCABINET_LIBS) $(NCURSESW_LIBS) $(XDGBASEDIR_LIBS)
-crctk_SOURCES = command_store.c command_calc_batch.c command_calc.c command_check_batch.c command_check.c command_check_hexstring.c command_delete.c command_help.c command_idle.c command_list.c command_merge.c command_remove_tag.c command_tag.c crc.c crctk.c database.c realpath.c util.c command_to_realpaths.c log.c
+crctk_SOURCES = command_calc_batch.c command_calc.c command_check_batch.c command_check.c command_check_hexstring.c command_delete.c command_help.c command_idle.c command_list.c command_merge.c command_remove_tag.c command_tag.c crc.c crctk.c database.c realpath.c util.c command_to_realpaths.c log.c
 crctk_CFLAGS = $(ZLIB_CFLAGS) $(KYOTOCABINET_CFLAGS) $(XDGBASEDIR_CFLAGS)
 crctk_LDFLAGS = $(ZLIB_LIBS) $(KYOTOCABINET_LIBS) $(XDGBASEDIR_LIBS)
 all: all-am
@@ -395,7 +394,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crctk-command_list.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crctk-command_merge.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crctk-command_remove_tag.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crctk-command_store.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crctk-command_tag.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crctk-command_to_realpaths.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crctk-crc.Po@am__quote@
@@ -424,20 +422,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-crctk-command_store.o: command_store.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(crctk_CFLAGS) $(CFLAGS) -MT crctk-command_store.o -MD -MP -MF $(DEPDIR)/crctk-command_store.Tpo -c -o crctk-command_store.o `test -f 'command_store.c' || echo '$(srcdir)/'`command_store.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/crctk-command_store.Tpo $(DEPDIR)/crctk-command_store.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='command_store.c' object='crctk-command_store.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(crctk_CFLAGS) $(CFLAGS) -c -o crctk-command_store.o `test -f 'command_store.c' || echo '$(srcdir)/'`command_store.c
-
-crctk-command_store.obj: command_store.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(crctk_CFLAGS) $(CFLAGS) -MT crctk-command_store.obj -MD -MP -MF $(DEPDIR)/crctk-command_store.Tpo -c -o crctk-command_store.obj `if test -f 'command_store.c'; then $(CYGPATH_W) 'command_store.c'; else $(CYGPATH_W) '$(srcdir)/command_store.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/crctk-command_store.Tpo $(DEPDIR)/crctk-command_store.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='command_store.c' object='crctk-command_store.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(crctk_CFLAGS) $(CFLAGS) -c -o crctk-command_store.obj `if test -f 'command_store.c'; then $(CYGPATH_W) 'command_store.c'; else $(CYGPATH_W) '$(srcdir)/command_store.c'; fi`
 
 crctk-command_calc_batch.o: command_calc_batch.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(crctk_CFLAGS) $(CFLAGS) -MT crctk-command_calc_batch.o -MD -MP -MF $(DEPDIR)/crctk-command_calc_batch.Tpo -c -o crctk-command_calc_batch.o `test -f 'command_calc_batch.c' || echo '$(srcdir)/'`command_calc_batch.c

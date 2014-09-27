@@ -28,7 +28,6 @@
 #include "command_list.h"
 #include "command_merge.h"
 #include "command_remove_tag.h"
-#include "command_store.h"
 #include "command_tag.h"
 #include "command_to_realpaths.h"
 #include "crctk.h"
@@ -66,7 +65,6 @@ static const struct option options_long[] = {
   { "merge", required_argument, NULL, 'm' },
   { "realpath", no_argument, NULL, 'R' },
   { "to-realpath", no_argument, NULL, 'P' },
-  { "store", no_argument, NULL, 'S' },
   { "colors", no_argument, NULL, 'o' },
   { "quiet", no_argument, NULL, 'q' },
   { "verify-hex", required_argument, NULL, 'X' },
@@ -100,11 +98,6 @@ int main(int argc, char **argv) {
       case 'R': cmdflags |= USE_REALPATH;
                 break;
       case 'p': cmd = command_list_db;
-                break;
-      case 'S': cmdflags |= USE_REALPATH;
-                cmdflags |= APPEND_TO_DB;
-                dbiofile = get_capturefilepath();
-                do_free_dbiofile = 1;
                 break;
       case 'V': ASSIGN_OPTARG_IF_NULL(dbiofile, &do_free_dbiofile);
                 cmd = command_check_batch;
