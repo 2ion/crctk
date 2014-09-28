@@ -66,12 +66,21 @@ Print a help text and exit.
 Print an info text containing the compilation date and the program
 version.
 .IP \[bu] 2
-\f[B]\-\-colors\f[]
+\f[B]\-o|\-\-colors\f[]
 .PD 0
 .P
 .PD
 Enable coloured output where available.
 Will mess up pipelines, so be careful.
+.IP \[bu] 2
+\f[B]\-q|\-\-quiet\f[]
+.PD 0
+.P
+.PD
+Suppress all output to \f[B]STDOUT\f[] and \f[B]STDERR\f[].
+However, if the program aborted due to system error (such as a failed
+memory allocation), it will still error out with a debug message.
+In theory, this should never happen of course.
 .SS OPTIONS INVOLVING TAGS
 .IP \[bu] 2
 \f[B]\-v|\-\-verify [\f[I]\-\-\f[]] \f[I]FILE\f[] \f[]
@@ -106,6 +115,17 @@ ignored.
 .P
 .PD
 If \f[I]FILE\f[] is tagged, remove the tag.
+.IP \[bu] 2
+\f[B]\-X|\-\-verify\-hex \f[I]TAG\f[] [\-n|\-\-numerical]
+[\f[I]\-\-\f[]] \f[I]FILE\f[] \f[]
+.PD 0
+.P
+.PD
+Given a CRC32 code \f[I]TAG\f[], check whether \f[I]FILE\f[] has the
+CRC32 code \f[I]TAG\f[].
+\f[I]TAG\f[] is expected to be a hexadecimal number, unless
+\f[B]\-\-numerical\f[] is active, in which case it is expected to be a
+decimal number.
 .SS OPTIONS INVOLVING DATABASES
 .IP \[bu] 2
 \f[B]\-p|\-\-print [\-R|\-\-realpath] \f[I]DB\-FILE\f[] \f[]

@@ -35,13 +35,15 @@ document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'">'+e+'<\/'+'a'+'>');
 <li><p><strong>-e|--tag-regex <em>EXPRESSION</em> </strong><br />Replace the built-in regex used to match tags (see section: <strong>HEXSTRING TAGS</strong>) with <em>EXPRESSION</em>.</p></li>
 <li><p><strong>-h|--help</strong><br />Print a help text and exit.</p></li>
 <li><p><strong>--version</strong><br />Print an info text containing the compilation date and the program version.</p></li>
-<li><p><strong>--colors</strong><br />Enable coloured output where available. Will mess up pipelines, so be careful.</p></li>
+<li><p><strong>-o|--colors</strong><br />Enable coloured output where available. Will mess up pipelines, so be careful.</p></li>
+<li><p><strong>-q|--quiet</strong><br />Suppress all output to <strong>STDOUT</strong> and <strong>STDERR</strong>. However, if the program aborted due to system error (such as a failed memory allocation), it will still error out with a debug message. In theory, this should never happen of course.</p></li>
 </ul>
 <h2 id="options-involving-tags">OPTIONS INVOLVING TAGS</h2>
 <ul>
 <li><p><strong>-v|--verify [<em>--</em>] <em>FILE</em> </strong><br />Verify the integrity of <em>FILE</em> using the tag in its filename.</p></li>
 <li><p><strong>-t|--tag [-s|--strip-tag] [-D|--dot INT] [<em>--</em>] <em>FILE</em> </strong><br />Tag <em>FILE</em> with the hexstring of its CRC32 checksum. Fails if <em>FILE</em> has already been tagged. If <em>-s</em> is present, strip any existing tag before appending the new one. By default, the tag is inserted into the filename in front of the last dot. In the case of multi-part suffixes like .tar.gz, it is desireable to insert the tag in another position. Using the --dot option, the tag will be inserted in front of the INTth dot in the filename. Negative indices are also possible and indicate the INTth-last dot to be used. Zero '0' is a nonsense argument to the option and will be ignored. --dot defaults to -1.</p></li>
 <li><p><strong>-r|--remove-tag [<em>--</em>] <em>FILE</em> </strong><br />If <em>FILE</em> is tagged, remove the tag.</p></li>
+<li><p><strong>-X|--verify-hex <em>TAG</em> [-n|--numerical] [<em>--</em>] <em>FILE</em> </strong><br />Given a CRC32 code <em>TAG</em>, check whether <em>FILE</em> has the CRC32 code <em>TAG</em>. <em>TAG</em> is expected to be a hexadecimal number, unless <strong>--numerical</strong> is active, in which case it is expected to be a decimal number.</p></li>
 </ul>
 <h2 id="options-involving-databases">OPTIONS INVOLVING DATABASES</h2>
 <ul>

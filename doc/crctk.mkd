@@ -58,9 +58,16 @@ from tags to validate a file.
     Print an info text containing the compilation date and the program
     version.
 
-*   __--colors__   
+*   __-o|--colors__   
     Enable coloured output where available. Will mess up pipelines, so
     be careful.
+
+*   __-q|--quiet__  
+    Suppress all output to __STDOUT__ and __STDERR__. However, if the
+    program aborted due to system error (such as a failed memory
+    allocation), it will still error out with a debug message. In
+    theory, this should never happen of course.
+
 
 ## OPTIONS INVOLVING TAGS
 
@@ -80,6 +87,12 @@ from tags to validate a file.
 
 *   __-r|--remove-tag [_--_] _FILE_ __  
     If _FILE_ is tagged, remove the tag.
+
+*   __-X|--verify-hex _TAG_ [-n|--numerical] [_--_] _FILE_ __  
+    Given a CRC32 code _TAG_, check whether _FILE_ has the CRC32 code
+    _TAG_. _TAG_ is expected to be a hexadecimal number, unless
+    __--numerical__ is active, in which case it is expected to be a
+    decimal number.
 
 ## OPTIONS INVOLVING DATABASES
 
