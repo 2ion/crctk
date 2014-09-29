@@ -141,9 +141,9 @@ int main(int argc, char **argv) {
                 cmd = command_delete;
                 break;
       case 'D': dotidx = strtol((const char*)optarg, NULL, 0xA);
-                if(dotidx == LONG_MIN)
+                if(dotidx == LONG_MIN && errno == ERANGE)
                     LERROR(EXIT_FAILURE, errno, "Integer argument to the -D option underflows");
-                if(dotidx == LONG_MAX)
+                if(dotidx == LONG_MAX && errno == ERANGE)
                     LERROR(EXIT_FAILURE, errno, "Integer argument to the -D option overflows");
                 if(dotidx == 0) {
                   LOG_INFO("Argument to --dot, -D is zero which makes no sense: defaulting to -1 instead");
