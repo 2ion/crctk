@@ -24,39 +24,48 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "realpath.h"
-#include "util.h"
-#include "database.h"
-#include "crc.h"
 #include "log.h"
-
 #include "config.h"
 
 /* GLOBALS */
 
+/* regex for extracting tags from filenames */
 extern const char *crcregex;
-extern const char *crcregex_stripper;
+
+/* regex for stripping tags from filenames [CLI] */
+extern const char *crcregex_stripper; 
+
+/* stores CRC32 hexstrings from [CLI] */
 extern const char *hexarg;
+
+/* stores database target filenames [CLI] */
 extern const char *dbiofile;
+
+/* stores the index of the dot in front of which a new tag should be
+ * inserted [CLI] */
 extern int dotidx;
+
+/* stores the flag from --colors [CLI] */
 extern int flag_use_colors;
+
+/* stores the flag from --quiet [CLI] */
 extern int flag_be_quiet;
 
 /* TYPES */
 
-enum {
-  TAG_ALLOW_STRIP                 = 1 << 0,
-  CALC_PRINT_NUMERICAL            = 1 << 1,
-  APPEND_TO_DB                    = 1 << 2,
-  CHECK_BATCH_PREFER_HEXSTRING    = 1 << 3,
-  USE_REALPATH                    = 1 << 4
+enum { /* CLI option flags, XORed into arg #4 of command functions */
+  TAG_ALLOW_STRIP                 = 1 << 0, // -s
+  CALC_PRINT_NUMERICAL            = 1 << 1, // -n
+  APPEND_TO_DB                    = 1 << 2, // -a
+  CHECK_BATCH_PREFER_HEXSTRING    = 1 << 3, // -x
+  USE_REALPATH                    = 1 << 4  // -R
 };
 
 typedef int     // program exit status
 (*CommandFunction)(
         int,    // argc
         char**, // argv
-        int,    // optind
+        int,    // optind (see getopt_long(3))
         int);   // cmdflags bitmask
 
 #endif /* CRCTK_H */

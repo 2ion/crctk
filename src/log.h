@@ -23,7 +23,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+
 #include "crctk.h"
+#include "util.h"
 
 #define ANSI_COLOR_RED        "\x1b[0;31m"
 #define ANSI_COLOR_GREEN      "\x1b[0;32m"
