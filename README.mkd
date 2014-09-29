@@ -88,7 +88,7 @@ sudo make install-strip
 ## Releases
 
 Stable releases are tagged in Git. The last stable release is [version
-0.4.10](https://github.com/2ion/crctk/releases/tag/0.4.9). 
+0.5.0](https://github.com/2ion/crctk/releases/tag/0.5.0). 
 
 In the additon to the CLI binary crctk, a ncurses-based interface is
 also in the workings. Its binary is named ncrctk and getting installed
