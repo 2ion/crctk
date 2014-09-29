@@ -134,3 +134,47 @@ from tags to validate a file.
 *   __-P|--to-realpath [_--_] _DB-FILE-LIST_ __    
     Convert all paths in the given databases into absolute paths if
     possible. For this to work, any relative paths must still be valid.
+
+# EXAMPLES
+
+No manual be complete without examples. 
+
+Given a file _archive.tar_, calculate its CRC32:
+
+> crctk -c _archive.tar_
+
+Affix a CRC32 tag to the filename, renaming the file to
+_archive[AABBCC99].tar_:
+
+> crctk -t _archive.tar_
+
+Check whether _archive[AABBCC99].tar_ matches the CRC32 sum __AACCBB99__
+(it doesn't):
+
+> crctk -X 0xaaccbb99 _archive[AABBCC99].tar_
+
+Verify whether the CRC32 code in the filename matches the file:
+
+> crctk -v  _archive[AABBCC99].tar_
+
+Record the paths and CRC32 codes of two files in a database:
+
+> crctk -C db.crctk _file1.bin_ _file2.bin_
+
+Verify whether all files in the database still match the recorded CRC32
+code:
+
+> crctk -V db.crctk
+
+Check whether a file is recorded in the database and if yes, whether its
+CRC32 code matches the recorded one:
+
+> crctk -V db.crctk _file2.bin_
+
+Create a database but if the files do already have CRC32 codes recorded
+in their filenames, use these in the database record instead of calculating the CRC32 codes
+again. Don't truncate but append to an existing database.
+
+> crctk -axC db.crctk _file3[aaccbbee].bin_
+
+

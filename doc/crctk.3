@@ -199,5 +199,63 @@ if it exists.
 Convert all paths in the given databases into absolute paths if
 possible.
 For this to work, any relative paths must still be valid.
+.SH EXAMPLES
+.PP
+No manual be complete without examples.
+.PP
+Given a file \f[I]archive.tar\f[], calculate its CRC32:
+.RS
+.PP
+crctk \-c \f[I]archive.tar\f[]
+.RE
+.PP
+Affix a CRC32 tag to the filename, renaming the file to
+\f[I]archive[AABBCC99].tar\f[]:
+.RS
+.PP
+crctk \-t \f[I]archive.tar\f[]
+.RE
+.PP
+Check whether \f[I]archive[AABBCC99].tar\f[] matches the CRC32 sum
+\f[B]AACCBB99\f[] (it doesn\[aq]t):
+.RS
+.PP
+crctk \-X 0xaaccbb99 \f[I]archive[AABBCC99].tar\f[]
+.RE
+.PP
+Verify whether the CRC32 code in the filename matches the file:
+.RS
+.PP
+crctk \-v \f[I]archive[AABBCC99].tar\f[]
+.RE
+.PP
+Record the paths and CRC32 codes of two files in a database:
+.RS
+.PP
+crctk \-C db.crctk \f[I]file1.bin\f[] \f[I]file2.bin\f[]
+.RE
+.PP
+Verify whether all files in the database still match the recorded CRC32
+code:
+.RS
+.PP
+crctk \-V db.crctk
+.RE
+.PP
+Check whether a file is recorded in the database and if yes, whether its
+CRC32 code matches the recorded one:
+.RS
+.PP
+crctk \-V db.crctk \f[I]file2.bin\f[]
+.RE
+.PP
+Create a database but if the files do already have CRC32 codes recorded
+in their filenames, use these in the database record instead of
+calculating the CRC32 codes again.
+Don\[aq]t truncate but append to an existing database:
+.RS
+.PP
+crctk \-axC db.crctk \f[I]file3[aaccbbee].bin\f[]
+.RE
 .SH AUTHORS
 Jens Oliver John <dev@2ion.de>.

@@ -54,5 +54,39 @@ document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'">'+e+'<\/'+'a'+'>');
 <li><p><strong>-d|--delete <em>DB-FILE</em> [<em>--</em>] <em>FILE-LIST</em> </strong><br />Delete every <em>FILE</em> in <em>FILE-LIST</em> from <em>DB-FILE</em> if it exists.</p></li>
 <li><p><strong>-P|--to-realpath [<em>--</em>] <em>DB-FILE-LIST</em> </strong><br />Convert all paths in the given databases into absolute paths if possible. For this to work, any relative paths must still be valid.</p></li>
 </ul>
+<h1 id="examples">EXAMPLES</h1>
+<p>No manual be complete without examples.</p>
+<p>Given a file <em>archive.tar</em>, calculate its CRC32:</p>
+<blockquote>
+<p>crctk -c <em>archive.tar</em></p>
+</blockquote>
+<p>Affix a CRC32 tag to the filename, renaming the file to <em>archive[AABBCC99].tar</em>:</p>
+<blockquote>
+<p>crctk -t <em>archive.tar</em></p>
+</blockquote>
+<p>Check whether <em>archive[AABBCC99].tar</em> matches the CRC32 sum <strong>AACCBB99</strong> (it doesn't):</p>
+<blockquote>
+<p>crctk -X 0xaaccbb99 <em>archive[AABBCC99].tar</em></p>
+</blockquote>
+<p>Verify whether the CRC32 code in the filename matches the file:</p>
+<blockquote>
+<p>crctk -v <em>archive[AABBCC99].tar</em></p>
+</blockquote>
+<p>Record the paths and CRC32 codes of two files in a database:</p>
+<blockquote>
+<p>crctk -C db.crctk <em>file1.bin</em> <em>file2.bin</em></p>
+</blockquote>
+<p>Verify whether all files in the database still match the recorded CRC32 code:</p>
+<blockquote>
+<p>crctk -V db.crctk</p>
+</blockquote>
+<p>Check whether a file is recorded in the database and if yes, whether its CRC32 code matches the recorded one:</p>
+<blockquote>
+<p>crctk -V db.crctk <em>file2.bin</em></p>
+</blockquote>
+<p>Create a database but if the files do already have CRC32 codes recorded in their filenames, use these in the database record instead of calculating the CRC32 codes again. Don't truncate but append to an existing database:</p>
+<blockquote>
+<p>crctk -axC db.crctk <em>file3[aaccbbee].bin</em></p>
+</blockquote>
 </body>
 </html>
