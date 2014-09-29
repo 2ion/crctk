@@ -37,6 +37,11 @@
 #include "crctk.h"
 #include "util.h"
 
+inline static void free_if_flagged(void *p, int *flag) {
+  if(*flag == 1)
+    free(p);
+}
+
 /* from crctk.h */
 
 const char *crcregex = "[[:xdigit:]]\\{8\\}";
@@ -174,12 +179,9 @@ int main(int argc, char **argv) {
 
   ret = cmd(argc, argv, optind, cmdflags);
 
-  if(do_free_dbiofile == 1)
-    free((void*)dbiofile);
-  if(do_free_hexarg == 1)
-    free((void*)hexarg);
-  if(do_free_crcregexstripper == 1)
-    free((void*)crcregex_stripper);
+  free_if_flagged((void*)dbiofile, &do_free_dbiofile);
+  free_if_flagged((void*)hexarg, &do_free_hexarg);
+  free_if_flagged((void*)crcregex_stripper, &do_free_crcregexstripper);
 
   return ret;
 }
