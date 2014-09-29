@@ -17,6 +17,10 @@
  *
  * */
 
+#include <getopt.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "command_calc.h"
 #include "command_calc_batch.h"
 #include "command_check.h"
@@ -128,8 +132,8 @@ int main(int argc, char **argv) {
                 do_free_dbiofile = 1;
                 cmd = command_merge;
                 break;
-      case 'J': printf("crctk version: %s\n", PACKAGE_VERSION);
-                printf("Compiled on: %s %s\n", __DATE__, __TIME__);
+      case 'J': puts("crctk version: " PACKAGE_VERSION);
+                puts("Compiled on: " __DATE__ " " __TIME__);
                 return EXIT_SUCCESS;
                 break;
       case 'd': dbiofile = strdup(optarg);
@@ -159,8 +163,8 @@ int main(int argc, char **argv) {
       cmd != command_check_batch &&
       cmd != command_list_db && 
       cmd != command_help) {
-    fprintf(stderr, "Too few arguments. Use the -h flag to "
-          "obtain usage information.\n");
+    log_failure("crctk", "Too few arguments. Consult --help "
+          "for usage information.");
     return EXIT_FAILURE;
   }
 
