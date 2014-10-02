@@ -41,13 +41,10 @@
 #define ANSI_COLOR_CYANB      "\x1b[1;36m"
 #define ANSI_COLOR_RESET      "\x1b[0m"
 #define IFCOLORS(str)         (flag_use_colors==1?(str):("")) 
-#define CLOG(format, ...)     LOG((__func__), format, ##__VA_ARGS__)
 #define LOG_INFO(msg, ...)    log_info((__func__), msg, ##__VA_ARGS__)
 #define LOG_FAILURE(msg, ...) log_failure((__func__), msg, ##__VA_ARGS__)
 #define LOG_SUCCESS(msg, ...) log_success((__func__), msg, ##__VA_ARGS__)
 
-int LOG(FILE *file, const char *color, const char *module,
-    const char *format, va_list ap);
 int log_info(const char *module, const char *format, ...);
 int log_failure(const char *module, const char *format, ...);
 int log_success(const char *module, const char *format, ...);

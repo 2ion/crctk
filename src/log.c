@@ -21,7 +21,7 @@
 
 static char LOG_FUNC_BUFFER[256];
 
-int LOG(FILE *file, const char *color, const char *module, const char *format, va_list ap) {
+static int LOG(FILE *file, const char *color, const char *module, const char *format, va_list ap) {
   va_list arg;
   int done;
   int msize;
