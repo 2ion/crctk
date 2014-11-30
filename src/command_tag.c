@@ -62,7 +62,7 @@ int command_tag(int argc, char **argv, int optind, int flags) {
       } else {
         log_failure(filename,
             "Tag already present, use --strip-tag to replace it");
-        return EXIT_FAILURE;
+        continue;
       }
     }
     if(workstring == NULL)

@@ -22,16 +22,14 @@
 static char LOG_FUNC_BUFFER[256];
 
 static int LOG(FILE *file, const char *color, const char *module, const char *format, va_list ap) {
-  va_list arg;
-  int done;
-  int msize;
+  int done, msize;
   char *fmt = LOG_FUNC_BUFFER;
 
   msize = snprintf(NULL, 0, "[%s%s%s] %s\n\n", IFCOLORS(color),
       module, IFCOLORS(ANSI_COLOR_RESET), format);
   if(msize > sizeof(LOG_FUNC_BUFFER)
       && (fmt = malloc(msize)) == NULL)
-      LERROR(EXIT_FAILURE, errno, "malloc() failed");
+      MLCERROR();
   snprintf(fmt, msize, "[%s%s%s] %s\n\n", IFCOLORS(color),
       module, IFCOLORS(ANSI_COLOR_RESET), format);
 
