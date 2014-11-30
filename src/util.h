@@ -34,6 +34,7 @@
 
 #include "database.h"
 #include "crctk.h"
+#include "log.h"
 
 #define LERROR(status, errnum, ...) error_at_line((status), (errnum), \
         (__func__), (__LINE__), __VA_ARGS__)

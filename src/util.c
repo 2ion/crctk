@@ -23,8 +23,11 @@ void check_access_flags(const char *path, int access_flags,
     int notdir) {
     struct stat stbuf;
 
-    if(access(path, access_flags) != 0)
-        LERROR(EXIT_FAILURE, errno, "%s", path);
+    if(access(path, access_flags) != 0) {
+        log_failure(path, "%s", strerror(errno));
+        exit(EXIT_FAILURE);
+    } 
+
     if(notdir == 1) {
         if(stat(path, &stbuf) != 0)
             LERROR(EXIT_FAILURE, errno, "%s", path);
