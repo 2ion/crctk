@@ -37,7 +37,7 @@
 #include "crctk.h"
 #include "util.h"
 
-inline static void free_if_flagged(void *p, int *flag) {
+static void free_if_flagged(void *p, int *flag) {
   if(*flag == 1)
     free(p);
 }
