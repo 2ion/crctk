@@ -30,14 +30,14 @@ int command_tag(int argc, char **argv, int optind, int flags) {
   char *r = NULL;
   char **dots = NULL;
   int i = 0;
-  int z = 0;
+  int z = optind-1;
   int f_free_workstring = 0;
   regex_t regex;
   uint32_t crcsum;
 
   compile_regex(&regex, crcregex, REG_ICASE | REG_NOSUB);
 
-  for(z = optind; z < argc; ++z) {
+  while(argv[++z]) {
     i = 0;
     f_free_workstring = 0;
     crcsum = 0;
@@ -73,7 +73,7 @@ int command_tag(int argc, char **argv, int optind, int flags) {
       goto continue_with_next;
     }
     sprintf(tagstr, "[%08X]", crcsum);
-    newstring = malloc((strlen(workstring) + 11)*sizeof(char));
+    newstring = malloc((strlen(workstring) + 0xc)*sizeof(char));
 
     if((p = strstr(workstring, ".")) != NULL) {
       // has suffix: insert tag in front of the dot indicated by $dotidx
@@ -128,7 +128,7 @@ continue_with_next:
       free(dots);
     if(f_free_workstring == 1)
       free(workstring);
-  } // for z
+  } // while z
   regfree(&regex);
   return EXIT_SUCCESS;
 }
