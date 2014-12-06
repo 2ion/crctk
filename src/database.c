@@ -295,15 +295,12 @@ void DB_item_free(struct DBItem *dbi) {
 }
 
 char* DB_getkcdbiofile(const char *path) {
-  char *rp = realpath(path, NULL);
-  if(rp == NULL)
-    LERROR(EXIT_FAILURE, errno, "realpath() failed");
-  char *s = malloc(sizeof(char)*(strlen(rp)
+  char *s = malloc(sizeof(char)*(strlen(path)
         + 2
         + strlen(CRCTK_DB_TUNINGSUFFIX)));
   if(s == NULL)
     MLCERROR();
-  memcpy(s, rp, sizeof(char)*(strlen(rp)+1));
+  memcpy(s, path, sizeof(char)*(strlen(path)+1));
   return strcat(s, CRCTK_DB_TUNINGSUFFIX);
 }
 
