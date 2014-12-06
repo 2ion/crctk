@@ -127,8 +127,8 @@ char (*get_tag(char *str, const char *crcregex))[9] {
 
   if(tag_pos(crcregex, str, &p, &q) != 0)
     return NULL;
-  r = malloc(sizeof *r);
-  assert(r != NULL);
+  if((r = malloc(sizeof *r)) == NULL)
+    MLCERROR();
   strncpy(*r, (const char*)p, 8);
   *r[8] = '\0';
   return r;

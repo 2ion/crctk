@@ -1,2 +1,4 @@
 - see that -x is handled correctly in all command modules
 - log.c: allow split log messages to indicate progress
+- FIXME: first entry in database is corrupted if used with -Cx, but not
+  with -axC
