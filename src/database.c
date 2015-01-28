@@ -325,8 +325,7 @@ int DB_make_paths_absolute(const char *path) {
   char *wd = NULL;
   char *abspath = NULL;
   KCDB *tdb = kcdbnew();
-  KCDB *mdb[1];
-  mdb[0] = kcdbnew();
+  KCDB *mdb[1] = { kcdbnew() };
 
   if(DB_read(path, &dbi) != 0)
     return -1;

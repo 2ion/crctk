@@ -24,7 +24,7 @@ int command_check_batch_from_argv(int argc, char **argv,
   int i;
   uint32_t dbcrc;
   uint32_t othercrc;
-  char *X;
+  char (*X)[9];
   struct DBFinder dbf;
 
   if(DB_find_open(dbiofile, &dbf) != 0) {
