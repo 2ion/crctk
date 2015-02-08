@@ -87,7 +87,7 @@ char* get_basename(char *path) {
 char* pathcat(const char *p, const char *s) {
   char *r;
 
-  r = calloc(strlen(p) + strlen(s) + 2, sizeof(char));
+  r = calloc(strlen(p) + strlen(s) + 2, 1);
   if(r == NULL)
     MLCERROR();
   strcat(r, p);
@@ -109,7 +109,7 @@ char* strip_tag(const char *str, const char *crcregex_stripper) {
     regfree(&regex);
     return NULL;
   }
-  rstr = malloc((strlen(str)+1-(rm.rm_eo - rm.rm_so)) * sizeof(char));
+  rstr = malloc((strlen(str)+1-(rm.rm_eo - rm.rm_so)));
   if(rstr == NULL)
     MLCERROR();
   for(p = str, q = &str[rm.rm_so], i=0; p < q; ++p)

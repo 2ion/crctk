@@ -133,7 +133,7 @@ int DB_find_get(struct DBFinder *dbf, const char *key, uint32_t *crcbuf) {
   char *v;
   size_t vs;
   kccurjump(dbf->cur);
-  if(!kccurjumpkey(dbf->cur, key, sizeof(char)*(strlen(key)+1))) {
+  if(!kccurjumpkey(dbf->cur, key, strlen(key)+1)) {
     *crcbuf = 0;
     return -1;
   } 
@@ -157,7 +157,7 @@ int DB_find_remove(struct DBFinder *dbf, const char *key) {
   assert(key != NULL);
   kccurjump(dbf->cur);
 
-  if(!kccurjumpkey(dbf->cur, key, sizeof(char)*(strlen(key)+1)))
+  if(!kccurjumpkey(dbf->cur, key, strlen(key)+1))
     return -1;
   if(!kccurremove(dbf->cur))
     return -2;
@@ -295,12 +295,12 @@ void DB_item_free(struct DBItem *dbi) {
 }
 
 char* DB_getkcdbiofile(const char *path) {
-  char *s = malloc(sizeof(char)*(strlen(path)
+  char *s = malloc(strlen(path)
         + 2
-        + strlen(CRCTK_DB_TUNINGSUFFIX)));
+        + strlen(CRCTK_DB_TUNINGSUFFIX));
   if(s == NULL)
     MLCERROR();
-  memcpy(s, path, sizeof(char)*(strlen(path)+1));
+  memcpy(s, path, strlen(path)+1);
   return strcat(s, CRCTK_DB_TUNINGSUFFIX);
 }
 

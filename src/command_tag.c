@@ -73,7 +73,7 @@ int command_tag(int argc, char **argv, int optind, int flags) {
       goto continue_with_next;
     }
     sprintf(tagstr, "[%08X]", crcsum);
-    newstring = malloc((strlen(workstring) + 0xc)*sizeof(char));
+    newstring = malloc(strlen(workstring) + 0xC);
 
     if((p = strstr(workstring, ".")) != NULL) {
       // has suffix: insert tag in front of the dot indicated by $dotidx
@@ -83,7 +83,7 @@ int command_tag(int argc, char **argv, int optind, int flags) {
       q = workstring;
       while(*q++);
       for(p=workstring, i=0; p != q; p++)
-        if(*p=='.'){
+        if(*p=='.') {
           dots[i++] = p;
         }
       if(dotidx < 0) {
