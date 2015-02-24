@@ -19,23 +19,23 @@
 
 #include "util.h"
 
-void check_access_flags(const char *path, int access_flags,
-    int notdir) {
-    struct stat stbuf;
+void check_access_flags(const char *path, int access_flags, int notdir) {
+  struct stat stbuf;
 
-    if(access(path, access_flags) != 0) {
-        log_failure(path, "%s", strerror(errno));
+  if(access(path, access_flags) != 0) {
+    log_failure(path, "%s", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+
+  if(notdir == 1) {
+    /* bad error */
+    if(stat(path, &stbuf) != 0)
+        LERROR(EXIT_FAILURE, errno, "%s", path);
+
+    if(S_ISDIR(stbuf.st_mode))
+        log_failure(path, "is a directory");
         exit(EXIT_FAILURE);
-    } 
-
-    if(notdir == 1) {
-        if(stat(path, &stbuf) != 0)
-            LERROR(EXIT_FAILURE, errno, "%s", path);
-        else
-            if(S_ISDIR(stbuf.st_mode))
-                LERROR(EXIT_FAILURE, 0, "%s is a directory.",
-                    path);
-    }
+  }
 }
 
 int check_access_flags_v(const char *path, int access_flags,
