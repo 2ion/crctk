@@ -58,20 +58,19 @@ int check_access_flags_v(const char *path, int access_flags, int notadir) {
 
 void compile_regex(regex_t *regex, const char *regexpr, int cflags) {
     int ci;
-    char *regex_errbuf = NULL;
+    char *regex_errbuf;
     size_t regex_errbuf_size;
 
     if(regex == NULL || regexpr == NULL)
-        LERROR(EXIT_FAILURE, 0,
-                "received at least one NULL argument.");
+        LERROR(EXIT_FAILURE, 0, "received at least one NULL argument.");
+
     if((ci = regcomp(regex, regexpr, cflags)) != 0) {
         regex_errbuf_size = regerror(ci, regex, NULL, 0);
-        regex_errbuf = malloc(regex_errbuf_size);
+
+        if((regex_errbuf = malloc(regex_errbuf_size)) == NULL)
+          MLCERROR();
+
         regerror(ci, regex, regex_errbuf, regex_errbuf_size);
-        if(regex_errbuf == NULL)
-            LERROR(EXIT_FAILURE, 0,
-                    "regex error: failed to allocate memory "
-                    "for the regex error message.");
         LERROR(EXIT_FAILURE, 0, "%s", regex_errbuf);
     }
 }
