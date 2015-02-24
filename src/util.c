@@ -97,26 +97,31 @@ char* pathcat(const char *p, const char *s) {
 }
 
 char* strip_tag(const char *str, const char *crcregex_stripper) {
+  char *rstr;
+  const char *p, *q;
+  int i;
   regex_t regex;
   regmatch_t rm;
-  const char *p, *q;
-  char *rstr;
-  int i;
   
   compile_regex(&regex, crcregex_stripper, REG_ICASE);
+
   if(regexec(&regex, str, 1, &rm, 0) == REG_NOMATCH) {
-    // no tag in filename
+    /* no tag in filename */
     regfree(&regex);
     return NULL;
   }
-  rstr = malloc((strlen(str)+1-(rm.rm_eo - rm.rm_so)));
-  if(rstr == NULL)
+
+  if((rstr = malloc((strlen(str)+1-(rm.rm_eo - rm.rm_so)))) == NULL)
     MLCERROR();
+
   for(p = str, q = &str[rm.rm_so], i=0; p < q; ++p)
     rstr[i++] = *p;
+
   for(p = &str[rm.rm_eo]; *p; ++p)
     rstr[i++] = *p;
+
   rstr[i] = '\0';
+
   return rstr;
 }
 
