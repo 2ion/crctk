@@ -87,12 +87,13 @@ char* get_basename(char *path) {
 char* pathcat(const char *p, const char *s) {
   char *r;
 
-  r = calloc(strlen(p) + strlen(s) + 2, 1);
-  if(r == NULL)
+  if((r = calloc(strlen(p) + strlen(s) + 2, 1)) == NULL)
     MLCERROR();
+
   strcat(r, p);
   strcat(r, "/");
   strcat(r, s);
+
   return r;
 }
 
@@ -132,10 +133,13 @@ char (*get_tag(char *str, const char *crcregex))[9] {
 
   if(tag_pos(crcregex, str, &p, &q) != 0)
     return NULL;
+
   if((r = malloc(sizeof *r)) == NULL)
     MLCERROR();
+
   strncpy(*r, (const char*)p, 8);
   *r[8] = '\0';
+
   return r;
 }
 
@@ -145,21 +149,28 @@ int tag_pos(const char *crcregex, char *str, char **p, char **q) {
   regmatch_t rm;
 
   compile_regex(&regex, crcregex, REG_ICASE);
+
   if(regexec(&regex, str, 1, &rm, 0) == REG_NOMATCH) {
     regfree(&regex);
     return -1;
   }
+
   *p = &str[rm.rm_so];
   *q = &str[rm.rm_eo]-1;
+
   regfree(&regex);
+
   return 0;
 }
 
 char* get_realpath(const char *path, int *do_free_flag) {
   char *p = realpath((const char*)path, NULL);
+
   if(p == NULL)
     LERROR(EXIT_FAILURE, errno, "memory allocation error in realpath()");
+
   *do_free_flag = 1;
+
   return p;
 }
 
