@@ -151,7 +151,7 @@ int main(int argc, char **argv) {
                 if(dotidx == LONG_MAX && errno == ERANGE)
                     LERROR(EXIT_FAILURE, errno, "Integer argument to the -D option overflows");
                 if(dotidx == 0) {
-                  LOG_INFO("Argument to --dot, -D is zero which makes no sense: defaulting to -1 instead");
+                  log_info(argv[0], "Argument to --dot, -D is zero which makes no sense: defaulting to -1 instead");
                   dotidx = -1;
                 }
                 break;
