@@ -20,19 +20,21 @@
 #include "command_check.h"
 
 int command_check(int argc, char **argv, int optind, int flags) {
-  const char *filename = argv[argc-1];
+  int ret = EXIT_SUCCESS;
   int i = optind-1;
-  int  ci, ti;                        
-  uint32_t compcrc;              
-  uint32_t matchcrc;             
-  char *string;                       
-  char results[9];                    
-  regmatch_t rmatch;                  
-  regex_t regex;                      
+  int  ci, ti;
+  uint32_t compcrc, matchcrc;
+  char *string;
+  char results[9];
+  regmatch_t rmatch;
+  regex_t regex;
 
   while(argv[++i]) {
-    check_access_flags(filename, F_OK | R_OK, 1);
-    string = get_basename((char*)filename);
+    if(check_access_flags_v(argv[i], F_OK | R_OK, 1) != 0) {
+      log_info(argv[i], "Inaccessbile file, skipping.");
+      continue;
+    }
+    string = get_basename((char*)argv[i]);
     compile_regex(&regex, crcregex, REG_ICASE);
     switch(regexec((const regex_t*) &regex, string, 1, &rmatch, 0)) {
       case 0:
@@ -41,21 +43,21 @@ int command_check(int argc, char **argv, int optind, int flags) {
         results[ti] = '\0';
         break;
       case REG_NOMATCH:
-        log_failure(filename, "filename does not contain a hexstring");
-        return EXIT_FAILURE; // Not reached
+        log_info(argv[i], "Does not contain a hexstring, ignoring.");
+        continue;
     }
     regfree(&regex);
-    compcrc = compute_crc32(filename);
+    compcrc = compute_crc32(argv[i]);
     matchcrc = (uint32_t) strtol(results, NULL, 16);
-    if(compcrc != matchcrc) {
-      log_failure(filename, "mismatch: %08X is really %08X",
-          matchcrc, compcrc);
-      return EXIT_FAILURE;
-    } else {
-      log_success(filename, "OK");
-      return EXIT_SUCCESS;
+    if(compcrc == matchcrc)
+      log_success(argv[i], "OK");
+    else {
+      log_failure(argv[i], "Mismatch: %08X is really %08X", matchcrc, compcrc);
+      ret = EXIT_FAILURE;
     }
-  }
+  } /* while */
+
+  return ret;
 }
 
 
