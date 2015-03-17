@@ -1,4 +1,4 @@
-AC_INIT([crctk], [0.5.1], [dev@2ion.de])
+AC_INIT([crctk], [0.5.2], [dev@2ion.de])
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 
 AC_PROG_CXX
