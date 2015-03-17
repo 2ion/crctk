@@ -88,9 +88,11 @@ skip_crc_computation:
     }
   } // for
 
+  if(first.kbuf == NULL)
+    return EXIT_SUCCESS; /* nothing to do */
+
   if(DB_write(dbiofile, &first, do_truncate) != 0) {
-    LERROR(0,0, "Failed to write the database file: %s",
-        dbiofile);
+    LERROR(0,0, "Failed to write the database file: %s", dbiofile);
     return EXIT_FAILURE;
   }
 
