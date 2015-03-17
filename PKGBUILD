@@ -1,6 +1,6 @@
 # Maintainer: 2ion <dev@2ion.de>
 pkgname=crctk-git
-pkgver=0.5.1.r8.g1a46d56
+pkgver=0.5.1.r9.g6d8ead4
 pkgrel=1
 pkgdesc="Toolkit for working with CRC32 checksums from the command line"
 arch=('i686' 'x86_64')
