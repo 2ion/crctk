@@ -68,15 +68,14 @@ skip_crc_computation:
       e->next = DB_item_alloc();
       e->next->prev = e;
       e = e->next;
-      e->next = NULL;
     }
+    e->next = NULL;
     e->kbuflen = (strlen(filename) +1)*sizeof(char);
     e->kbuf = malloc(e->kbuflen);
     if(e->kbuf==NULL) LERROR(0, EXIT_FAILURE, "memory allocation error");
     memcpy(e->kbuf, filename, e->kbuflen);
     e->crc = crc;
     if(at_first == 1) at_first = 0;
-    e->next = NULL;
     if(X != NULL) { // free memory allocated by get_tag()
       free(X);
       X = NULL;
